@@ -1,6 +1,6 @@
-#include "parse.h"
+include "parse.h"
 #include <gtest/gtest.h>
-#include <vector>
+#include <vector>#
 
 TEST(validArguments, wrongCommand) {
     EXPECT_EQ(validParseForAdd("addd newFile aabbbddd"), false);
