@@ -1,6 +1,7 @@
 #ifndef PARSE_H
 #define PARSE_H
 #include <vector>
+#include <iostream>
 
 bool validParseForAdd(std::string input);
 

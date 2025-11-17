@@ -23,7 +23,7 @@ TEST(validArguments, validCases) {
 }
 
 TEST(parseArguments, edgeCase) {
-    EXPECT_EQ(RLEcompress(""), false);
+    EXPECT_EQ(validParseForAdd(""), false);
 }
 
 TEST(parseArguments, validCases) {
@@ -32,10 +32,10 @@ TEST(parseArguments, validCases) {
     std::vector<std::string> test3 = {"newFile", "jklrsgdioh89032890gkln"};
     std::vector<std::string> test4 = {"newFile", "aabbbddd cccccdddaaa"};
 
-    EXPECT_EQ(validParseForAdd("add newFile aabbbddd"), test1);
-    EXPECT_EQ(validParseForAdd("add output aabbbddd%^&*%^a"), test2);
-    EXPECT_EQ(validParseForAdd("add newFile jklrsgdioh89032890gkln"), test3);
-    EXPECT_EQ(validParseForAdd("add newFile aabbbddd cccccdddaaa"), test4);
+    EXPECT_EQ(parseAddCommand("add newFile aabbbddd"), test1);
+    EXPECT_EQ(parseAddCommand("add output aabbbddd%^&*%^a"), test2);
+    EXPECT_EQ(parseAddCommand("add newFile jklrsgdioh89032890gkln"), test3);
+    EXPECT_EQ(parseAddCommand("add newFile aabbbddd cccccdddaaa"), test4);
 }
 
 
