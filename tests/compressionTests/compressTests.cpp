@@ -1,4 +1,4 @@
-#include "compress.h"
+#include "../../src/Headers/compress.h"
 #include <gtest/gtest.h>
 
 
