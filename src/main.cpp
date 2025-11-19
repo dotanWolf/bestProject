@@ -9,10 +9,9 @@
 using namespace std;
 
 int main() {
-    string userInput;
+    string userInput ;
     // wait for user input
-    cin >> userInput;
-
+    getline(cin, userInput);
     // check if its format is add [file name] [text]
     if (validParseForAdd(userInput)) {
         // if so extract the file name and text
@@ -21,8 +20,9 @@ int main() {
         string text = vector[1];
 
         const char* env_var_path = getenv(ENV_VAR);
-
+        // cout << env_var_path;
         if (createFileInRleDir(fileName)) {
+            cout << "created succsfully\n";
             // the file was created successfully, compress the text and write it in the file
             string fullPath = string(env_var_path) + "/" + fileName;
             insertTextToFile(RLEcompress(text), fullPath);
