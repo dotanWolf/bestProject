@@ -13,7 +13,7 @@ RUN mkdir -p /rle_test_dir
 ENV RLE_DIR=/rle_test_dir
 
 # Copy the ENTIRE project into the container
-COPY ../.. /usr/src/myproject
+COPY . /usr/src/myproject
 WORKDIR /usr/src/myproject/tests/fileCreationTests/build
 
 RUN mkdir -p build

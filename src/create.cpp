@@ -2,6 +2,7 @@
 #include <cstdlib> 
 #include <filesystem>  
 #include <fstream>  
+#include <iostream>
 namespace fs = std::filesystem;
 
 bool createFileInRleDir(const std::string& fileName){
@@ -9,7 +10,7 @@ bool createFileInRleDir(const std::string& fileName){
     if (!env) {
         return false;  
     }
-
+    
     fs::path dirPath(env);
     fs::path fullPath = dirPath / fileName;
 
