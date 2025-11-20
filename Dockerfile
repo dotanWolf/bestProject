@@ -4,18 +4,17 @@
 # then run it using docker run -it -v C:/Users/user/Documents/dotan/AdvancedProgramming/project/bestProject:/app/data app
 
 FROM gcc:latest
-
-WORKDIR /app
+RUN apt-get update && apt-get install -y cmake
 
 # create the enviornment variable with the path
-
 ENV RLE_DIR=/app/data
 
 # Copy all source files including headers
-COPY src/ src/
-
-# Compile
-RUN g++ -std=c++17 src/*.cpp -Isrc/Headers -o app
+COPY . /usr/src/Project
+WORKDIR . /usr/src/Project
+RUN mkdir build
+WORKDIR /usr/src/Project/build
+RUN cmake .. && make
 
 CMD ["./app"]
 
