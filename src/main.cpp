@@ -2,7 +2,7 @@
 #include "parse.h"
 #include "compress.h"
 #include "create.h"
-#include "saving.h"
+#include "save.h"
 #include <cstdlib>
 #include <vector>
 
@@ -22,7 +22,7 @@ int main() {
         const char* env_var_path = getenv(ENV_VAR);
         // cout << env_var_path;
         if (createFileInRleDir(fileName)) {
-            cout << "created succsfully\n";
+            //cout << "created succsfully\n";
             // the file was created successfully, compress the text and write it in the file
             string fullPath = string(env_var_path) + "/" + fileName;
             insertTextToFile(RLEcompress(text), fullPath);
