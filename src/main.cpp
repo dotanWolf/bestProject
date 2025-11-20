@@ -27,5 +27,7 @@ int main() {
             string fullPath = string(env_var_path) + "/" + fileName;
             insertTextToFile(RLEcompress(text), fullPath);
         }
+        return 1;
     }
+    return 0;
 }
