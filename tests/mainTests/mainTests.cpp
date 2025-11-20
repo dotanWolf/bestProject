@@ -1,3 +1,4 @@
+#include <gtest/gtest.h>
 #include <iostream>
 #include "parse.h"
 #include "compress.h"
@@ -5,14 +6,9 @@
 #include "save.h"
 #include <cstdlib>
 #include <vector>
-
 using namespace std;
 
-int main() {
-    string userInput ;
-    // wait for user input
-    getline(cin, userInput);
-    // check if its format is add [file name] [text]
+static int helpChecker(std:: string userInput) {
     if (validParseForAdd(userInput)) {
         // if so extract the file name and text
         vector<string> vector = parseAddCommand(userInput);
@@ -30,4 +26,15 @@ int main() {
         return 1;
     }
     return 0;
+}
+TEST(testForAll, validArguemts){
+     EXPECT_EQ(helpChecker("add file test"), 1);
+     EXPECT_EQ(helpChecker("addd file test"), 0);
+}
+
+
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
