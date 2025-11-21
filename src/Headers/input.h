@@ -6,5 +6,5 @@
 #include <string>
 // Function used for reciving input. This abstraction allows changing the input destination in future exercises.
 // function recieves an input stream and outputs a string from that stream until the '\n' character
- std::string getInputFromStream(istream& is) {
+ std::string getInputFromStream(std::istream& is);
 #endif
