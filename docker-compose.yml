@@ -5,10 +5,10 @@ services:
     build:
       context: .
       dockerfile: /tests/compressionTests/Dockerfile
-  main-tests:
+  addcommand-tests:
     build:
       context: .
-      dockerfile: /tests/mainTests/Dockerfile
+      dockerfile: /tests/addCommandTests/Dockerfile
   parsing:
     build:
       context: .
