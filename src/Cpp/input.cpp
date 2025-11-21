@@ -1,0 +1,1 @@
+// Function used for reciving output. This abstraction allows changing the input destination in future exercises.
