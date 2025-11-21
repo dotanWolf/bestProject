@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y cmake
 COPY . /usr/src/myproject
 
 # Move into the test folder
-WORKDIR /usr/src/myproject/tests/compressionTests/build
+# WORKDIR /usr/src/myproject/tests/compressionTests/build
 
 # Configure + build
 RUN mkdir -p build

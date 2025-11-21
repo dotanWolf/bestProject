@@ -8,10 +8,10 @@ FROM gcc:latest
 RUN apt-get update && apt-get install -y cmake
 
 # Copy the ENTIRE project into the container
-COPY ../.. /usr/src/myproject
+COPY . /usr/src/myproject
 
 # Move into the test folder
-WORKDIR /usr/src/myproject/tests/SavingTextTests/build
+# WORKDIR /usr/src/myproject/tests/SavingTextTests/build
 
 # Configure + build
 RUN mkdir -p build

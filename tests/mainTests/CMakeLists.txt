@@ -16,10 +16,10 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
 add_executable(runmainTests
     mainTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/parse.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/compress.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/create.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/save.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/parse.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/compress.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
 )
 
 target_link_libraries(runmainTests gtest gtest_main)
