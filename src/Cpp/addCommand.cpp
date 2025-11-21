@@ -1,41 +1,54 @@
-#include "addCommand.h"
-#include "parse.h"
-#include "compress.h"
-#include "create.h"
-#include "save.h"
 #include <vector>
 #include <string>
-#include <iostream>
-#include <cstdlib> // For getenv
+#include "create.h"
+#include <optional>
+#include <cstdlib>
+#include "create.h"
+#include "ICommand.h"
+#include "compress.h"
+#include "save.h"
+#include <sstream>
+#include "addCommand.h"
 
-using namespace std;
-
-bool addCommand::execute() {
-    string userInput;
-    getline(cin, userInput);//need to change
-    // 1. Validate and Parse Input
-    if (!validParseForAdd(rawInput)) {  
-        return false;
+void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
+    std::string fileName = arguments.value()[0];
+    std::string text = arguments.value()[1];
+    const char* env_var_path = getenv(ENV_VAR);
+    if (createFileInRleDir(fileName)) {
+        //cout << "created succsfully\n";
+        // the file was created successfully, compress the text and write it in the file
+        std::string fullPath = std::string(env_var_path) + "/" + fileName;
+        insertTextToFile(RLEcompress(text), fullPath);
     }
+ }
 
-   vector<std::string> parsedData = parseAddCommand(rawInput);
-
-    string fileName = parsedData[0];
-    string text = parsedData[1];
-
-    // 2. Check Environment Variable for Directory Path
-    const char* env_var_path = getenv(ENV_VAR); 
-  
-    // 3. Create File
-    if (!createFileInRleDir(fileName)) {
-        return false;
+std::optional<std::vector<std::string>> addCommand::isValid(std::string input) {
+    std::vector<std::string> vector;
+    if (input.empty()) return std::nullopt;  // empty line is invalid
+    std::istringstream iss(input);
+    std::string cmd, fileName;
+    iss >> cmd;
+    if (cmd != "add") {
+        return std::nullopt;   
     }
+    // Check for file name
+    if (!(iss >> fileName)) {
+        return std::nullopt;
+    }
+    // Check if there is text after the file name
+    std::string rest;
+    std::getline(iss, rest);
 
-    // 4. Compress Text
-    string compressedText = RLEcompress(text);
+    // Find first character that is not space or tab
+    std::size_t firstSpace = rest.find(' ');
+    // If there is no such character → only spaces/tabs → invalid
+    if (firstSpace == std::string::npos) {
+        return std::nullopt;
+    }
+    vector.push_back(fileName);
+    vector.push_back(rest.substr(firstSpace + 1));
 
-    // 5. Save Compressed Text
-    string fullPath = string(env_var_path) + "/" + fileName;
-    insertTextToFile(RLEcompress(text), fullPath);
-    return true;
+    // std::cout << vector[0] << std::endl;
+    // std::cout << vector[1] << std::endl;
+    return vector;
 }

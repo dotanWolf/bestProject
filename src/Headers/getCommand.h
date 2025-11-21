@@ -1,13 +1,13 @@
-#ifndef ADD_COMMAND_H
-#define ADD_COMMAND_H
+#ifndef GET_COMMAND_H
+#define GET_COMMAND_H
 
 #include <string>
 #include <vector>
 #include <optional>
 #include "ICommand.h"
 
-class addCommand : public ICommand {
-    public:
+class getCommand : public ICommand {
+public:
     // Executes the command
     void execute(std::optional<std::vector<std::string>> arguments) override;
 

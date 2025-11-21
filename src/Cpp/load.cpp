@@ -3,4 +3,4 @@
  #include "decompress.h"
  using namespace std;
 
- string retFilePath(const string& decompressed text);
+ string retFilePath(const string& decompressed_text);

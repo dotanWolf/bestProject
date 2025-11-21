@@ -1,4 +1,5 @@
-##include "decompress.h"
+#include "decompress.h"
+#include <string>
 using namespace std;
 
 string RLEdecompress(string input);
