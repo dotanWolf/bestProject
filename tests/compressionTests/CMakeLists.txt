@@ -16,7 +16,7 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
 add_executable(runCompressionTests
     compressTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/compress.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/compress.cpp
 )
 
 target_link_libraries(runCompressionTests gtest gtest_main)

@@ -16,7 +16,7 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
 add_executable(runFileCreationTests
     createTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/create.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
 )
 
 target_link_libraries(runFileCreationTests gtest gtest_main)

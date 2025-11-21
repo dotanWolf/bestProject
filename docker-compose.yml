@@ -1,0 +1,23 @@
+# to build and run use: docker-compose up --build
+
+services:
+  compression:
+    build:
+      context: .
+      dockerfile: /tests/compressionTests/Dockerfile
+  main-tests:
+    build:
+      context: .
+      dockerfile: /tests/mainTests/Dockerfile
+  parsing:
+    build:
+      context: .
+      dockerfile: /tests/parsingTests/Dockerfile
+  saving:
+    build:
+      context: .
+      dockerfile: tests/SavingTextTests/Dockerfile
+  file-creation:
+    build:
+      context: .
+      dockerfile: /tests/fileCreationTests/Dockerfile
