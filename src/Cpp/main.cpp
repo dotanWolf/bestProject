@@ -8,7 +8,7 @@
 #include <map>
 #include "ICommand.h"
 #include "addCommand.h"
-#include "getComamnd.h"
+#include "getCommand.h"
 #include "searchCommand.h"
 #include "App.h"
 using namespace std;

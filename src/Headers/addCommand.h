@@ -7,7 +7,7 @@
 #include "ICommand.h"
 
 class addCommand : public ICommand {
-public:
+    public:
     // Executes the command
     void execute(std::optional<std::vector<std::string>> arguments) override;
 

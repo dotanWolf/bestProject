@@ -8,13 +8,11 @@
 #include "compress.h"
 #include "save.h"
 #include <sstream>
+#include "getCommand.h"
 
-class getCommand : public ICommand{
-    public:
-    void execute(std::vector<std::string>) {
+void getCommand::execute(std::optional<std::vector<std::string>> arguments) {
 
-    }
-    std::optional<std::vector<std::string>> isValid(std::string input) {
-        return std::nullopt;
-    }
-};
+}
+std::optional<std::vector<std::string>> getCommand::isValid(std::string input) {
+    return std::nullopt;
+}
