@@ -23,7 +23,6 @@ void App::run() {
                 commands[command] -> execute(arguments);
             }
         } catch (...) {
-            continue;
         }
     }
 }
