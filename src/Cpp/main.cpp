@@ -19,7 +19,7 @@ int main() {
     ICommand* add = new addCommand();
     commands["add"] = add;
     ICommand* get = new getCommand();
-    commands["add"] = get;
+    commands["get"] = get;
     ICommand* search = new searchCommand();
     commands["search"] = search;
 
