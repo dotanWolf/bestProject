@@ -1,1 +1,9 @@
-// Function used for reciving output. This abstraction allows changing the input destination in future exercises.
+#include <string>
+#include <iostream>
+
+ std::string getInputFromStream(istream& is) {
+    string userInput ;
+    // wait for user input
+    getline(is, userInput);
+    return userInput;
+}
