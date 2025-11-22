@@ -15,12 +15,10 @@
 void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
     std::string fileName = arguments.value()[0];
     std::string text = arguments.value()[1];
-    const char* env_var_path = getenv(ENV_VAR);
+    // const char* env_var_path = getenv(ENV_VAR);
     if (createFileInRleDir(fileName)) {
-        //cout << "created succsfully\n";
         // the file was created successfully, compress the text and write it in the file
-        std::string fullPath = std::string(env_var_path) + "/" + fileName;
-        insertTextToFile(RLEcompress(text), fullPath);
+        insertTextToFile(RLEcompress(text), fileName);
     }
  }
 
