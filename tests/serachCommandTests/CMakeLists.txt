@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(addCommandTests)
+project(searchCommandTests)
 
 # GoogleTest FetchContent
 include(FetchContent)
@@ -14,14 +14,13 @@ enable_testing()
 # Add include directory for headers
 include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
-add_executable(runaddCommandTests
-    addCommandTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/parse.cpp
+add_executable(runsearchCommandTests
+  searchCommandTests.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/compress.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/load.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/searchCommand.cpp
 )
 
-target_link_libraries(runaddCommandTests gtest gtest_main)
+target_link_libraries(runsearchCommandTests gtest gtest_main)
 
-add_test(NAME addCommandTests COMMAND runaddCommandTests)
+add_test(NAME searchCommandTests COMMAND runasearchCommandTests)

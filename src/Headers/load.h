@@ -4,6 +4,7 @@
 #define LOAD_H
 
 #include <string>
-std::string getContent(std::string path);
+string retFileContent(const string& decompressed_text);
+std::vector<std::string> retListOfFileNames(const std::string& decompressedText);
 
 #endif

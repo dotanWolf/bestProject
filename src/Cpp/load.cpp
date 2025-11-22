@@ -3,4 +3,6 @@
  #include "decompress.h"
  using namespace std;
 
- string retFilePath(const string& decompressed_text);
+string retFileContent(const string& file_name);
+std::vector<std::string> retListOfFileNames(const std::string& decompressedText);
+
