@@ -1,5 +1,5 @@
 # in order to build this dockerfile go to the root directory (bestProject)
-# then run: docker build -f tests/decompressionTests/Dockerfile -t decompression-tests .
+# then run: docker build -f tests/deCompressionTests/Dockerfile -t decompression-tests .
 
 # then run it using: docker run decompression-tests
 

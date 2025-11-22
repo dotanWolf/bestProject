@@ -4,8 +4,11 @@
 
 using namespace std;
 
-string retOutput(string userOutput) {
-  cout << userOutput << endl;
+void printOutput(std::ostream& os, std::string userOutput){
+  os << userOutput << endl;
 }
+
+
+
 
 //In the future we might refactor this function according to the instruction given on changing the ouput destination.

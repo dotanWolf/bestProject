@@ -2,6 +2,6 @@
 #define SAVE_H
 #include <string>
 
-bool insertTextToFile(std::string text, std::string path);
+bool insertTextToFile(std::string text, std::string fileName);
 
 #endif

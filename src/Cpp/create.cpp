@@ -6,7 +6,7 @@
 namespace fs = std::filesystem;
 
 bool createFileInRleDir(const std::string& fileName){
-    const char* env = std::getenv("RLE_DIR");
+    const char* env = std::getenv(ENV_VAR);
     if (!env) {
         return false;  
     }

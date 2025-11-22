@@ -16,10 +16,14 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
 add_executable(runaddCommandTests
     addCommandTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/parse.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/compress.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/addCommand.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/compress.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/parse.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
 )
 
 target_link_libraries(runaddCommandTests gtest gtest_main)

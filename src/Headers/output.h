@@ -5,6 +5,6 @@
 
 #include <string>
 
-void printOutput();
+void printOutput(std::ostream& os, std::string userOutput);
 
 #endif
