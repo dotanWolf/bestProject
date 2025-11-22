@@ -14,5 +14,4 @@ bool insertTextToFile(std::string text, std::string fileName) {
     out << text;
     out.close();
     return true;
-
 }

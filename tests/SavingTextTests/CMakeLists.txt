@@ -17,6 +17,7 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 add_executable(runSavingTextTests
     SavingTextTests.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
 )
 
 target_link_libraries(runSavingTextTests gtest gtest_main)

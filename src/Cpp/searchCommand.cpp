@@ -23,7 +23,9 @@ void searchCommand::execute(std::optional<std::vector<std::string>> arguments) {
     std::filesystem::path path(env_var_path);
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         std::string fileName = entry.path().filename();
-        std::string compressedfileContent = retFileContent(fileName);
+        std::optional<std::string> optional = retFileContent(fileName);
+        if (!optional.has_value()) return;
+        std::string compressedfileContent = optional.value();
         std::string originalFileContent = RLEdecompress(compressedfileContent);
         if (originalFileContent == arguments.value()[0]) {
             printOutput(std::cout, fileName);
