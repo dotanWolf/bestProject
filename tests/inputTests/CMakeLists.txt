@@ -14,11 +14,11 @@ enable_testing()
 # Add include directory for headers
 include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
-add_executable(inputTests
+add_executable(runinputTests
     inputTests.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
 )
 
-target_link_libraries(rundinputTests gtest gtest_main)
+target_link_libraries(runinputTests gtest gtest_main)
 
 add_test(NAME inputTests COMMAND runinputTests)
