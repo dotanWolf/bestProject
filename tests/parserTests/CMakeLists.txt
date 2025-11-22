@@ -16,7 +16,7 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
 add_executable(runParserTests
     parserTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/parser.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
 )
 
 target_link_libraries(runParserTests gtest gtest_main)
