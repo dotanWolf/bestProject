@@ -19,6 +19,7 @@ add_executable(runsearchCommandTests
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/compress.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/load.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/searchCommand.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
 )
 
 target_link_libraries(runsearchCommandTests gtest gtest_main)
