@@ -15,7 +15,7 @@ enable_testing()
 include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
 add_executable(rundeCompressionTests
-    decompressTests.cpp
+    deCompressionTests.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/decompress.cpp
 )
 
