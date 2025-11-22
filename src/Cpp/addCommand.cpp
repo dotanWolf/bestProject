@@ -10,6 +10,8 @@
 #include <sstream>
 #include "addCommand.h"
 
+// addCommand::addCommand() {}
+
 void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
     std::string fileName = arguments.value()[0];
     std::string text = arguments.value()[1];
@@ -25,28 +27,24 @@ void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
 std::optional<std::vector<std::string>> addCommand::isValid(std::string input) {
     std::vector<std::string> vector;
     if (input.empty()) return std::nullopt;  // empty line is invalid
-    std::istringstream iss(input);
-    std::string cmd, fileName;
-    iss >> cmd;
+
+    size_t firstSpace = input.find(' ');
+    if (firstSpace == std::string::npos) return std::nullopt;
+    std::string cmd, fileName, rest;
+    cmd = input.substr(0, firstSpace);
     if (cmd != "add") {
         return std::nullopt;   
     }
-    // Check for file name
-    if (!(iss >> fileName)) {
-        return std::nullopt;
-    }
-    // Check if there is text after the file name
-    std::string rest;
-    std::getline(iss, rest);
+    size_t secondSpace = input.find(' ', firstSpace + 1);
+    if (secondSpace == std::string::npos) return std::nullopt;
 
-    // Find first character that is not space or tab
-    std::size_t firstSpace = rest.find(' ');
-    // If there is no such character → only spaces/tabs → invalid
-    if (firstSpace == std::string::npos) {
-        return std::nullopt;
-    }
+    fileName = input.substr(firstSpace + 1, secondSpace - firstSpace -1);
+    if (fileName.empty()) return std::nullopt;
+    rest = input.substr(secondSpace + 1, input.length() - secondSpace - 1);    
+    if (rest.empty()) return std::nullopt;
+
     vector.push_back(fileName);
-    vector.push_back(rest.substr(firstSpace + 1));
+    vector.push_back(rest);
 
     // std::cout << vector[0] << std::endl;
     // std::cout << vector[1] << std::endl;
