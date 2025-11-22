@@ -21,3 +21,28 @@ services:
     build:
       context: .
       dockerfile: /tests/fileCreationTests/Dockerfile
+  getcommand-tests:
+    build:
+      context: .
+      dockerfile: /tests/getCommandTests/Dockerfile
+  searchcommand-tests:
+    build:
+      context: .
+      dockerfile: /tests/searchCommandTests/Dockerfile
+  input-tests:
+    build:
+      context: .
+      dockerfile: /tests/inputTests/Dockerfile
+  output-tests:
+    build:
+      context: .
+      dockerfile: /tests/outputTests/Dockerfile
+  load:
+    build:
+      context: .
+      dockerfile: tests/loadTests/Dockerfile
+  parser:
+    build:
+      context: .
+      dockerfile: /tests/parserTests/Dockerfile
+      
