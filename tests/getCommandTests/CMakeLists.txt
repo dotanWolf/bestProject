@@ -18,6 +18,10 @@ add_executable(rungetCommandTests
    getCommandTests.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/decompress.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/load.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/output.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/getCommand.cpp
 )
 

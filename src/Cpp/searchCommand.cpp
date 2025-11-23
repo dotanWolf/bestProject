@@ -27,7 +27,7 @@ void searchCommand::execute(std::optional<std::vector<std::string>> arguments) {
         if (!optional.has_value()) return;
         std::string compressedfileContent = optional.value();
         std::string originalFileContent = RLEdecompress(compressedfileContent);
-        if (originalFileContent == arguments.value()[0]) {
+        if (originalFileContent.find(arguments.value()[0]) != std::string::npos){       
             printOutput(std::cout, fileName);
         }
     }
