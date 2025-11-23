@@ -17,6 +17,7 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 add_executable(runloadTests
   loadTests.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/load.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
 )
 
 target_link_libraries(runloadTests gtest gtest_main)

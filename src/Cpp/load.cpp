@@ -3,13 +3,28 @@
  #include "decompress.h"
  #include <vector>
  #include <string>
+ #include "create.h"
+ #include <cstdlib>
+ #include <optional>
+ #include <filesystem>
+ #include <fstream>
  using namespace std;
 
-string retFileContent(const string& file_name) {
-    return "";
+optional<string> retFileContent(const string& file_name) {
+    const char* env_var_path = getenv(ENV_VAR);
+    std::filesystem::path filePath = std::filesystem::path(env_var_path) / file_name;
+    ifstream in(filePath); // create a stream to the path of the file
+    if (!in) {
+        return nullopt; // Return empty string on failure
+    }
+    ostringstream buffer;
+    buffer << in.rdbuf();
+    return buffer.str();    
 }
-std::vector<std::string> retListOfFileNames(const std::string& decompressedText) {
-    std::vector<std::string> vector;
-    return vector;
-}
+
+
+// vector<string> retListOfFileNames(const string& decompressedText) {
+//     vector<string> vector;
+//     return vector;
+// }
 
