@@ -19,7 +19,10 @@ TEST(compressionTest, longerStrings) {
 TEST(compressionTest, edgeCases) {
     ICompressor* compressor = new RLECompressor();
     EXPECT_EQ(compressor -> compress(""), "");
-    EXPECT_EQ(compressor -> compress("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), "34a");
+    EXPECT_EQ(compressor -> compress("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), "9a9a9a7a");
+    EXPECT_EQ(compressor -> compress("aaaaaaaaabbbbbbbbb"), "9a9b");
+    EXPECT_EQ(compressor -> compress("aaaaaabbbbbbbbb"), "6a9b");
+    EXPECT_EQ(compressor -> compress("aaaaaaaaaaaabbbbbbbbb"), "9a3a9b");
     EXPECT_EQ(compressor -> compress("abdefghijklmnopqrstuvwyz"), "1a1b1d1e1f1g1h1i1j1k1l1m1n1o1p1q1r1s1t1u1v1w1y1z");
 }
 

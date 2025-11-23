@@ -14,7 +14,11 @@ bool createFileInRleDir(const std::string& fileName){
     fs::path dirPath(env);
     fs::path fullPath = dirPath / fileName;
 
-    std::ofstream file(fullPath, std::ios::binary | std::ios::trunc);
+    if (std::filesystem::exists(fullPath)) {
+        return false;
+    }
+    
+    std::ofstream file(fullPath, std::ios::binary | std::ios::binary);
     if (!file.is_open()) {
         return false;   // Failed to create file
     }

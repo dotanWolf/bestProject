@@ -32,6 +32,7 @@ void getCommand::execute(std::optional<std::vector<std::string>> arguments) {
             std::string compressedfileContent = optional.value();
             std::string originalFileContent = getCompressor() -> decompress(compressedfileContent);
             printOutput(std::cout, originalFileContent);
+            printOutput(std::cout, "\n");
             break;
         }
     }

@@ -10,10 +10,10 @@ std::string RLECompressor::compress(std::string inputString) {
     }
     string result;
     char current = inputString[0];
-    size_t count = 1;
-     for (size_t i = 1; i < inputString.size(); ++i) {
-        if (inputString[i] == current) {
-            ++count;
+    int count = 1;
+     for (int i = 1; i < inputString.size(); i++) {
+        if (inputString[i] == current && count < 9) {
+            count++;
         } else {
             result += to_string(count);
             result += current;
