@@ -4,14 +4,13 @@
 #include <optional>
 #include <cstdlib>
 #include "ICommand.h"
-#include "compress.h"
 #include "save.h"
 #include <sstream>
 #include "searchCommand.h"
 #include <filesystem>
 #include "load.h"
-#include "decompress.h"
 #include "output.h"
+#include <iostream>
 
 void searchCommand::execute(std::optional<std::vector<std::string>> arguments) {
     // Placeholder logic:
@@ -26,7 +25,7 @@ void searchCommand::execute(std::optional<std::vector<std::string>> arguments) {
         std::optional<std::string> optional = retFileContent(fileName);
         if (!optional.has_value()) return;
         std::string compressedfileContent = optional.value();
-        std::string originalFileContent = RLEdecompress(compressedfileContent);
+        std::string originalFileContent = getCompressor() -> decompress(compressedfileContent);
         if (originalFileContent.find(arguments.value()[0]) != std::string::npos){       
             printOutput(std::cout, fileName);
         }

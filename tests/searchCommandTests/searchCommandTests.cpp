@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include "parse.h"
-#include "compress.h"
 #include "create.h"
 #include "save.h"
 #include <cstdlib>

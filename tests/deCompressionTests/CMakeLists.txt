@@ -16,7 +16,9 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
 add_executable(rundeCompressionTests
     deCompressionTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/decompress.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/RLECompressor.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
+
 )
 
 target_link_libraries(rundeCompressionTests gtest gtest_main)

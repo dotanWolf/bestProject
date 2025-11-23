@@ -18,6 +18,7 @@ add_executable(runSavingTextTests
     SavingTextTests.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
 )
 
 target_link_libraries(runSavingTextTests gtest gtest_main)

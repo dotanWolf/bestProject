@@ -9,10 +9,16 @@
 using namespace std;
 
        
-App::App(const map<string, ICommand*> commands)
-    : commands(commands) {}
+App::App(const map<string, ICommand*> commands, ICompressor* compressor)
+    : commands(commands), compressor(compressor) {}
 
 void App::run() {
+    for (const auto& pair : commands) {
+        ICommand* command = pair.second;
+        if (command) {
+            command -> setCompressor(compressor); 
+        }
+    }
     while (true) {
         string userInput = getInputFromStream(cin);
         string command = Parser::getFirstWord(userInput);

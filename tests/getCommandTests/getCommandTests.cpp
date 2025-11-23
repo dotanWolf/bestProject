@@ -1,7 +1,6 @@
     #include <gtest/gtest.h>
     #include <iostream>
     #include "parse.h"
-    #include "compress.h"
     #include "create.h"
     #include "save.h"
     #include "output.h"
@@ -18,14 +17,13 @@
         EXPECT_EQ(command -> isValid("gett "), nullopt);
         EXPECT_EQ(command -> isValid(" get aabbbddd"), nullopt);
         EXPECT_EQ(command -> isValid(""), nullopt);
-        vector<string> vector = {"newFile aabbbddd"};
-        EXPECT_EQ(command -> isValid("get newFile aabbbddd"), vector);
-        vector = {"  aabbbddd "};
-        EXPECT_EQ(command -> isValid("get   aabbbddd "), vector);
-        vector = {"aabbbddd cccccdddaaa"};
-        EXPECT_EQ(command -> isValid("get aabbbddd cccccdddaaa"), vector);
-        vector = {"aabbbddd cccc  cdddaaa   "};
-        EXPECT_EQ(command -> isValid("get aabbbddd cccc  cdddaaa   "), vector);
+        EXPECT_EQ(command -> isValid("get newFile aabbbddd"), nullopt);
+        EXPECT_EQ(command -> isValid("get   aabbbddd "), nullopt);
+        EXPECT_EQ(command -> isValid("get aabbbddd cccccdddaaa"), nullopt);
+        EXPECT_EQ(command -> isValid("get aabbbddd cccc  cdddaaa   "), nullopt);
+        vector<string> vector = {"newFile"};
+        EXPECT_EQ(command -> isValid("get newFile"), vector);
+        EXPECT_EQ(command -> isValid("get newFile "), nullopt);
     }
 
     TEST(getCommandTest, execute){
