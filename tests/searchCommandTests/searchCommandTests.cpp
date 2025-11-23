@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "parse.h"
 #include "create.h"
 #include "save.h"
 #include <cstdlib>
@@ -32,7 +31,7 @@ TEST(searchCommandTest, execute){
     ICommand* command = new searchCommand();
     ICompressor* compressor = new RLECompressor();
     command -> setCompressor(compressor);
-    
+
     createFileInRleDir("a");
     insertTextToFile("5a", "a");
     createFileInRleDir("b");

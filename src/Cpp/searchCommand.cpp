@@ -21,9 +21,10 @@ void searchCommand::execute(std::optional<std::vector<std::string>> arguments) {
     const char* env_var_path = getenv(ENV_VAR);
     std::filesystem::path path(env_var_path);
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
-        std::string fileName = entry.path().filename();
+        std::string fileName = entry.path().filename().string();
+        if (!entry.is_regular_file()) continue;;
         std::optional<std::string> optional = retFileContent(fileName);
-        if (!optional.has_value()) return;
+        if (!optional.has_value()) continue;;
         std::string compressedfileContent = optional.value();
         std::string originalFileContent = getCompressor() -> decompress(compressedfileContent);
         if (originalFileContent.find(arguments.value()[0]) != std::string::npos){       

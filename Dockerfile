@@ -2,6 +2,7 @@
 # then run: docker build -t app .
 
 # then run it using: docker run -it -v C:/Users/user/Documents/dotan/AdvancedProgramming/project/bestProject:/app/data app
+# then run it using: docker run -it app
 
 FROM gcc:latest
 RUN apt-get update && apt-get install -y cmake
