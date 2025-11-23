@@ -14,17 +14,18 @@ App::App(const map<string, ICommand*> commands, ICompressor* compressor)
 
 void App::run() {
     for (const auto& pair : commands) {
-        ICommand* command = pair.second;
+        ICommand* command = pair.second;  // pointer stored inside the map
         if (command) {
             command -> setCompressor(compressor); 
         }
     }
     while (true) {
+        // Read a full line of user input
         string userInput = getInputFromStream(cin);
         if (userInput.empty()) {
              continue;
         }
-        string command = Parser::getFirstWord(userInput);
+        string command = Parser::getFirstWord(userInput);   // Extract the first word (command name)
         if (command.empty()) {
             continue;
         }
@@ -35,6 +36,7 @@ void App::run() {
                 commands[command] -> execute(arguments);
             }
         } catch (...) {
+            // ignore all errors so the CLI never crashes
         }
     }
 }
