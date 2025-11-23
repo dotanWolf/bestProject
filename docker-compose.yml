@@ -37,10 +37,6 @@ services:
     build:
       context: .
       dockerfile: tests/loadTests/Dockerfile
-  parser:
-    build:
-      context: .
-      dockerfile: /tests/parserTests/Dockerfile
   decompression:
     build:
       context: .

@@ -6,7 +6,11 @@
 #include <vector>
 #include <optional>
 
-std::optional<std::string> retFileContent(const std::string& decompressed_text);
+// this function recieves a file name and returns its content if the file exists in RLE_DIR
+// and std::nullopt otherwise
+std::optional<std::string> retFileContent(const std::string& file_name);
+
+
 // std::vector<std::string> retListOfFileNames(const std::string& decompressedText);
 
 #endif

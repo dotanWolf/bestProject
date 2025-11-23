@@ -24,13 +24,19 @@ void getCommand::execute(std::optional<std::vector<std::string>> arguments) {
     const char* env_var_path = getenv(ENV_VAR);
     if (!env_var_path) return;
     std::filesystem::path path(env_var_path);
+    // iterate over all files in RLE_DIR
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         std::string fileName = entry.path().filename().string();
+        // if we found the file
         if (fileName == arguments.value()[0]) {
+            // get its content
             std::optional<std::string> optional = retFileContent(fileName);
+            // skip if reading from the file failed
             if (!optional.has_value()) continue;
             std::string compressedfileContent = optional.value();
+            // decompress its content
             std::string originalFileContent = getCompressor() -> decompress(compressedfileContent);
+            // print it
             printOutput(std::cout, originalFileContent);
             printOutput(std::cout, "\n");
             break;
@@ -44,10 +50,13 @@ std::optional<std::vector<std::string>> getCommand::isValid(std::string input) {
     size_t firstSpace = input.find(' ');
     if (firstSpace == std::string::npos) return std::nullopt;
     std::string cmd, rest;
+    // seperate the input until the first space
+    // everything before is the command
     cmd = input.substr(0, firstSpace);
     if (cmd != "get") {
         return std::nullopt;   
     }
+    // everything after is the filename
     rest = input.substr(firstSpace + 1, input.length() - firstSpace - 1);
     // the filename cannot be empty or contain spaces    
     if (rest.empty()) return std::nullopt;

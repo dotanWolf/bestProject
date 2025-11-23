@@ -21,13 +21,18 @@ void searchCommand::execute(std::optional<std::vector<std::string>> arguments) {
     bool spaceNeeded = false;
     const char* env_var_path = getenv(ENV_VAR);
     std::filesystem::path path(env_var_path);
+    // iterate over all files in RLE_DIR
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         std::string fileName = entry.path().filename().string();
+        // skip over directories etc
         if (!entry.is_regular_file()) continue;
         std::optional<std::string> optional = retFileContent(fileName);
+        // skip if couldnt read file
         if (!optional.has_value()) continue;
         std::string compressedfileContent = optional.value();
+        // decompress the content
         std::string originalFileContent = getCompressor() -> decompress(compressedfileContent);
+        // check if file contains the argument passed to the function as a substring
         if (originalFileContent.find(arguments.value()[0]) != std::string::npos){    
             if (spaceNeeded) printOutput(std::cout, " ");   
             printOutput(std::cout, fileName);
@@ -43,10 +48,13 @@ std::optional<std::vector<std::string>> searchCommand::isValid(std::string input
     size_t firstSpace = input.find(' ');
     if (firstSpace == std::string::npos) return std::nullopt;
     std::string cmd, rest;
+    // seperate the input until the first space
+    // everything before is the command
     cmd = input.substr(0, firstSpace);
     if (cmd != "search") {
         return std::nullopt;   
     }
+    // everything after is the rest
     rest = input.substr(firstSpace + 1, input.length() - firstSpace - 1);    
     if (rest.empty()) return std::nullopt;
 

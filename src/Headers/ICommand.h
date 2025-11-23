@@ -7,6 +7,7 @@
 #include "ICompressor.h"
 class ICommand {
     private:
+    // a compressor used by the execute method
     ICompressor* compressor;
     public:
     virtual void execute(std::optional<std::vector<std::string>>) = 0;
