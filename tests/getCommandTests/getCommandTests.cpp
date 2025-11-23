@@ -9,7 +9,8 @@
     #include "getCommand.h"
     #include "ICommand.h"
     #include <filesystem>
-
+    #include "RLECompressor.h"
+    #include "ICompressor.h"
     using namespace std;    
 
     TEST(getCommandTest, Validation){
@@ -28,6 +29,9 @@
 
     TEST(getCommandTest, execute){
         ICommand* command = new getCommand();
+        ICompressor* compressor = new RLECompressor();
+        command -> setCompressor(compressor);
+
         createFileInRleDir("a");
         insertTextToFile("5a", "a");
         createFileInRleDir("b");

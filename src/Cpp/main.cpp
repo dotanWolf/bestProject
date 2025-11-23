@@ -17,7 +17,7 @@ using namespace std;
 
 int main() {
     map<string, ICommand*> commands;
-    ICompressor* compressor = new RLEcompressor();
+    ICompressor* compressor = new RLECompressor();
 
     ICommand* add = new addCommand();
     commands["add"] = add;

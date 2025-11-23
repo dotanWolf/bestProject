@@ -34,8 +34,6 @@ void getCommand::execute(std::optional<std::vector<std::string>> arguments) {
             printOutput(std::cout, originalFileContent);
             break;
         }
-        
-
     }
 }
 std::optional<std::vector<std::string>> getCommand::isValid(std::string input) {
