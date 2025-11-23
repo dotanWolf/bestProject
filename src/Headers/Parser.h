@@ -6,8 +6,8 @@
 
 class Parser {
     public:
-    // thid function recieves a stringg and returns the substring that starts at the beginning and ends at the first space
-    // if no space exist return null
+    // thid function recieves a string and returns the substring that starts at the beginning and ends at the first space
+    // if no space exist return the entire word
     static std::string getFirstWord(std::string str);   
 };
 

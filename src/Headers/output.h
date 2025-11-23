@@ -5,6 +5,7 @@
 
 #include <string>
 
+// prints the user output in any output stream
 void printOutput(std::ostream& os, std::string userOutput);
 
 #endif

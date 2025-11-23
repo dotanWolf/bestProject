@@ -38,13 +38,13 @@ void App::run() {
         try {
             auto arguments = cmd->isValid(userInput);
             if (!arguments || arguments->empty()) {
-                continue;   // invalid input → ignore safely
+                continue;   // invalid input, ignore safely
             }
 
             cmd->execute(arguments);
 
         } catch (...) {
-            continue; // Ignore errors & keep the program running
+            continue; // Ignore errors and keep the program running
         }
     }
 }
