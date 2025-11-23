@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "parse.h"
-#include "compress.h"
 #include "create.h"
 #include "save.h"
 #include <cstdlib>
@@ -9,6 +7,8 @@
 #include "searchCommand.h"
 #include "ICommand.h"
 #include <filesystem>
+#include "RLECompressor.h"
+#include "ICompressor.h"
 
 using namespace std;
 
@@ -29,6 +29,9 @@ TEST(searchCommandTest, Validation){
 
 TEST(searchCommandTest, execute){
     ICommand* command = new searchCommand();
+    ICompressor* compressor = new RLECompressor();
+    command -> setCompressor(compressor);
+
     createFileInRleDir("a");
     insertTextToFile("5a", "a");
     createFileInRleDir("b");

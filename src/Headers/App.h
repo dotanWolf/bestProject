@@ -5,16 +5,17 @@
 #include <string>
 #include <vector>
 #include <optional>
-
+#include "ICompressor.h"
 #include "ICommand.h"
 
 class App {
 private:
     std::map<std::string, ICommand*> commands;
+    ICompressor* compressor;
 
 public:
     // Constructor
-    App(const std::map<std::string, ICommand*> commands);
+    App(const std::map<std::string, ICommand*> commands, ICompressor* compressor);
 
     // Runs the main application loop
     void run();

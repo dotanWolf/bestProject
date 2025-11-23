@@ -1,6 +1,4 @@
 #include <iostream>
-#include "parse.h"
-#include "compress.h"
 #include "create.h"
 #include "save.h"
 #include <cstdlib>
@@ -11,10 +9,14 @@
 #include "getCommand.h"
 #include "searchCommand.h"
 #include "App.h"
+#include "ICompressor.h"
+#include "RLECompressor.h"
+
 using namespace std;
 
 int main() {
     map<string, ICommand*> commands;
+    ICompressor* compressor = new RLECompressor();
 
     ICommand* add = new addCommand();
     commands["add"] = add;
@@ -23,6 +25,6 @@ int main() {
     ICommand* search = new searchCommand();
     commands["search"] = search;
 
-    App app(commands);
+    App app(commands, compressor);
     app.run();
 }

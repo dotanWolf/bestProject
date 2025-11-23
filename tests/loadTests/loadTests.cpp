@@ -1,14 +1,11 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "parse.h"
-#include "compress.h"
 #include "create.h"
 #include "save.h"
 #include <cstdlib>
 #include <vector>
 #include "addCommand.h"
 #include "ICommand.h"
-#include "decompress.h"
 #include "load.h"
 
 using namespace std;

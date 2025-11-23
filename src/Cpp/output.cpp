@@ -5,7 +5,7 @@
 using namespace std;
 
 void printOutput(std::ostream& os, std::string userOutput){
-  os << userOutput << endl;
+  os << userOutput;
 }
 
 

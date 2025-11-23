@@ -5,12 +5,10 @@
 #include <cstdlib>
 #include "create.h"
 #include "ICommand.h"
-#include "compress.h"
 #include "save.h"
 #include <sstream>
 #include "addCommand.h"
 
-// addCommand::addCommand() {}
 
 void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
     std::string fileName = arguments.value()[0];
@@ -18,7 +16,7 @@ void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
     // const char* env_var_path = getenv(ENV_VAR);
     if (createFileInRleDir(fileName)) {
         // the file was created successfully, compress the text and write it in the file
-        insertTextToFile(RLEcompress(text), fileName);
+        insertTextToFile(getCompressor() -> compress(text), fileName);
     }
  }
 

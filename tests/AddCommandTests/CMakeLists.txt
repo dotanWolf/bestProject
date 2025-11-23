@@ -20,10 +20,10 @@ add_executable(runaddCommandTests
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/compress.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/parse.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/RLECompressor.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
 )
 
 target_link_libraries(runaddCommandTests gtest gtest_main)

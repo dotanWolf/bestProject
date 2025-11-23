@@ -9,10 +9,6 @@ services:
     build:
       context: .
       dockerfile: /tests/addCommandTests/Dockerfile
-  parsing:
-    build:
-      context: .
-      dockerfile: /tests/parsingTests/Dockerfile
   saving:
     build:
       context: .
@@ -45,4 +41,8 @@ services:
     build:
       context: .
       dockerfile: /tests/parserTests/Dockerfile
+  decompression:
+    build:
+      context: .
+      dockerfile: /tests/deCompressionTests/Dockerfile
       
