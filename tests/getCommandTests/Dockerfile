@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y cmake
 # Copy the ENTIRE project into the container
 COPY . /usr/src/myproject
 
+ENV RLE_DIR=/usr/src/myproject/rle
+RUN mkdir -p /usr/src/myproject/rle
+
 # Move into the test folder
 WORKDIR /usr/src/myproject/tests/getCommandTests/build
 
