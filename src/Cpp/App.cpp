@@ -21,7 +21,13 @@ void App::run() {
     }
     while (true) {
         string userInput = getInputFromStream(cin);
+        if (userInput.empty()) {
+             continue;
+        }
         string command = Parser::getFirstWord(userInput);
+        if (command.empty()) {
+            continue;
+        }
         try {
             std::optional<std::vector<std::string>> arguments = commands[command]->isValid(userInput);
 
@@ -32,4 +38,3 @@ void App::run() {
         }
     }
 }
-

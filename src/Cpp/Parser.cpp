@@ -6,5 +6,5 @@ std::string Parser::getFirstWord(std::string str) {
     if(spaceIndex != std::string::npos) {
         return str.substr(0, spaceIndex);
     }
-    return nullptr;
+    return str;
 }
