@@ -29,14 +29,22 @@ void App::run() {
         if (command.empty()) {
             continue;
         }
+        auto it = commands.find(command);
+        if (it == commands.end() || it->second == nullptr) {
+            // Unknown command → ignore instead of crash
+            continue;
+        }
+        ICommand* cmd = it->second;
         try {
-            std::optional<std::vector<std::string>> arguments = commands[command]->isValid(userInput);
-
-            if(arguments) {
-                commands[command] -> execute(arguments);
+            auto arguments = cmd->isValid(userInput);
+            if (!arguments || arguments->empty()) {
+                continue;   // invalid input → ignore safely
             }
+
+            cmd->execute(arguments);
+
         } catch (...) {
-            // ignore all errors so the CLI never crashes
+            continue; // Ignore errors & keep the program running
         }
     }
 }
