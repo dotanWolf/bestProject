@@ -6,7 +6,7 @@
 namespace fs = std::filesystem;
 
 bool createFileInRleDir(const std::string& fileName){
-    const char* env = std::getenv(ENV_VAR);
+    const char* env = std::getenv(ENV_VAR);    // Fetch environment variable containing the directory path
     if (!env) {
         return false;  
     }
@@ -15,7 +15,7 @@ bool createFileInRleDir(const std::string& fileName){
     fs::path fullPath = dirPath / fileName;
 
     if (std::filesystem::exists(fullPath)) {
-        return false;
+        return false;    // Do not overwrite existing file
     }
     
     std::ofstream file(fullPath, std::ios::binary | std::ios::binary);

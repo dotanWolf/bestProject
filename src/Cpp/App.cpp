@@ -14,22 +14,37 @@ App::App(const map<string, ICommand*> commands, ICompressor* compressor)
 
 void App::run() {
     for (const auto& pair : commands) {
-        ICommand* command = pair.second;
+        ICommand* command = pair.second;  // pointer stored inside the map
         if (command) {
             command -> setCompressor(compressor); 
         }
     }
     while (true) {
+        // Read a full line of user input
         string userInput = getInputFromStream(cin);
-        string command = Parser::getFirstWord(userInput);
+        if (userInput.empty()) {
+             continue;
+        }
+        string command = Parser::getFirstWord(userInput);   // Extract the first word (command name)
+        if (command.empty()) {
+            continue;
+        }
+        auto it = commands.find(command);
+        if (it == commands.end() || it->second == nullptr) {
+            // Unknown command → ignore instead of crash
+            continue;
+        }
+        ICommand* cmd = it->second;
         try {
-            std::optional<std::vector<std::string>> arguments = commands[command]->isValid(userInput);
-
-            if(arguments) {
-                commands[command] -> execute(arguments);
+            auto arguments = cmd->isValid(userInput);
+            if (!arguments || arguments->empty()) {
+                continue;   // invalid input → ignore safely
             }
+
+            cmd->execute(arguments);
+
         } catch (...) {
+            continue; // Ignore errors & keep the program running
         }
     }
 }
-
