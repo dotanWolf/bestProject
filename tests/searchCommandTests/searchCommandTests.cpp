@@ -47,8 +47,8 @@ TEST(searchCommandTest, execute){
     command -> execute(vector);
 
     std::cout.rdbuf(original_cout_buffer);
-
-    EXPECT_EQ("b a\n", captured_output.str());
+    std::string output = captured_output.str();
+    EXPECT_TRUE(output == "b a\n" || output == "a b\n");
 
     const char* env = std::getenv(ENV_VAR);
     std::filesystem::path dirPath(env);

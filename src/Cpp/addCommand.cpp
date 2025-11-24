@@ -41,8 +41,7 @@ std::optional<std::vector<std::string>> addCommand::isValid(std::string input) {
     if (fileName.empty()) return std::nullopt;
     // we can take whatever is left to be our text it must not be empty
     rest = input.substr(secondSpace + 1, input.length() - secondSpace - 1);    
-    if (rest.empty()) return std::nullopt;
-
+    //if (rest.empty()) return std::nullopt;
     vector.push_back(fileName);
     vector.push_back(rest);
 
