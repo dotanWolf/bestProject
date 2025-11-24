@@ -16,9 +16,10 @@ TEST(addCommandTest, Validation){
     EXPECT_EQ(command -> isValid(""), nullopt);
     EXPECT_EQ(command -> isValid("add newFile"), nullopt);
     // need to check if an empty content is considered invalid or not
-    EXPECT_EQ(command -> isValid("add newFile "), nullopt);
+    vector<string> vector = {"newFile", ""};
+    EXPECT_EQ(command -> isValid("add newFile "), vector);
     EXPECT_EQ(command -> isValid("add  newFile"), nullopt);
-    vector<string> vector = {"newFile", "aabbbddd cccccdddaaa"};
+    vector = {"newFile", "aabbbddd cccccdddaaa"};
     EXPECT_EQ(command -> isValid("add newFile aabbbddd cccccdddaaa"), vector);
     vector = {"new", "File aabbbddd cccccdddaaa"};
     EXPECT_EQ(command -> isValid("add new File aabbbddd cccccdddaaa"), vector);
