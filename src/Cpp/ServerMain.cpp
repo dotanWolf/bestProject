@@ -6,83 +6,133 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <map>
-#include "RLECompressor.h"
-#include "ICommand.h"
-#include "PostCommand.h"
 #include <cstdlib>
-#include "getCommand.h"
-#include "searchCommand.h"
+#include <stdexcept>
+
+// Application Core
 #include "App.h"
 #include "ICompressor.h"
+#include "RLECompressor.h"
+
+// Command Pattern
+#include "ICommand.h"
+#include "addCommand.h" 
+#include "getCommand.h"
+#include "searchCommand.h"
 #include "DeleteCommand.h"
+#include "PostCommand.h"
+
+// Server/Threading
 #include "Server.h"
+#include "IExecutor.h"
+#include "ThreadPerClientExecutor.h"
 
-using namespace std
+using namespace std;
 
+// The server's entry point and main execution loop.
 int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        cerr << "Usage: " << argv[0] << " <PortNumber>" << endl;
+        return 1;
+    }
+
+    // --- Application Initialization (The Business Logic) ---
     map<string, ICommand*> commands;
-    //
+    
+    // 1. Initialize Compressor
     ICompressor* compressor = new RLECompressor();
 
-    ICommand* post = new PostCommand();
-    commands["add"] = add;
+    // Note: The 'add' command from Ex1 is renamed to 'POST' for Ex2
+    ICommand* post = new addCommand(); 
+    commands["POST"] = post; // Case-insensitive commands are a requirement
     ICommand* get = new getCommand();
-    commands["get"] = get;
+    commands["GET"] = get;
     ICommand* search = new searchCommand();
-    commands["search"] = search;
+    commands["SEARCH"] = search;
     ICommand* deleteC = new DeleteCommand();
-    commands["delete"] = deleteC;
+    commands["DELETE"] = deleteC;
 
+    // 3. Initialize App (The Command Processor)
     App app(commands, compressor);
+    int port;
+    try {
+        port = stoi(argv[1]);
+    } catch (const invalid_argument& e) {
+        cerr << "Invalid port number." << endl;
+        return 1;
+    }
 
-    char* port = argv[1];
-    Server server = new Server(stoi(port), app);
+    IExecutor* executor = new ThreadPerClientExecutor(); 
+    
+    Server* server = new Server(port, app, executor); 
 
-    int sock = server.CreateSocket();
-    struct sockaddr_in sin = server.CreateServerAddress();
-    // we bind these vaues to the socket so when someone sends to these values our socket gets the data
+    // --- Network Setup ---
+    int sock = server->CreateSocket();
+    if (sock < 0) {
+        // Error already printed by CreateSocket's perror
+        delete server;
+        delete executor;
+        return 1;
+    }
+    
+    struct sockaddr_in sin = server->CreateServerAddress();
+    
+    // Bind the socket to the address and port
     if (bind(sock, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
         perror("error binding socket");
+        close(sock);
+        delete server;
+        delete executor;
+        return 1;
     }
 
-    // tells the socket we want at max 5 processes to wait for us
-    // might need to change that
+    // Listen for incoming connections (max 5 in backlog)
     if (listen(sock, 5) < 0) {
         perror("error listening to a socket");
+        close(sock);
+        delete server;
+        delete executor;
+        return 1;
     }
+    cout << "Server listening on port " << port << "..." << endl;
+    
+    // --- Main Server Loop ---
     while(true) {
         struct sockaddr_in client_sin;
         unsigned int addr_len = sizeof(client_sin);
-        // we wait for a request from a clinet after that request comes
-        // we  recieve a new socket specified only for that client 
-        int client_sock = accept(sock,  (struct sockaddr *) &client_sin,  &addr_len);
+        
+        // Wait for a client connection request
+        int client_sock = accept(sock, (struct sockaddr *) &client_sin, &addr_len);
         if (client_sock < 0) {
             perror("error accepting client");
+            continue;
         }
-        // create a thread to handle the clients message while the main thread keeps
+        
+        // Print client connection info (optional, for debugging/status)
+        char client_ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &(client_sin.sin_addr), client_ip, INET_ADDRSTRLEN);
+        cout << "Client connected from " << client_ip << ":" << ntohs(client_sin.sin_port) << endl;
 
-    }
+        // Create a task (lambda function) to handle the connected client
+        // Capture 'server' (pointer to Server) and 'client_sock' by value.
+        IExecutor::Runnable clientTask = [server, client_sock]() {
+            server->HandleClient(client_sock);
+        };
 
-    // thread starts here:
-    while(true) {
-        char buffer[4096];
-        int expected_data_len = sizeof(buffer);
-        // get data from the client
-        int read_bytes = recv(client_sock, buffer, expected_data_len, 0);
-        if (read_bytes == 0) {
-        // connection is closed
-            close(client_sock);
-            break;
-        }
-        else if (read_bytes < 0) {
-        // error
-        }
-        else {
-            // create a string stream and pour the bytes until you get a \n char
-            // then parse the entire thing based on the app.cpp functions
-            server.getApp().run();
-        }
+        // run the task to the executor, which will create a new thread for it.
+        executor->execute(clientTask); 
     }
     
+    // Delete commands
+    for (const auto& pair : commands) {
+        delete pair.second;
+    }
+    delete compressor;
     
+    // Delete network components
+    close(sock);
+    delete server;
+    delete executor;
+    
+    return 0;
 }

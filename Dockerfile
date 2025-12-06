@@ -6,16 +6,19 @@
 FROM gcc:latest
 RUN apt-get update && apt-get install -y cmake
 
-# create the enviornment variable with the path
-ENV RLE_DIR=/app/data
+# Create the environment variable with the path
+# This ENV is critical for the C++ application's file management logic
+ENV RLE_DIR=/app/data 
 RUN mkdir -p /app/data
 
 # Copy all source files including headers
 COPY . /usr/src/myproject
 WORKDIR /usr/src/myproject
+
+# Standard CMake build steps
 RUN mkdir build
 WORKDIR /usr/src/myproject/build
 RUN cmake .. && make
 
-CMD ["./MyProject"]
-
+# The CMD to run the server executable with a port argument.
+CMD ["./MyProject", "8080"]

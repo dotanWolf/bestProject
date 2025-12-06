@@ -28,7 +28,7 @@ std::optional<std::vector<std::string>> addCommand::isValid(std::string input) {
     std::string cmd, fileName, rest;
     // gets the substring until the first space
     cmd = input.substr(0, firstSpace);
-    if (cmd != "add") {
+    if (cmd != "POST") {
         return std::nullopt;   
     }
 

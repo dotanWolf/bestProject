@@ -7,5 +7,9 @@
 
 // prints the user output in any output stream
 void printOutput(std::ostream& os, std::string userOutput);
+// NEW: Function to set the destination stream for the current thread
+void setThreadOutputStream(std::ostream* os_ptr);
 
+// NEW: Function to get the destination stream for the current thread
+std::ostream& getThreadOutputStream();
 #endif

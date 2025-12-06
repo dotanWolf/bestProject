@@ -6,13 +6,14 @@
 #include <optional>
 #include "IExecutor.h"
 
-using Runnable = std::function<void()>;
+#include <functional> // Required for std::function<void()>
 
 class IExecutor {
-    private:
-    IExecutor* execute;
-    public:
-    virtual void execute(Runnable command) = 0;
-    };
+public:
+    using Runnable = std::function<void()>; 
+
+    virtual void execute(Runnable command) = 0; 
+    virtual ~IExecutor() = default; 
+};
 
 #endif

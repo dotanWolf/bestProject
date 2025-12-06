@@ -21,6 +21,7 @@ public:
 
     // Runs the main application loop
     void run();
+    void executeSingleCommand(std::istream& is, std::ostream& os);
 };
 
 #endif
