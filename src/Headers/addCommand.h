@@ -9,7 +9,7 @@
 class addCommand : public ICommand {
     public:
     // Executes the command
-    void execute(std::optional<std::vector<std::string>> arguments) override;
+    void execute(std::optional<std::vector<std::string>> arguments, std::ostream& outputStream) override;
 
     // Validates the user's input and returns parsed arguments,
     // or std::nullopt if invalid

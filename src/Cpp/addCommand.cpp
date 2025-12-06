@@ -8,15 +8,17 @@
 #include "save.h"
 #include <sstream>
 #include "addCommand.h"
+#include "output.h"
 
 
-void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
+void addCommand::execute(std::optional<std::vector<std::string>> arguments, std::ostream& outputStream) {
     std::string fileName = arguments.value()[0];
     std::string text = arguments.value()[1];
     if (createFileInRleDir(fileName)) {
         // the file was created successfully, compress the text and write it in the file
         insertTextToFile(getCompressor() -> compress(text), fileName);
     }
+    printOutput(outputStream, "201 Created\n");
  }
 
 std::optional<std::vector<std::string>> addCommand::isValid(std::string input) {
@@ -28,7 +30,7 @@ std::optional<std::vector<std::string>> addCommand::isValid(std::string input) {
     std::string cmd, fileName, rest;
     // gets the substring until the first space
     cmd = input.substr(0, firstSpace);
-    if (cmd != "add") {
+    if (cmd != "POST") {
         return std::nullopt;   
     }
 

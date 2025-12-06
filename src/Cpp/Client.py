@@ -7,10 +7,10 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # an ip number that represents our computer
 dest_ip = sys.argv[1]
 # the servers port number
-dest_port = sys.argv[2]
+dest_port = int(sys.argv[2])
 s.connect((dest_ip, dest_port))
 # get input from the user
-while true:
+while True:
     msg = input()
     # send to the server
     s.send(bytes(msg, 'utf-8'))

@@ -20,7 +20,9 @@ add_executable(runserverTests
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/Server.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/output.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ClientHandler.cpp
 )
 
 target_link_libraries(runserverTests gtest gtest_main)

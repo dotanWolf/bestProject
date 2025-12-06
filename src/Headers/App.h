@@ -9,7 +9,7 @@
 #include "ICommand.h"
 
 class App {
-private:
+public:
     // maps each string of a command to its object
     std::map<std::string, ICommand*> commands;
     // some compresssor that can compress and decompress based on some algorithm

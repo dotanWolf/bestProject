@@ -12,7 +12,7 @@
 #include "output.h"
 #include <iostream>
 
-void searchCommand::execute(std::optional<std::vector<std::string>> arguments) {
+void searchCommand::execute(std::optional<std::vector<std::string>> arguments, std::ostream& outputStream) {
     // Placeholder logic:
     // 1. Parse 'search [pattern]' from rawInput
     // 2. Iterate through all files in RLE_DIR

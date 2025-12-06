@@ -10,7 +10,7 @@ class ICommand {
     // a compressor used by the execute method
     ICompressor* compressor;
     public:
-    virtual void execute(std::optional<std::vector<std::string>>) = 0;
+    virtual void execute(std::optional<std::vector<std::string>> args, std::ostream& outputStream) = 0;
     virtual std::optional<std::vector<std::string>> isValid(std::string input) = 0;
     virtual void setCompressor(ICompressor* compressor);
     virtual ICompressor* getCompressor();

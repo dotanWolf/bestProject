@@ -21,3 +21,12 @@ WORKDIR /usr/src/myproject/tests/serverTests/build
 RUN cmake .. && make
 
 CMD ["./runserverTests"]
+
+# Start the server container in detached mode (-d)
+# It runs the executable ServerMain on port 8080.
+#docker run -d --name my-server server-client-app /usr/src/myproject/build/ServerMain 8080
+
+
+# Run the client interactively (-it) so you can type commands.
+# Arguments: [Server IP/Hostname] [Port]
+#docker run -it --name my-client server-client-app /usr/src/myproject/build/Client my-server 8080
