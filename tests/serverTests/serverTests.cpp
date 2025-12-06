@@ -18,6 +18,22 @@ App app(commands, compressor);
     EXPECT_GE(resultSock, 0);
 }
 
+TEST(ServerProtocolTest, BindSocketSuccess) {
+    std::map<std::string, ICommand*> commands;
+    ICompressor* compressor = nullptr;
+    App app(commands, compressor);
+
+    Server server(8080, app);
+
+    int sock = server.CreateSocket();
+    ASSERT_GE(sock, 0);
+
+    bool result = server.bindSocket(sock);
+    EXPECT_TRUE(result);
+
+    close(sock);
+}
+
 TEST(ServerProtocolTest, ThreadCreationSuccess) {
     std::map<std::string, ICommand*> commands;
     ICompressor* compressor = nullptr;

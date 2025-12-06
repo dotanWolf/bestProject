@@ -33,9 +33,16 @@ struct sockaddr_in Server::CreateServerAddress() {
     return sin;
 }
 
-// void Server:bindSocket() {
+bool Server::bindSocket(int sock) {
+    sockaddr_in addr = CreateServerAddress();
 
-// }
+    if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        perror("bind failed");
+        return false;
+    }
+
+    return true;
+}
 
 bool Server::createThreadForNewUser() {
     return false;

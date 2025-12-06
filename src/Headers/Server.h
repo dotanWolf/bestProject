@@ -11,7 +11,7 @@ class Server {
         Server( int port, const App& app);
         int CreateSocket();
         struct sockaddr_in CreateServerAddress();
-        // void bindSocket();
+        bool bindSocket(int sock);
         bool createThreadForNewUser();
 
 };
