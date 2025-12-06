@@ -2,17 +2,20 @@
 #define SERVER_H
 
 #include "App.h"
+#include "IExecutor.h"
 
 class Server {
     private:
         App app;
         int port;
+        IExecutor* executor;
     public:
-        Server( int port, const App& app);
+        Server(int port, App& app, IExecutor* executor);
         int CreateSocket();
         struct sockaddr_in CreateServerAddress();
         // void bindSocket();
         bool createThreadForNewUser();
+        void HandleClient(int client_sock);
 
 };
 #endif

@@ -6,6 +6,9 @@
 #include <vector>
 #include <Parser.h>
 #include <App.h>
+#include <algorithm> 
+#include <cctype>    
+
 using namespace std;
 
        
@@ -46,5 +49,58 @@ void App::run() {
         } catch (...) {
             continue; // Ignore errors and keep the program running
         }
+    }
+}
+    
+
+void App::executeSingleCommand(std::istream& is, std::ostream& os) {
+    // 1. Ensure compressors are set (only needed once, but safe to call)
+    for (const auto& pair : commands) {
+        ICommand* command = pair.second;
+        if (command) {
+            command->setCompressor(compressor); 
+        }
+    }
+    
+    // 2. Read input from the provided stream 'is'
+    std::string userInput = getInputFromStream(is);
+    if (userInput.empty()) {
+        return; // No command received
+    }
+    
+    // 3. Parse and execute the command (Logic mirrors App::run())
+    std::string commandName = Parser::getFirstWord(userInput);
+    
+    // Requirement: Commands are case-insensitive
+    std::string upperCommandName = commandName;
+    std::transform(upperCommandName.begin(), upperCommandName.end(), upperCommandName.begin(), ::toupper);
+    
+    auto it = commands.find(upperCommandName);
+    
+    // Default error response for unknown or structurally invalid commands
+    std::string errorResponse = "400 Bad Request\n";
+    
+    if (it == commands.end() || it->second == nullptr) {
+        os << errorResponse;
+        return;
+    }
+    
+    ICommand* cmd = it->second;
+    
+    try {
+        auto arguments = cmd->isValid(userInput);
+        
+        if (!arguments || arguments->empty()) {
+            os << errorResponse;
+            return;
+        }
+        cmd->execute(arguments); 
+
+    } catch (const std::runtime_error& e) {
+        // Logically invalid command (e.g., DELETE on non-existent file)
+        os << "404 Not Found\n";
+    } catch (...) {
+        // Unknown or unexpected internal error
+        os << errorResponse;
     }
 }
