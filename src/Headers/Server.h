@@ -1,17 +1,18 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "app.h"
+#include "App.h"
 
 class Server {
     private:
         App app;
-        const int port
+        int port;
     public:
-        Server(const int port, App app);
+        Server( int port, const App& app);
         int CreateSocket();
         struct sockaddr_in CreateServerAddress();
-        // void bindSocket();
-        // void createThreadForNewUser();
+        bool bindSocket(int sock);
+        bool createThreadForNewUser();
 
 };
+#endif

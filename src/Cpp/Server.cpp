@@ -1,42 +1,49 @@
 #include <string> 
 #include <iostream>
-#include <sys/socket.h>
 #include <stdio.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <cstring>
+#include "Server.h"
 
 
-Server:Server(const int port, App app) {
-    this -> port = port;
-    this -> app = app;
+Server::Server(int port, const App& app)
+    : port(port), app(app)  
+{
 }
-
-int Server:CreateSocket() {
+int Server::CreateSocket() {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         perror("error creating socket");
         return -1;
     }
+    std::cout << "Socket created" << std::endl;
     return sock;
 }
 
-struct sockaddr_in Server:CreateServerAddress() {
+struct sockaddr_in Server::CreateServerAddress() {
     struct sockaddr_in sin;
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;
     // puts a constant, which means we dont care which network card recieves the data
     // we want to get it
     sin.sin_addr.s_addr = INADDR_ANY;
-    sin.sin_port = htons(server_port);
+    sin.sin_port = htons(port);
     return sin;
 }
 
-// void Server:bindSocket() {
+bool Server::bindSocket(int sock) {
+    sockaddr_in addr = CreateServerAddress();
 
-// }
+    if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        perror("bind failed");
+        return false;
+    }
 
-// void Server:createThreadForNewUser() {
+    return true;
+}
 
-// }
-
+bool Server::createThreadForNewUser() {
+    return false;
+}
