@@ -5,8 +5,8 @@
 #example-docker run --init --rm -it -p 9120:9120 -v files:/app/data app /usr/src/myproject/build/MyProject 9120
 
 # Run Client (in a new terminal)
-#docker run --rm -it --network host app /usr/src/myproject/build/ClientApp 127.0.0.1 9120
-#docker run --rm -it --network host -v C:\Users\User\Pictures\ProjetBIU\bestProject:/app python:latest python /app/src/cpp/Client.py 127.0.0.1 9190
+#docker run --rm -it --init --network host app /usr/src/myproject/build/ClientApp 127.0.0.1 9120
+#docker run --rm -it --network host -v .:/app python:latest python /app/src/cpp/Client.py 127.0.0.1 9120
 FROM gcc:latest
 RUN apt-get update && apt-get install -y cmake
 

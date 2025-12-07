@@ -14,7 +14,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
-        cerr << "Usage: " << argv[0] << " <ServerIP> <PortNumber>" << endl;
+        //cerr << "Usage: " << argv[0] << " <ServerIP> <PortNumber>" << endl;
         return 1;
     }
 
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
-        perror("Error creating socket");
+        //perror("Error creating socket");
         return 1;
     }
 
@@ -34,32 +34,27 @@ int main(int argc, char* argv[]) {
     sin.sin_port = htons(port_no);
 
     if (connect(sock, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-        perror("Error connecting to server");
+        //perror("Error connecting to server");
         close(sock);
         return 1;
     }
     
-    cout << "Connected to server. Type command:" << endl;
+    //cout << "Connected to server. Type command:" << endl;
 
     while (true) {
-        // Use standard input to prompt the user
-        cout << "> ";
-        
-        // Use getInputFromStream or standard getline/input (depends on your implementation)
         string userInput = getInputFromStream(cin);
         
         if (userInput.empty()) {
             continue;
         }
 
-        // --- FIX: Append newline for server compatibility and robustness ---
         // Most line-based server protocols expect a newline to signal end-of-command.
         string messageToSend = userInput + "\n";
         
         int sent_bytes = send(sock, messageToSend.c_str(), messageToSend.length(), 0);
 
         if (sent_bytes < 0) {
-            perror("Error sending message");
+            //perror("Error sending message");
             break;
         }
 
@@ -70,17 +65,17 @@ int main(int argc, char* argv[]) {
         int read_bytes = recv(sock, buffer, sizeof(buffer) - 1, 0); // Leave space for null terminator
         
         if (read_bytes == 0) {
-            cout << "Server closed connection." << endl;
+            //cout << "Server closed connection." << endl;
             break;
         }
         else if (read_bytes < 0) {
-            perror("Error receiving message");
+            //perror("Error receiving message");
             break;
         }
         else {
-            // --- FIX: Null-terminate the buffer safely before printing ---
+            // FIX: Null-terminate the buffer safely before printing 
             buffer[read_bytes] = '\0';
-            cout << "Server sent:\n" << buffer << endl;
+            cout << buffer;
         }
     }
     

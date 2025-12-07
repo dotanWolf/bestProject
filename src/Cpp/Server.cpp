@@ -23,10 +23,9 @@ int Server::CreateSocket() {
     // Create a TCP/IP socket (AF_INET, SOCK_STREAM)
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
-        perror("error creating socket");
+        //perror("error creating socket");
         return -1;
     }
-    std::cout << "Socket created" << std::endl;
     return sock;
 }
 
@@ -74,9 +73,9 @@ void Server::HandleClient(int client_sock) {
             // App reads input from the stringstream 'iss'
             app.executeSingleCommand(iss, oss); 
         } catch (const std::exception& e) {
-            std::cerr << "Exception during command execution: " << e.what() << std::endl;
+            //std::cerr << "Exception during command execution: " << e.what() << std::endl;
         } catch (...) {
-            std::cerr << "Unknown exception during command execution." << std::endl;
+            //std::cerr << "Unknown exception during command execution." << std::endl;
         }
 
         // 5. Send the App's output back to the client manually
