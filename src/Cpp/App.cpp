@@ -74,11 +74,6 @@ void App::executeSingleCommand(std::istream& is, std::ostream& os) {
     
     // 3. Parse and execute the command (Logic mirrors App::run())
     std::string commandName = Parser::getFirstWord(userInput);
-    if (commandName == "POST") {
-    // Replace only the first word in the command
-    userInput = "add" + userInput.substr(4); 
-    commandName = "add"; 
-    }
     // Requirement: Commands are case-insensitive
     std::string upperCommandName = commandName;
     std::transform(upperCommandName.begin(), upperCommandName.end(), upperCommandName.begin(), ::toupper);
