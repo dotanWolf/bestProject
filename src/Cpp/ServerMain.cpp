@@ -26,11 +26,15 @@
 #include "Server.h"
 #include "IExecutor.h"
 #include "ThreadPerClientExecutor.h"
+#include <mutex>
 
 using namespace std;
 
 // The server's entry point and main execution loop.
+std::mutex m;
+
 int main(int argc, char* argv[]) {
+    static std::mutex file_mutex; // shared between all threads
     if (argc != 2) {
         cerr << "Usage: " << argv[0] << " <PortNumber>" << endl;
         return 1;
@@ -51,9 +55,9 @@ int main(int argc, char* argv[]) {
     commands["SEARCH"] = search;
     ICommand* deleteC = new DeleteCommand();
     commands["DELETE"] = deleteC;
-
+    std::mutex serverLock;
     // 3. Initialize App (The Command Processor)
-    App app(commands, compressor);
+    App app(commands, compressor, &serverLock);
     int port;
     try {
         port = stoi(argv[1]);
@@ -95,9 +99,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     cout << "Server listening on port " << port << "..." << endl;
-    
-    // --- Main Server Loop ---
-    while(true) {
+     while(true) {
         struct sockaddr_in client_sin;
         unsigned int addr_len = sizeof(client_sin);
         

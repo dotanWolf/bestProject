@@ -5,16 +5,19 @@
 #include <string>
 #include <vector>
 #include <Parser.h>
-#include <App.h>
+#include "App.h"
 #include <algorithm> 
 #include <cctype>    
+#include <mutex>
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
        
-App::App(const map<string, ICommand*> commands, ICompressor* compressor)
-    : commands(commands), compressor(compressor) {}
-
+App::App(const std::map<std::string, ICommand*> commands, ICompressor* compressor,  std::mutex* mutex) 
+    : commands(commands), compressor(compressor), sharedMutex(mutex) {
+}
 void App::run() {
     for (const auto& pair : commands) {
         ICommand* command = pair.second;  // pointer stored inside the map
@@ -54,6 +57,7 @@ void App::run() {
     
 
 void App::executeSingleCommand(std::istream& is, std::ostream& os) {
+    std::lock_guard<std::mutex> lock(*sharedMutex);
     // 1. Ensure compressors are set (only needed once, but safe to call)
     for (const auto& pair : commands) {
         ICommand* command = pair.second;
@@ -78,7 +82,7 @@ void App::executeSingleCommand(std::istream& is, std::ostream& os) {
     auto it = commands.find(upperCommandName);
     
     // Default error response for unknown or structurally invalid commands
-    std::string errorResponse = "400 Bad Request\n";
+    string errorResponse = "400 Bad Request\n";
     
     if (it == commands.end() || it->second == nullptr) {
         os << errorResponse;
@@ -94,6 +98,7 @@ void App::executeSingleCommand(std::istream& is, std::ostream& os) {
             os << errorResponse;
             return;
         }
+        //Suppose to get mutex from server using constructor and lock it here
         cmd->execute(arguments); 
 
     } catch (const std::runtime_error& e) {
@@ -103,4 +108,5 @@ void App::executeSingleCommand(std::istream& is, std::ostream& os) {
         // Unknown or unexpected internal error
         os << errorResponse;
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 }

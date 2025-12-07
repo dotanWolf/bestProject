@@ -6,7 +6,7 @@
 
 # Run Client (in a new terminal)
 #docker run --rm -it --network host app /usr/src/myproject/build/ClientApp 127.0.0.1 9120
-
+#docker run --rm -it --network host -v C:\Users\User\Pictures\ProjetBIU\bestProject:/app python:latest python /app/src/cpp/Client.py 127.0.0.1 9190
 FROM gcc:latest
 RUN apt-get update && apt-get install -y cmake
 
