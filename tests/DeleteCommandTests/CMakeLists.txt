@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(searchCommandTests)
+project(addCommandTests)
 
 # GoogleTest FetchContent
 include(FetchContent)
@@ -14,18 +14,18 @@ enable_testing()
 # Add include directory for headers
 include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
-add_executable(runserverTests
- serverTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/App.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/Server.cpp
+add_executable(rundeleteCommandTests
+    deleteCommandTests.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/addCommand.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ThreadPerClientExecutor.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/RLECompressor.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/output.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
 )
 
-target_link_libraries(runserverTests gtest gtest_main)
+target_link_libraries(runaddCommandTests gtest gtest_main)
 
-add_test(NAME serverTests COMMAND runserverTests)
+add_test(NAME deleteCommandTests COMMAND rundeleteCommandTests)

@@ -15,16 +15,16 @@ using namespace std;
 TEST(searchCommandTest, Validation){
     ICommand* command = new searchCommand();
     EXPECT_EQ(command -> isValid("searchh "), nullopt);
-    EXPECT_EQ(command -> isValid(" search aabbbddd"), nullopt);
+    EXPECT_EQ(command -> isValid(" SEARCH aabbbddd"), nullopt);
     EXPECT_EQ(command -> isValid(""), nullopt);
     vector<string> vector = {"newFile aabbbddd"};
-    EXPECT_EQ(command -> isValid("search newFile aabbbddd"), vector);
+    EXPECT_EQ(command -> isValid("SEARCH newFile aabbbddd"), vector);
     vector = {"  aabbbddd "};
-    EXPECT_EQ(command -> isValid("search   aabbbddd "), vector);
+    EXPECT_EQ(command -> isValid("SEARCH   aabbbddd "), vector);
     vector = {"aabbbddd cccccdddaaa"};
-    EXPECT_EQ(command -> isValid("search aabbbddd cccccdddaaa"), vector);
+    EXPECT_EQ(command -> isValid("SEARCH aabbbddd cccccdddaaa"), vector);
     vector = {"aabbbddd cccc  cdddaaa   "};
-    EXPECT_EQ(command -> isValid("search aabbbddd cccc  cdddaaa   "), vector);
+    EXPECT_EQ(command -> isValid("SEARCH aabbbddd cccc  cdddaaa   "), vector);
 }
 
 TEST(searchCommandTest, execute){
