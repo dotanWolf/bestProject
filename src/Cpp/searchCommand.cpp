@@ -33,7 +33,7 @@ void searchCommand::execute(std::optional<std::vector<std::string>> arguments) {
         // decompress the content
         std::string originalFileContent = getCompressor() -> decompress(compressedfileContent);
         // check if file contains the argument passed to the function as a substring
-        if (originalFileContent.find(arguments.value()[0]) != std::string::npos){    
+        if (originalFileContent.find(arguments.value()[0])!= std::string::npos  || fileName.find(arguments.value()[0]) != std::string::npos){    
             if (spaceNeeded) printOutput(std::cout, " ");   
             printOutput(std::cout, fileName);
             spaceNeeded = true;
