@@ -60,6 +60,40 @@ TEST(searchCommandTest, execute){
     std::filesystem::remove(fullPath);
 }
 
+TEST(searchCommandTestV2, execute){
+    ICommand* command = new searchCommand();
+    ICompressor* compressor = new RLECompressor();
+    command -> setCompressor(compressor);
+
+    createFileInRleDir("a");
+    insertTextToFile("5a", "a");
+    createFileInRleDir("b");
+    insertTextToFile("5a", "b");
+    createFileInRleDir("c");
+    insertTextToFile("5b", "c");
+    std::vector<std::string> vector = {"c"};
+
+    std::streambuf* original_cout_buffer = std::cout.rdbuf();
+    std::stringstream captured_output;
+    std::cout.rdbuf(captured_output.rdbuf());
+    
+    command -> execute(vector);
+
+    std::cout.rdbuf(original_cout_buffer);
+    std::string output = captured_output.str();
+    EXPECT_TRUE(output == "c\n");
+
+    const char* env = std::getenv(ENV_VAR);
+    std::filesystem::path dirPath(env);
+    std::filesystem::path fullPath = dirPath / "a";
+    std::filesystem::remove(fullPath);
+    fullPath = dirPath / "b";
+    std::filesystem::remove(fullPath);
+    fullPath = dirPath / "c";
+    std::filesystem::remove(fullPath);
+}
+
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
