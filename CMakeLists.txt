@@ -27,6 +27,7 @@ set(SERVER_SRCS
     src/Cpp/input.cpp
     src/Cpp/Parser.cpp
     src/Cpp/save.cpp
+    src/Cpp/deleteFile.cpp
 )
 
 set(CLIENT_SRCS
@@ -48,6 +49,7 @@ set(CLIENT_SRCS
     src/Cpp/input.cpp
     src/Cpp/Parser.cpp
     src/Cpp/save.cpp
+    src/Cpp/deleteFile.cpp
 )
 
 # MyProject is the server. 

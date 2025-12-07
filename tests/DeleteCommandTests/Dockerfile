@@ -12,11 +12,11 @@ COPY . /usr/src/myproject
 ENV RLE_DIR=/app/data
 
 # Move into the test folder
-WORKDIR /usr/src/myproject/tests/DeletCommandTests/build
+WORKDIR /usr/src/myproject/tests/DeleteCommandTests/build
 
 # Configure + build
 RUN mkdir -p build
-WORKDIR /usr/src/myproject/tests/DeletCommandTests/build
+WORKDIR /usr/src/myproject/tests/DeleteCommandTests/build
 RUN cmake .. && make
 
 CMD ["./rundeleteCommandTests"]

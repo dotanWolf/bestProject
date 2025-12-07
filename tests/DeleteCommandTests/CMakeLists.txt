@@ -16,7 +16,7 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
 add_executable(rundeleteCommandTests
     deleteCommandTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/addCommand.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/DeleteCommand.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
@@ -24,8 +24,9 @@ add_executable(rundeleteCommandTests
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/RLECompressor.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/deleteFile.cpp
 )
 
-target_link_libraries(runaddCommandTests gtest gtest_main)
+target_link_libraries(rundeleteCommandTests gtest gtest_main)
 
 add_test(NAME deleteCommandTests COMMAND rundeleteCommandTests)
