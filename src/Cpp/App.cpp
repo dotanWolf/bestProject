@@ -74,10 +74,10 @@ void App::executeSingleCommand(std::istream& is, std::ostream& os) {
     
     // 3. Parse and execute the command (Logic mirrors App::run())
     std::string commandName = Parser::getFirstWord(userInput);
-    // Requirement: Commands are case-insensitive
     std::string upperCommandName = commandName;
     std::transform(upperCommandName.begin(), upperCommandName.end(), upperCommandName.begin(), ::toupper);
-    
+    userInput.replace(0, commandName.length(), upperCommandName);
+
     auto it = commands.find(upperCommandName);
     
     // Default error response for unknown or structurally invalid commands

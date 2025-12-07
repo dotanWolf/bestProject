@@ -5,5 +5,15 @@
 
 //Creating new files in the directory given by RLE_DIR
 // returns true if succeceds false if the file already exists or if failed to create
-bool createFileInRleDir(const std::string& fileName);
+// In create.h
+
+enum class FileCreationStatus {
+    SUCCESS,
+    ERROR_ENV_VAR_MISSING,
+    ERROR_FILE_EXISTS,
+    ERROR_FAILED_TO_OPEN
+};
+
+// Update the function signature in create.h:
+FileCreationStatus createFileInRleDir(const std::string& fileName);
 #endif

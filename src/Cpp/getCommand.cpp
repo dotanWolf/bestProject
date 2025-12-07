@@ -20,6 +20,7 @@ void getCommand::execute(std::optional<std::vector<std::string>> arguments) {
     // 3. Decompress the content (Missing RLE Decompress function)
     // 4. Print the result using printOutput()
     // Validate arguments exist
+    int counter=0;
     std::string name = arguments.value()[0];
     const char* env_var_path = getenv(ENV_VAR);
     if (!env_var_path) return;
@@ -29,6 +30,10 @@ void getCommand::execute(std::optional<std::vector<std::string>> arguments) {
         std::string fileName = entry.path().filename().string();
         // if we found the file
         if (fileName == arguments.value()[0]) {
+            counter++;
+            if(counter==1){
+                printOutput(std::cout,"200 Ok\n\n");
+            }
             // get its content
             std::optional<std::string> optional = retFileContent(fileName);
             // skip if reading from the file failed
@@ -42,6 +47,10 @@ void getCommand::execute(std::optional<std::vector<std::string>> arguments) {
             break;
         }
     }
+    if(counter==0){
+        printOutput(std::cout,"404 Not Found\n\n");
+    }
+            
 }
 std::optional<std::vector<std::string>> getCommand::isValid(std::string input) {
     std::vector<std::string> vector;

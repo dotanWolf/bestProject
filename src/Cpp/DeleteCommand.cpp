@@ -5,7 +5,8 @@
 #include <algorithm>
 #include <filesystem>
 #include "deleteFile.h"
-
+#include "output.h"
+#include <iostream>
 
 using namespace std;
 
@@ -15,6 +16,7 @@ void DeleteCommand::execute(std::optional<std::vector<std::string>> arguments) {
     if (checkFileExists(fileName)) {
         deleteFile(fileName);
     }
+    printOutput(std::cout,"204 No Content");
  }
 
 std::optional<std::vector<std::string>> DeleteCommand::isValid(std::string input) {

@@ -40,7 +40,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // --- Application Initialization (The Business Logic) ---
     map<string, ICommand*> commands;
     
     // 1. Initialize Compressor
@@ -62,7 +61,7 @@ int main(int argc, char* argv[]) {
     try {
         port = stoi(argv[1]);
     } catch (const invalid_argument& e) {
-        cerr << "Invalid port number." << endl;
+        //cerr << "Invalid port number." << endl;
         return 1;
     }
 
@@ -70,7 +69,7 @@ int main(int argc, char* argv[]) {
     
     Server* server = new Server(port, app, executor); 
 
-    // --- Network Setup ---
+    // Network Setup 
     int sock = server->CreateSocket();
     if (sock < 0) {
         // Error already printed by CreateSocket's perror
@@ -83,22 +82,20 @@ int main(int argc, char* argv[]) {
     
     // Bind the socket to the address and port
     if (bind(sock, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-        perror("error binding socket");
+        //perror("error binding socket");
         close(sock);
         delete server;
         delete executor;
         return 1;
     }
 
-    // Listen for incoming connections (max 5 in backlog)
-    if (listen(sock, 5) < 0) {
-        perror("error listening to a socket");
+    if (listen(sock, SOMAXCONN) < 0) {
+        //perror("error listening to a socket");
         close(sock);
         delete server;
         delete executor;
         return 1;
     }
-    cout << "Server listening on port " << port << "..." << endl;
      while(true) {
         struct sockaddr_in client_sin;
         unsigned int addr_len = sizeof(client_sin);
@@ -106,15 +103,14 @@ int main(int argc, char* argv[]) {
         // Wait for a client connection request
         int client_sock = accept(sock, (struct sockaddr *) &client_sin, &addr_len);
         if (client_sock < 0) {
-            perror("error accepting client");
+            //perror("error accepting client");
             continue;
         }
         
         // Print client connection info (optional, for debugging/status)
         char client_ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(client_sin.sin_addr), client_ip, INET_ADDRSTRLEN);
-        cout << "Client connected from " << client_ip << ":" << ntohs(client_sin.sin_port) << endl;
-
+        //cout << "Client connected from " << client_ip << ":" << ntohs(client_sin.sin_port) << endl;
         // Create a task (lambda function) to handle the connected client
         // Capture 'server' (pointer to Server) and 'client_sock' by value.
         IExecutor::Runnable clientTask = [server, client_sock]() {

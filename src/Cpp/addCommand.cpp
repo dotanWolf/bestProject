@@ -8,16 +8,41 @@
 #include "save.h"
 #include <sstream>
 #include "addCommand.h"
-
+#include "output.h"
+#include <iostream>
 
 void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
     std::string fileName = arguments.value()[0];
     std::string text = arguments.value()[1];
-    if (createFileInRleDir(fileName)) {
-        // the file was created successfully, compress the text and write it in the file
-        insertTextToFile(getCompressor() -> compress(text), fileName);
+    FileCreationStatus status = createFileInRleDir(fileName);
+    
+    switch (status) {
+        case FileCreationStatus::SUCCESS:
+            // File created successfully: proceed with compression and writing
+            insertTextToFile(getCompressor()->compress(text), fileName);
+            printOutput(std::cout, "201 Created");
+            break;
+            
+        case FileCreationStatus::ERROR_FILE_EXISTS:
+            printOutput(std::cout, "404 Not Found"); 
+            break;
+            
+        case FileCreationStatus::ERROR_ENV_VAR_MISSING:
+            // Server configuration error
+            printOutput(std::cout, "Internal Server Error 500");
+            break;
+            
+        case FileCreationStatus::ERROR_FAILED_TO_OPEN:
+            // Generic failure to open or write (could also be used as the default)
+            printOutput(std::cout, "Internal Server Error 500");
+            break;
+            
+        default:
+            // Catch any unexpected/unhandled enum values
+            printOutput(std::cout, "Internal Server Error 500");
+            break;
     }
- }
+}
 
 std::optional<std::vector<std::string>> addCommand::isValid(std::string input) {
     std::vector<std::string> vector;
