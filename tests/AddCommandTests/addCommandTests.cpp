@@ -12,19 +12,19 @@ using namespace std;
 TEST(addCommandTest, Validation){
     ICommand* command = new addCommand();
     EXPECT_EQ(command -> isValid("addd newFile aabbbddd"), nullopt);
-    EXPECT_EQ(command -> isValid(" add newFile aabbbddd"), nullopt);
+    EXPECT_EQ(command -> isValid(" POST newFile aabbbddd"), nullopt);
     EXPECT_EQ(command -> isValid(""), nullopt);
-    EXPECT_EQ(command -> isValid("add newFile"), nullopt);
+    EXPECT_EQ(command -> isValid("POST newFile"), nullopt);
     // need to check if an empty content is considered invalid or not
     vector<string> vector = {"newFile", ""};
-    EXPECT_EQ(command -> isValid("add newFile "), vector);
-    EXPECT_EQ(command -> isValid("add  newFile"), nullopt);
+    EXPECT_EQ(command -> isValid("POST newFile "), vector);
+    EXPECT_EQ(command -> isValid("POST  newFile"), nullopt);
     vector = {"newFile", "aabbbddd cccccdddaaa"};
-    EXPECT_EQ(command -> isValid("add newFile aabbbddd cccccdddaaa"), vector);
+    EXPECT_EQ(command -> isValid("POST newFile aabbbddd cccccdddaaa"), vector);
     vector = {"new", "File aabbbddd cccccdddaaa"};
-    EXPECT_EQ(command -> isValid("add new File aabbbddd cccccdddaaa"), vector);
+    EXPECT_EQ(command -> isValid("POST new File aabbbddd cccccdddaaa"), vector);
     vector = {"new", "File aabbbddd cccc  cdddaaa   "};
-    EXPECT_EQ(command -> isValid("add new File aabbbddd cccc  cdddaaa   "), vector);
+    EXPECT_EQ(command -> isValid("POST new File aabbbddd cccc  cdddaaa   "), vector);
 
 }
 

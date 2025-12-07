@@ -17,13 +17,13 @@
         EXPECT_EQ(command -> isValid("gett "), nullopt);
         EXPECT_EQ(command -> isValid(" get aabbbddd"), nullopt);
         EXPECT_EQ(command -> isValid(""), nullopt);
-        EXPECT_EQ(command -> isValid("get newFile aabbbddd"), nullopt);
-        EXPECT_EQ(command -> isValid("get   aabbbddd "), nullopt);
-        EXPECT_EQ(command -> isValid("get aabbbddd cccccdddaaa"), nullopt);
-        EXPECT_EQ(command -> isValid("get aabbbddd cccc  cdddaaa   "), nullopt);
+        EXPECT_EQ(command -> isValid("GET newFile aabbbddd"), nullopt);
+        EXPECT_EQ(command -> isValid("GET   aabbbddd "), nullopt);
+        EXPECT_EQ(command -> isValid("GET aabbbddd cccccdddaaa"), nullopt);
+        EXPECT_EQ(command -> isValid("GET aabbbddd cccc  cdddaaa   "), nullopt);
         vector<string> vector = {"newFile"};
-        EXPECT_EQ(command -> isValid("get newFile"), vector);
-        EXPECT_EQ(command -> isValid("get newFile "), nullopt);
+        EXPECT_EQ(command -> isValid("GET newFile"), vector);
+        EXPECT_EQ(command -> isValid("GET newFile "), nullopt);
     }
 
     TEST(getCommandTest, execute){
