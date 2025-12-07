@@ -53,7 +53,7 @@ std::optional<std::vector<std::string>> getCommand::isValid(std::string input) {
     // seperate the input until the first space
     // everything before is the command
     cmd = input.substr(0, firstSpace);
-    if (cmd != "get") {
+    if (cmd != "GET") {
         return std::nullopt;   
     }
     // everything after is the filename

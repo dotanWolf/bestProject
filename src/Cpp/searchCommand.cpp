@@ -51,7 +51,7 @@ std::optional<std::vector<std::string>> searchCommand::isValid(std::string input
     // seperate the input until the first space
     // everything before is the command
     cmd = input.substr(0, firstSpace);
-    if (cmd != "search") {
+    if (cmd != "SEARCH") {
         return std::nullopt;   
     }
     // everything after is the rest

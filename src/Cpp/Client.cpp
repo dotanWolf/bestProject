@@ -12,7 +12,7 @@
 // Use the standard namespace to simplify code
 using namespace std;
 
-int mainClient(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     // argv[1] will be the servers ip, argv[2] will be the port the server is listening to
     // an ip number that represents our computer
     const char* ip_address = argv[1];

@@ -4,11 +4,54 @@ project(MyProject)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Collect all .cpp files in src/CPP
-file(GLOB_RECURSE SOURCES "src/Cpp/*.cpp")
-
 # Add include directory
 include_directories(src/Headers)
 
-# Create executable
-add_executable(MyProject ${SOURCES})
+
+set(SERVER_SRCS
+    src/Cpp/ServerMain.cpp
+    src/Cpp/Server.cpp
+    src/Cpp/ThreadPerClientExecutor.cpp
+    src/Cpp/App.cpp
+    src/Cpp/ICompressor.cpp
+    src/Cpp/RLECompressor.cpp
+    src/Cpp/ICommand.cpp
+    src/Cpp/addCommand.cpp
+    src/Cpp/getCommand.cpp
+    src/Cpp/searchCommand.cpp
+    src/Cpp/DeleteCommand.cpp
+    src/Cpp/PostCommand.cpp
+    src/Cpp/create.cpp
+    src/Cpp/load.cpp
+    src/Cpp/output.cpp
+    src/Cpp/input.cpp
+    src/Cpp/Parser.cpp
+    src/Cpp/save.cpp
+)
+
+set(CLIENT_SRCS
+    src/Cpp/Client.cpp
+    src/Cpp/Client.py
+    src/Cpp/ThreadPerClientExecutor.cpp
+    src/Cpp/App.cpp
+    src/Cpp/ICompressor.cpp
+    src/Cpp/RLECompressor.cpp
+    src/Cpp/ICommand.cpp
+    src/Cpp/addCommand.cpp
+    src/Cpp/getCommand.cpp
+    src/Cpp/searchCommand.cpp
+    src/Cpp/DeleteCommand.cpp
+    src/Cpp/PostCommand.cpp
+    src/Cpp/create.cpp
+    src/Cpp/load.cpp
+    src/Cpp/output.cpp
+    src/Cpp/input.cpp
+    src/Cpp/Parser.cpp
+    src/Cpp/save.cpp
+)
+
+# MyProject is the server. 
+add_executable(MyProject ${SERVER_SRCS})
+
+# ClientApp is the client. 
+add_executable(ClientApp ${CLIENT_SRCS})
