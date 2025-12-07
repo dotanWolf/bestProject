@@ -13,9 +13,10 @@ using namespace std;
 // Forward declaration of the file system deletion function
 void DeleteCommand::execute(std::optional<std::vector<std::string>> arguments) {
     std::string fileName = arguments.value()[0];
-    if (checkFileExists(fileName)) {
-        deleteFile(fileName);
+    if (!checkFileExists(fileName)) {
+        printOutput(std::cout,"404 No Found");
     }
+    deleteFile(fileName);
     printOutput(std::cout,"204 No Content");
  }
 
