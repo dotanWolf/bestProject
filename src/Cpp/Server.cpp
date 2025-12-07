@@ -13,12 +13,12 @@
 #include "App.h"
 #include "IExecutor.h"
 #include "output.h"     
+#include <mutex>
 
 // The constructor accepts IExecutor* to satisfy Dependency Injection.
 Server::Server(int port, App& app, IExecutor* executor)
     : port(port), app(app), executor(executor) {}
     
-
 int Server::CreateSocket() {
     // Create a TCP/IP socket (AF_INET, SOCK_STREAM)
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -67,7 +67,6 @@ void Server::HandleClient(int client_sock) {
         std::ostringstream oss; 
         
         // 3. Set the thread-local stream to the stringstream
-        // All calls to printOutput() in the App/Commands will write to 'oss'.
         setThreadOutputStream(&oss); 
 
         // 4. Execute the command using the App logic

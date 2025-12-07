@@ -7,19 +7,21 @@
 #include <optional>
 #include "ICompressor.h"
 #include "ICommand.h"
-
+#include <pthread.h>
+#include <mutex> 
 class App {
 private:
     // maps each string of a command to its object
     std::map<std::string, ICommand*> commands;
     // some compresssor that can compress and decompress based on some algorithm
     ICompressor* compressor;
+    std::mutex* sharedMutex;
 
 public:
     // Constructor
-    App(const std::map<std::string, ICommand*> commands, ICompressor* compressor);
-
-    // Runs the main application loop
+    App(const std::map<std::string, ICommand*> commands, 
+        ICompressor* compressor, 
+        std::mutex* mutex); 
     void run();
     void executeSingleCommand(std::istream& is, std::ostream& os);
 };
