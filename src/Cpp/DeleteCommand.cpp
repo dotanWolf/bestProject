@@ -12,14 +12,36 @@ using namespace std;
 
 // Forward declaration of the file system deletion function
 void DeleteCommand::execute(std::optional<std::vector<std::string>> arguments) {
-    std::string fileName = arguments.value()[0];
-    if (!checkFileExists(fileName)) {
-        printOutput(std::cout,"404 No Found");
+    // 1. Input Validation
+    if (!arguments || arguments->empty()) {
+        // HTTP 400 Bad Request
+        printOutput(std::cout, "400 Bad Request");
+        return;
     }
-    deleteFile(fileName);
-    printOutput(std::cout,"204 No Content");
- }
-
+    std::string fileName = arguments.value()[0];
+    FileDeletionStatus status = deleteFile(fileName);
+    switch (status) {
+        case FileDeletionStatus::SUCCESS:
+            // File was found and successfully deleted.
+            printOutput(std::cout, "204 No Content");
+            break;
+            
+        case FileDeletionStatus::ERROR_FILE_NOT_FOUND:
+            // The file did not exist when deleteFile was called.
+            printOutput(std::cout, "404 Not Found"); 
+            break;
+            
+        case FileDeletionStatus::ERROR_DELETION_FAILED:
+            // The file existed, but the server couldn't remove it (permissions, I/O error).
+            printOutput(std::cout, "500 Internal Server Error"); 
+            break;
+            
+        default:
+            // Catch any unexpected/unhandled enum values
+            printOutput(std::cout, "500 Internal Server Error"); 
+            break;
+    }
+}
 std::optional<std::vector<std::string>> DeleteCommand::isValid(std::string input) {
         std::vector<std::string> vector;
     if (input.empty()) return std::nullopt;  // empty line is invalid

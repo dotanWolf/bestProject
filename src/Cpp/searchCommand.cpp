@@ -11,36 +11,69 @@
 #include "load.h"
 #include "output.h"
 #include <iostream>
-
+using namespace std;
 void searchCommand::execute(std::optional<std::vector<std::string>> arguments) {
     // Placeholder logic:
     // 1. Parse 'search [pattern]' from rawInput
     // 2. Iterate through all files in RLE_DIR
     // 3. For each file, load, decompress, and search for the pattern.
     // 4. Print results using printOutput()
+    if (!arguments || arguments->empty()) {
+        printOutput(std::cout, "400 Bad Request\n");
+        return;
+    }
     bool spaceNeeded = false;
+    std::string searchPattern = arguments.value()[0];
     const char* env_var_path = getenv(ENV_VAR);
+    if (!env_var_path) {
+        printOutput(std::cout, "500 Internal Server Error\n");
+        return;
+    }   
     std::filesystem::path path(env_var_path);
     // iterate over all files in RLE_DIR
+    int count=0;
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
+        
         std::string fileName = entry.path().filename().string();
-        // skip over directories etc
+        std::string fileContent;
+        bool skip_file = false;
+
         if (!entry.is_regular_file()) continue;
-        std::optional<std::string> optional = retFileContent(fileName);
-        // skip if couldnt read file
-        if (!optional.has_value()) continue;
-        std::string compressedfileContent = optional.value();
-        // decompress the content
-        std::string originalFileContent = getCompressor() -> decompress(compressedfileContent);
-        // check if file contains the argument passed to the function as a substring
-        if (originalFileContent.find(arguments.value()[0])!= std::string::npos  || fileName.find(arguments.value()[0]) != std::string::npos){    
-            if (spaceNeeded) printOutput(std::cout, " ");   
+        
+        FileRetrievalStatus status = retFileContent(fileName, fileContent);
+        
+        switch (status) {
+            case FileRetrievalStatus::SUCCESS:
+                break; // Continue to processing
+                
+            case FileRetrievalStatus::ERROR_FILE_NOT_FOUND:
+            case FileRetrievalStatus::ERROR_READ_FAILURE:
+            default:
+                // Failure to load this specific file: set skip flag and break switch
+                skip_file = true; 
+                break;
+        }
+
+        if (skip_file) continue; // Skip to next file if load failed
+        
+        std::string originalFileContent = getCompressor() -> decompress(fileContent);
+        
+        if (originalFileContent.find(searchPattern) != std::string::npos || fileName.find(searchPattern) != std::string::npos) { 
+            count++;
+            if(count==1){
+                 printOutput(std::cout, "200 Ok\n\n");
+            }
+            if (spaceNeeded) printOutput(std::cout, " "); 
             printOutput(std::cout, fileName);
             spaceNeeded = true;
         }
     }
-    printOutput(std::cout, "\n");
+    if(count==0){
+       printOutput(std::cout, "404 Not Found");  
+    }
+    printOutput(std::cout, "\n"); 
 }
+
 std::optional<std::vector<std::string>> searchCommand::isValid(std::string input) {
      std::vector<std::string> vector;
     if (input.empty()) return std::nullopt;  // empty line is invalid
