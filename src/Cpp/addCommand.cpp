@@ -17,12 +17,18 @@ void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
     FileCreationStatus status = createFileInRleDir(fileName);
     
     switch (status) {
-        case FileCreationStatus::SUCCESS:
-            // File created successfully: proceed with compression and writing
-            insertTextToFile(getCompressor()->compress(text), fileName);
-            printOutput(std::cout, "201 Created");
-            break;
+        case FileCreationStatus::SUCCESS:{
+            std::string compressedText = getCompressor()->compress(text);
             
+            FileSaveStatus saveStatus = insertTextToFile(compressedText, fileName);
+
+            if (saveStatus == FileSaveStatus::SUCCESS) {
+                printOutput(std::cout, "201 Created");
+            } else {
+                printOutput(std::cout, "500 Internal Server Error");
+            }
+            break;
+        }
         case FileCreationStatus::ERROR_FILE_EXISTS:
             printOutput(std::cout, "404 Not Found"); 
             break;

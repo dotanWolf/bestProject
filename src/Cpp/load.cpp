@@ -9,19 +9,35 @@
  #include <fstream>
  
  using namespace std;
+namespace fs = std::filesystem;
 
-optional<string> retFileContent(const string& file_name) {
+FileRetrievalStatus retFileContent(const string& file_name, std::string& content_out) {
     const char* env_var_path = getenv(ENV_VAR);
-    std::filesystem::path filePath = std::filesystem::path(env_var_path) / file_name;
-    ifstream in(filePath); // create a stream to the path of the file
-    if (!in) {
-        return nullopt; // Return empty string on failure
+    if (!env_var_path) {
+        return FileRetrievalStatus::ERROR_READ_FAILURE; 
     }
+    
+    fs::path filePath = fs::path(env_var_path) / file_name;
+
+    if (!fs::exists(filePath)) {
+        return FileRetrievalStatus::ERROR_FILE_NOT_FOUND;
+    }
+
+    // Open file stream
+    ifstream in(filePath, ios::in | ios::binary);
+    if (!in.is_open()) {
+        return FileRetrievalStatus::ERROR_READ_FAILURE; 
+    }
+    
     ostringstream buffer;
     buffer << in.rdbuf();
-    return buffer.str();    
-}
+    content_out = buffer.str(); 
+    
+    in.close();
 
+  
+    return FileRetrievalStatus::SUCCESS;
+}
 
 // vector<string> retListOfFileNames(const string& decompressedText) {
 //     vector<string> vector;

@@ -9,17 +9,31 @@
  
  using namespace std;
  namespace fs = std::filesystem;
- bool deleteFile(const std::string& file_name) {
-    
+
+ FileDeletionStatus deleteFile(const std::string& file_name) {
     const char* env = std::getenv(ENV_VAR);
     if (!env) {
-        return false; 
+        // Server configuration failure
+        return FileDeletionStatus::ERROR_DELETION_FAILED; 
     }
-    
     fs::path dirPath(env);
     fs::path fullPath = dirPath / file_name;
-    bool wasDeleted = fs::remove(fullPath);
-    return wasDeleted;
+    // 4. Check Existence (Crucial for determining 404 vs 500)
+    if (!fs::exists(fullPath)) {
+        return FileDeletionStatus::ERROR_FILE_NOT_FOUND;
+    }
+
+    // 5. Attempt Deletion
+    try {
+        if (fs::remove(fullPath)) {
+            return FileDeletionStatus::SUCCESS;
+        } else {
+            // File existed, but fs::remove failed 
+            return FileDeletionStatus::ERROR_DELETION_FAILED;
+        }
+    } catch (const fs::filesystem_error& e) {
+        return FileDeletionStatus::ERROR_DELETION_FAILED;
+    }
 }
 
 bool checkFileExists(const std::string& fileName) {

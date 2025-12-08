@@ -20,37 +20,41 @@ void getCommand::execute(std::optional<std::vector<std::string>> arguments) {
     // 3. Decompress the content (Missing RLE Decompress function)
     // 4. Print the result using printOutput()
     // Validate arguments exist
-    int counter=0;
-    std::string name = arguments.value()[0];
+   if (!arguments || arguments->empty()) {
+        printOutput(std::cout, "400 Bad Request\n\n");
+        return;
+    }
     const char* env_var_path = getenv(ENV_VAR);
     if (!env_var_path) return;
-    std::filesystem::path path(env_var_path);
-    // iterate over all files in RLE_DIR
-    for (const auto& entry : std::filesystem::directory_iterator(path)) {
-        std::string fileName = entry.path().filename().string();
-        // if we found the file
-        if (fileName == arguments.value()[0]) {
-            counter++;
-            if(counter==1){
-                printOutput(std::cout,"200 Ok\n\n");
-            }
-            // get its content
-            std::optional<std::string> optional = retFileContent(fileName);
-            // skip if reading from the file failed
-            if (!optional.has_value()) continue;
-            std::string compressedfileContent = optional.value();
-            // decompress its content
-            std::string originalFileContent = getCompressor() -> decompress(compressedfileContent);
-            // print it
+
+    std::string fileName = arguments.value()[0];
+    std::string fileContent; 
+    FileRetrievalStatus status = retFileContent(fileName, fileContent);
+    std::string originalFileContent;
+    switch (status) {
+        case FileRetrievalStatus::SUCCESS:
+            // Success: File was found and loaded.
+            printOutput(std::cout, "200 Ok\n\n");
+            originalFileContent = getCompressor() -> decompress(fileContent);
             printOutput(std::cout, originalFileContent);
-            printOutput(std::cout, "\n");
+            printOutput(std::cout, "\n"); 
             break;
-        }
-    }
-    if(counter==0){
-        printOutput(std::cout,"404 Not Found\n\n");
-    }
             
+        case FileRetrievalStatus::ERROR_FILE_NOT_FOUND:
+            // Client error: File does not exist.
+            printOutput(std::cout, "404 Not Found\n\n"); 
+            break;
+            
+        case FileRetrievalStatus::ERROR_READ_FAILURE:
+            // Server error: Internal I/O failure, permission error, or bad config.
+            printOutput(std::cout, "500 Internal Server Error\n\n"); 
+            break;
+            
+        default:
+            // Catch any unexpected/unhandled enum values
+            printOutput(std::cout, "500 Internal Server Error\n\n"); 
+            break;
+    }
 }
 std::optional<std::vector<std::string>> getCommand::isValid(std::string input) {
     std::vector<std::string> vector;
