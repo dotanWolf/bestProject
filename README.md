@@ -34,7 +34,7 @@ This application is a Command Line Interface (CLI) tool that allows users to add
 
 Example of the code running-
 ![Example of the code running-1, c++](image.png)
-![Example of the code running-, python](image-5.png)
+![Example of the code running-2, python](image-5.png)
 ![Example of the code running-3, c++ and python together](image-9.png)
 Ex2-Questions-
 
