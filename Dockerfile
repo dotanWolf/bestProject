@@ -1,12 +1,18 @@
 # in order to build this dockerfile go to the root directory (bestProject)
 # then run: docker build -t app .
 
-# then run it using: docker run --init --rm -it -p [portnumber]:[portnumber] -v files:/app/data app /usr/src/myproject/build/MyProject [portnumber]
-#example-docker run --init --rm -it -p 9120:9120 -v files:/app/data app /usr/src/myproject/build/MyProject 9120
+#now for server-
+#run: docker run --init --rm -it -p <port>:<port> -v files:/app/data app /usr/src/myproject/build/MyProject <port>
+#example- docker run --init --rm -it -p 9120:9120 -v files:/app/data app /usr/src/myproject/build/MyProject 9120
 
-# Run Client (in a new terminal)
-#docker run --rm -it --init --network host app /usr/src/myproject/build/ClientApp 127.0.0.1 9120
-#docker run --rm -it --network host -v .:/app python:latest python /app/src/cpp/Client.py 127.0.0.1 9120
+# For Client (in a new terminal)
+#C++ version-
+#docker docker run --rm -it --init --network host app /usr/src/myproject/build/ClientApp 127.0.0.1 <port>
+#example- docker run --rm -it --init --network host app /usr/src/myproject/build/ClientApp 127.0.0.1 9120
+#Python version-
+#docker run --rm -it --network host -v .:/app python:latest python /app/src/cpp/Client.py 127.0.0.1 <port>
+#example-docker run --rm -it --network host -v .:/app python:latest python /app/src/cpp/Client.py 127.0.0.1 9120
+
 FROM gcc:latest
 RUN apt-get update && apt-get install -y cmake
 

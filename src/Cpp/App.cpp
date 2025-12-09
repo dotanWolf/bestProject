@@ -107,5 +107,5 @@ void App::executeSingleCommand(std::istream& is, std::ostream& os) {
         // Unknown or unexpected internal error
         os << errorResponse;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    //std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 }
