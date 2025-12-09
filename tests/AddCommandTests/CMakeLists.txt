@@ -21,6 +21,7 @@ add_executable(runaddCommandTests
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/output.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/RLECompressor.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp

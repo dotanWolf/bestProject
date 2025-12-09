@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(DeleteCommandTests)
+project(deleteFileTests)
 
 # GoogleTest FetchContent
 include(FetchContent)
@@ -14,20 +14,21 @@ enable_testing()
 # Add include directory for headers
 include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
-add_executable(rundeleteCommandTests
-    deleteCommandTests.cpp
+add_executable(rundeleteFileTests
+    deleteFileTests.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/DeleteCommand.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp 
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/output.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/RLECompressor.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/output.cpp
     ${CMAKE_SOURCE_DIR}/../../src/Cpp/deleteFile.cpp
+    ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
 )
 
-target_link_libraries(rundeleteCommandTests gtest gtest_main)
+target_link_libraries(rundeleteFileTests gtest gtest_main)
 
-add_test(NAME deleteCommandTests COMMAND rundeleteCommandTests)
+add_test(NAME  deleteFileTests COMMAND rundeleteFileTests)

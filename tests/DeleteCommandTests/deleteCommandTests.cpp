@@ -6,6 +6,7 @@
 #include <vector>
 #include "DeleteCommand.h"
 #include "deleteFile.h"
+#include "output.h"
 #include "ICommand.h"
 
 using namespace std;

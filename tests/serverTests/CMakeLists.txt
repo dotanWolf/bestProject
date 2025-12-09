@@ -16,14 +16,23 @@ include_directories(${CMAKE_SOURCE_DIR}/../../src/Headers)
 
 add_executable(runserverTests
  serverTests.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/App.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/Server.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/ThreadPerClientExecutor.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/RLECompressor.cpp
-    ${CMAKE_SOURCE_DIR}/../../src/Cpp/output.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/App.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/Server.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/ICommand.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/getCommand.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/addCommand.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/searchCommand.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/DeleteCommand.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/PostCommand.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/input.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/Parser.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/ThreadPerClientExecutor.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/RLECompressor.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/output.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/create.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/save.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/load.cpp
+ ${CMAKE_SOURCE_DIR}/../../src/Cpp/deleteFile.cpp
 )
 
 target_link_libraries(runserverTests gtest gtest_main)

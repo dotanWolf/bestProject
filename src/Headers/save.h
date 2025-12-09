@@ -8,7 +8,8 @@
 enum class FileSaveStatus {
     SUCCESS,
     ERROR_ENV_VAR_MISSING,
-    ERROR_FAILED_TO_OPEN_WRITE // File existed or was created, but writing failed
+    ERROR_FAILED_TO_OPEN_WRITE, // File existed or was created, but writing failed
+    ERROR_FILE_NOT_EXISTS
 };
 FileSaveStatus insertTextToFile(const std::string& text, const std::string& fileName);
 

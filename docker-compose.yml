@@ -41,4 +41,16 @@ services:
     build:
       context: .
       dockerfile: /tests/deCompressionTests/Dockerfile
+  server:
+    build:
+      context: .
+      dockerfile: /tests/serverTests/Dockerfile
+  deletefile:
+    build:
+      context: .
+      dockerfile: /tests/deleteFIleTests/Dockerfile
+  deletecommand:
+    build:
+      context: .
+      dockerfile: /tests/deleteCommandTests/Dockerfile
       
