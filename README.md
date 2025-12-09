@@ -21,7 +21,7 @@ example- docker run --init --rm -it -p 9120:9120 -v files:/app/data app /usr/src
 
 For Client (in a new terminal)
 C++ version-
-docker docker run --rm -it --init --network host app /usr/src/myproject/build/ClientApp 127.0.0.1 <port>
+example- docker run --rm -it --init --network host app /usr/src/myproject/build/ClientApp 127.0.0.1 <port>
 example- docker run --rm -it --init --network host app /usr/src/myproject/build/ClientApp 127.0.0.1 9120
 ![C++ client](image-7.png)
 Python version-
