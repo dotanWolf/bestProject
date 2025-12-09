@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cstdlib>
 #include "create.h"
+
 namespace fs = std::filesystem;
 
 /* Helpers */
@@ -31,13 +32,12 @@ TEST(insertTextToFile, CreatesNewFileAndWritesTextInRleDir)
     ASSERT_FALSE(rleDir.empty());
 
     fs::path filePath = fs::path(rleDir) / "newFile";
-    fs::remove(filePath); // make sure it does not exist
+    fs::remove(filePath);
 
-    //createFileInRleDir("newFile");
     std::string text = "aabbbddd cccccdddaaa";
-
-    bool res = insertTextToFile(text, "newFile");
-    ASSERT_TRUE(res);
+    ASSERT_EQ(createFileInRleDir("newFile"), FileCreationStatus::SUCCESS);
+    FileSaveStatus res = insertTextToFile(text, "newFile");
+    ASSERT_EQ(res, FileSaveStatus::SUCCESS);
 
     ASSERT_TRUE(fs::exists(filePath));
     ASSERT_TRUE(fs::is_regular_file(filePath));
@@ -48,35 +48,20 @@ TEST(insertTextToFile, OverwritesExistingFileContent)
 {
     std::string rleDir = getRleDir();
     ASSERT_FALSE(rleDir.empty());
-
     fs::path filePath = fs::path(rleDir) / "existingFile";
+    fs::remove(filePath);
 
-    {
-        std::ofstream out(filePath, std::ios::binary | std::ios::trunc);
-        out << "old content";
-    }
+    ASSERT_EQ(createFileInRleDir("existingFile"), FileCreationStatus::SUCCESS);
+    std::string out = "old content";
+    FileSaveStatus res = insertTextToFile(out, "existingFile");
+    ASSERT_EQ(res, FileSaveStatus::SUCCESS);
 
     std::string newText = "new content";
 
-    bool res = insertTextToFile(newText, "existingFile");
-    ASSERT_TRUE(res);
-
-    ASSERT_TRUE(fs::exists(filePath));
-    ASSERT_TRUE(fs::is_regular_file(filePath));
-    EXPECT_EQ(readFileToString(filePath), newText);
+    res = insertTextToFile(newText, "existingFile");
+    ASSERT_EQ(res, FileSaveStatus::SUCCESS);
+    EXPECT_EQ(readFileToString(filePath), "new content");
 }
-
-// TEST(insertTextToFile, ReturnsFalseWhenPathIsDirectory)
-// {
-//     std::string text = "should not be written";
-
-//     fs::path dirPath = fs::temp_directory_path();
-//     ASSERT_TRUE(fs::exists(dirPath));
-//     ASSERT_TRUE(fs::is_directory(dirPath));
-
-//     bool res = insertTextToFile(text, dirPath.string());
-//     EXPECT_FALSE(res);
-// }
 
 /* Run tests */
 int main(int argc, char** argv)

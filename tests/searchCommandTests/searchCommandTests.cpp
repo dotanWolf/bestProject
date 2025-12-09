@@ -38,26 +38,31 @@ TEST(searchCommandTest, execute){
     insertTextToFile("5a", "b");
     createFileInRleDir("c");
     insertTextToFile("5b", "c");
+
     std::vector<std::string> vector = {"aaaaa"};
 
+    // Capture output
     std::streambuf* original_cout_buffer = std::cout.rdbuf();
     std::stringstream captured_output;
     std::cout.rdbuf(captured_output.rdbuf());
-    
+
     command -> execute(vector);
 
     std::cout.rdbuf(original_cout_buffer);
     std::string output = captured_output.str();
-    EXPECT_TRUE(output == "b a\n" || output == "a b\n");
 
+    // Expected patterns
+    std::string opt1 = "200 Ok\n\na b\n";
+    std::string opt2 = "200 Ok\n\nb a\n";
+
+    EXPECT_TRUE(output == opt1 || output == opt2);
+
+    // cleanup
     const char* env = std::getenv(ENV_VAR);
     std::filesystem::path dirPath(env);
-    std::filesystem::path fullPath = dirPath / "a";
-    std::filesystem::remove(fullPath);
-    fullPath = dirPath / "b";
-    std::filesystem::remove(fullPath);
-    fullPath = dirPath / "c";
-    std::filesystem::remove(fullPath);
+    std::filesystem::remove(dirPath / "a");
+    std::filesystem::remove(dirPath / "b");
+    std::filesystem::remove(dirPath / "c");
 }
 
 TEST(searchCommandTestV2, execute){
@@ -67,10 +72,13 @@ TEST(searchCommandTestV2, execute){
 
     createFileInRleDir("a");
     insertTextToFile("5a", "a");
+
     createFileInRleDir("b");
     insertTextToFile("5a", "b");
+
     createFileInRleDir("c");
     insertTextToFile("5b", "c");
+
     std::vector<std::string> vector = {"c"};
 
     std::streambuf* original_cout_buffer = std::cout.rdbuf();
@@ -81,18 +89,17 @@ TEST(searchCommandTestV2, execute){
 
     std::cout.rdbuf(original_cout_buffer);
     std::string output = captured_output.str();
-    EXPECT_TRUE(output == "c\n");
+
+    std::string expected = "200 Ok\n\nc\n";
+
+    EXPECT_EQ(output, expected);
 
     const char* env = std::getenv(ENV_VAR);
     std::filesystem::path dirPath(env);
-    std::filesystem::path fullPath = dirPath / "a";
-    std::filesystem::remove(fullPath);
-    fullPath = dirPath / "b";
-    std::filesystem::remove(fullPath);
-    fullPath = dirPath / "c";
-    std::filesystem::remove(fullPath);
+    std::filesystem::remove(dirPath / "a");
+    std::filesystem::remove(dirPath / "b");
+    std::filesystem::remove(dirPath / "c");
 }
-
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

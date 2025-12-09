@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 
     // Note: The 'add' command from Ex1 is renamed to 'POST' for Ex2
     ICommand* post = new addCommand(); 
-    commands["POST"] = post; // Case-insensitive commands are a requirement
+    commands["POST"] = post; 
     ICommand* get = new getCommand();
     commands["GET"] = get;
     ICommand* search = new searchCommand();

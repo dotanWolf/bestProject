@@ -20,8 +20,8 @@ TEST(createFile, createsFileInRleDir)
     std::string rleDir = getRleDir();
     ASSERT_FALSE(rleDir.empty());
 
-    bool res = createFileInRleDir("newFile");
-    ASSERT_TRUE(res);
+    FileCreationStatus status = createFileInRleDir("newFile");
+    ASSERT_EQ(status, FileCreationStatus::SUCCESS);
 
     fs::path filePath = fs::path(rleDir) / "newFile";
     ASSERT_TRUE(fs::exists(filePath));
@@ -34,16 +34,29 @@ TEST(createFile, canCreateMultipleFilesInSameDir)
     std::string rleDir = getRleDir();
     ASSERT_FALSE(rleDir.empty());
 
-    bool res1 = createFileInRleDir("file1");
-    bool res2 = createFileInRleDir("file2");
+    FileCreationStatus s1 = createFileInRleDir("file1");
+    FileCreationStatus s2 = createFileInRleDir("file2");
 
-    ASSERT_TRUE(res1);
-    ASSERT_TRUE(res2);
+
+    ASSERT_EQ(s1, FileCreationStatus::SUCCESS);
+    ASSERT_EQ(s2, FileCreationStatus::SUCCESS);
+
 
     EXPECT_TRUE(fs::exists(fs::path(rleDir) / "file1"));
     EXPECT_TRUE(fs::exists(fs::path(rleDir) / "file2"));
 }
 
+TEST(CreateFileTest, FailsIfFileAlreadyExists)
+{
+    std::string rleDir = getRleDir();
+    ASSERT_FALSE(rleDir.empty());
+
+    // First creation 
+    ASSERT_EQ(createFileInRleDir("existingFile"), FileCreationStatus::SUCCESS);
+
+    // Second creation → should fail
+    ASSERT_EQ(createFileInRleDir("existingFile"), FileCreationStatus::ERROR_FILE_EXISTS);
+}
 
 /* Run tests */
 int main(int argc, char** argv)

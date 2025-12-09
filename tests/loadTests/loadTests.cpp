@@ -10,15 +10,29 @@
 
 using namespace std;
 
-TEST(loadTests, retFileContent){
-    ASSERT_TRUE(insertTextToFile("AAAAAAAABBBB", "newFile"));
-    EXPECT_EQ(retFileContent("newFile"),"AAAAAAAABBBB");
-    ASSERT_TRUE(insertTextToFile("jfkdlksjglk    jsfjkls", "newFile"));
-    EXPECT_EQ(retFileContent("newFile"),"jfkdlksjglk    jsfjkls");    
-    ASSERT_TRUE(insertTextToFile("\n\n\naaaaa\n", "newFile"));
-    EXPECT_EQ(retFileContent("newFile"),"\n\n\naaaaa\n");    
-    ASSERT_TRUE(insertTextToFile("fjsdklfjask   \n54832", "newFile"));
-    EXPECT_EQ(retFileContent("newFile"),"fjsdklfjask   \n54832");
+TEST(loadTests, retFileContent)
+{
+    std::string out;
+
+    ASSERT_EQ(createFileInRleDir("newFile"), FileCreationStatus::SUCCESS);
+    ASSERT_EQ(insertTextToFile("AAAAAAAABBBB", "newFile"), FileSaveStatus::SUCCESS);
+    ASSERT_EQ(retFileContent("newFile", out), FileRetrievalStatus::SUCCESS);
+    EXPECT_EQ(out, "AAAAAAAABBBB");
+
+    ASSERT_EQ(createFileInRleDir("newFile1"), FileCreationStatus::SUCCESS);
+    ASSERT_EQ(insertTextToFile("jfkdlksjglk    jsfjkls", "newFile1"), FileSaveStatus::SUCCESS);
+    ASSERT_EQ(retFileContent("newFile1", out), FileRetrievalStatus::SUCCESS);
+    EXPECT_EQ(out, "jfkdlksjglk    jsfjkls");
+
+    ASSERT_EQ(createFileInRleDir("newFile2"), FileCreationStatus::SUCCESS);
+    ASSERT_EQ(insertTextToFile("\n\n\naaaaa\n", "newFile2"), FileSaveStatus::SUCCESS);
+    ASSERT_EQ(retFileContent("newFile2", out), FileRetrievalStatus::SUCCESS);
+    EXPECT_EQ(out, "\n\n\naaaaa\n");
+
+    ASSERT_EQ(createFileInRleDir("newFile3"), FileCreationStatus::SUCCESS);
+    ASSERT_EQ(insertTextToFile("fjsdklfjask   \n54832", "newFile3"), FileSaveStatus::SUCCESS);
+    ASSERT_EQ(retFileContent("newFile3", out), FileRetrievalStatus::SUCCESS);
+    EXPECT_EQ(out, "fjsdklfjask   \n54832");
 }
 
 int main(int argc, char** argv) {
