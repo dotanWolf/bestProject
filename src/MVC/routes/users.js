@@ -1,6 +1,7 @@
 const express = require('express')
 var router = express.Router()
-const controllers = require('../controllers/server')
+const controllers = require('../controllers/users')
+
 
 router.route('/')
     .post(controllers.createNewUser) // הטופס של מסך התחברות שולח ב body את המידע של

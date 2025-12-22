@@ -1,6 +1,9 @@
 const express = require('express')
 var app = express()
-const files = require('./routes/server');
+const files = require('./routes/files');
+const users = require('./routes/users');
+const tokens = require('./routes/tokens');
+const search = require('./routes/search');
 
 app.use(express.json())
 app.use('/api/files', files)
