@@ -7,7 +7,7 @@ const doesUserExist = (req, res) => {
     users = models.doesUserExist(username, password)
     if (users.length > 0) {
         // user exist return its id
-        const idsOnly = users.map(user => ({ id: user.id }));
+        const idsOnly = users.map(user => ({ id: user.userid }));
         return res.status(200).json(idsOnly);
     }
     return res.status(200).json({error: 'user doesnt exist'})
