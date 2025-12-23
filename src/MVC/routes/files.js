@@ -7,7 +7,7 @@ router.route('/')
     .post(controllers.createFileOrDirectory) // תיצור קובץ/תיקייה חדש/ה
 
 router.route('/:id')
-    .get(controllers.getFileContent) // נותנת את הפרטים של הקובץ/תיקייה שהמזהה שלו זה id
+    .get(controllers.getFileOrDirectory) // נותנת את הפרטים של הקובץ/תיקייה שהמזהה שלו זה id
     .patch(controllers.updateFileContent) // עורכת קובץ/תיקייה קיים id
     .delete(controllers.deleteFile) // מוחקת קובץ/תיקייה קיים id:
 

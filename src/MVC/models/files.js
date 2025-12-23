@@ -1,56 +1,43 @@
-var filesAndDirs = []
+var entries = []
 
- var num = filesAndDirs.length
-
-const createNewFile = (name, content, location, userid, type) => {
-    if (type == "file" ) {
-        const newFile = {id : ++num, name, content, location, type, userid}
-        files.push(newFile)
-        return newFile
-    } else if (type == "directory") {
-        const newDir = {id : ++num, name, location, type, userid}
-        files.push(newDir)
-        return newDir
-    }
-
+const createNewEntry = (id, name, content, location, userid, type) => {
+    const newEntry = {id, name, content, location, userid, type}
+    entries.push(newEntry)
+    return newEntry
 }
 
 const getDirectoryContent = (directory) => {
-    const filesAtDirectory = files.filter((file) => file.location == directory)
-    const subDirectories = directories.filter((dir) => dir.location == directory)
-    return filesAtDirectory.concat(subDirectories)
+    return entries.filter((entry) => entry.location == directory)
 }
 
 
-const getFileOrDirectory = (id) => {
-    return filesAndDirs.filter((file) => file.id == id)[0]
+const getEntry = (id) => {
+    return entries.filter((entry) => entry.id == id)[0]
 }
 
-const updateFileContent = (id, name, content, location, userid, type) => {
-    const file = getFileOrDirectory(id)
-    if (!file) {
+const updateEntry = (id, name, content, location, userid, type) => {
+    const entry = getEntry(id)
+    if (!entry) {
         return null
     }
-    if (file.type == "file") {
-        const newFile = {id, name, content, location, type, userid}
-    } else if (file.type == "directory") {
-        const newFile = {id, name, location, type, userid}
-    }
+    return {id, name, content, location, userid, type}
 }
 
-const deleteFile = (id) => {
-    const index = filesAndDirs.findIndex((file) => file.id == id)
+const deleteEntry = (id) => {
+    const index = entries.findIndex((entry) => entry.id == id)
     if (!index) {
-        return false
+        // an entry doesnt exist with this id
+        return null
     }
-    filesAndDirs.splice(index, 1)
-    return true
+    const entry = entries[index]
+    entries.splice(index, 1)
+    return entry
 }
 
 module.exports = {
-    createNewFile,
+    createNewEntry,
     getDirectoryContent,
-    getFileOrDirectory,
-    updateFileContent,
-    deleteFile
+    getEntry,
+    updateEntry,
+    deleteEntry
 }
