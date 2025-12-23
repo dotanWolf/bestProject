@@ -1,5 +1,6 @@
 const files = require('../models/files')
 const net = require('net')
+// const { param } = require('../routes/files')
 
 // no input, GET request
 const getAllEntries = (req, res) => {
@@ -14,7 +15,9 @@ const createFileOrDirectory = (req, res) => {
     // we treat it as such
     const userid = req.headers.id
     const {name, location, type} = req.body
-    const id = createId(userid, name, location)
+    //const id = createId(userid, name, location)
+
+    const id = 1
     if (!name) {
         return res.status(400).json({ error: 'entry name required' })
     }
@@ -117,7 +120,7 @@ const updateFileContent = (req, res) => {
 }
 
 const deleteFile = (req, res) => {
-    const id = params.headers.id
+    const id = req.headers.id
     const deletedEntry = deleteFile(id)
     if (!deletedEntry) {
         // entry doesnt exist didnt delete
@@ -141,12 +144,18 @@ const deleteFile = (req, res) => {
     return res.status(204).end()
 }
 
-const getFilePermissions = (req, res) => {
-
+const getPermissions = (req, res) => {
+    const id = req.params.id
+    return res.status(200).json(files.getPermissions(id))
 }
 
-const updateFilePermissions = (req, res) => {
-    
+const createPermissions = (req, res) => {
+    const id = req.params.id
+    const permissions = files.createPermissions(id, req.body)
+    if (!permissions) {
+        return res.status(404).json({error: "entry not found"})
+    }
+    return res.status(201).json(permissions)
 }
 
 const updatePermisssion = (req, res) => {
@@ -156,14 +165,19 @@ const updatePermisssion = (req, res) => {
 const deletePermission = (req, res) => {
     
 }
+
+const createId = () => {
+
+}
+
 module.exports = {
     getAllEntries,
     createFileOrDirectory,
     getFileOrDirectory,
     updateFileContent,
     deleteFile,
-    getFilePermissions,
-    updateFilePermissions,
+    getPermissions,
+    createPermissions,
     updatePermisssion,
     deletePermission
 }

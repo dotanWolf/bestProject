@@ -34,10 +34,27 @@ const deleteEntry = (id) => {
     return entry
 }
 
+const getPermissions = (id) => {
+    const entry = getEntry(id)
+    if (!entry)
+        return null
+    return entry.permissions
+}
+
+const createPermissions = (id, permissions) => {
+    const entry = getEntry(id)
+    if (!entry)
+        return null
+    entry.permissions = permissions
+    return permissions
+}
+
 module.exports = {
     createNewEntry,
     getDirectoryContent,
     getEntry,
     updateEntry,
-    deleteEntry
+    deleteEntry,
+    getPermissions,
+    createPermissions
 }
