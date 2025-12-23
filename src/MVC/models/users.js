@@ -1,4 +1,4 @@
-const users = []
+var users = []
 // var numUsers = users.length
 
 const getUser = (id) => {
