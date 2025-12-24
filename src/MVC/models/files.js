@@ -16,11 +16,10 @@ const getEntry = (id) => {
 }
 
 const updateEntry = (id, name, content, location, userid, type) => {
-    const entry = getEntry(id)
-    if (!entry) {
-        return null
-    }
-    return {id, name, content, location, userid, type}
+    const index = entries.find((entry) => entry.id == id)
+    const newEntry = {id, name, content, location, userid, type}
+    entries[index] = newEntry
+    return newEntry
 }
 
 const deleteEntry = (id) => {

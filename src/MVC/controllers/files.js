@@ -1,60 +1,57 @@
 const files = require('../models/files')
+const client = require('../client')
 const net = require('net')
 const crypto = require('crypto')
-const { getegid } = require('process')
+const { stat } = require('fs')
 
 // no input, GET request
 const getAllEntries = (req, res) => {
     return res.status(200).json(files.getDirectoryContent('/'))
 }
 
+const validateRequest = (req) => {
+    const userid = req.headers.id
+    if (!userid)
+        return 400
+    const {name, location, type} = req.body
+    if (!name || !location || !type) {
+        return 400
+    }
+    if (type == "dir")
+        return 200
+    const content = req.body.content
+    if (!content)
+        return 400
+    return 200
+}
+
 // gets a name, location, userid, type = {"file", "dir"}
 // if the type is a file, also needs a content field
 // saves the new entry under a uniuqe id through the cpp server
 const createEntry = (req, res) => {
-    // for now we dont check if this user id actually exists and is signed in
-    // we treat it as such
+    // validate the request body and header
+    const isRequestValid = validateRequest(req)
+    if (isRequestValid !=200)
+        // if not valid return 400
+        return res.status(400).json({error: `entry fields missing`})
+    // otherwise create a unique id
+    const id = crypto.randomUUID()
+
+    // create a json of the entry in memory
     const userid = req.headers.id
     const {name, location, type} = req.body
-
-    if (!name) {
-        return res.status(400).json({ error: 'entry name required' })
-    }
-    if (!location) {
-        return res.status(400).json({ error: 'entry location required' })
-    }
-    if (!type) {
-        return res.status(400).json({ error: 'entry type required' })
-    }
     var content
     if (type == "file") {
         content = req.body.content
-        if (!content)
-            return res.status(400).json({ error: 'entry content required' })
     } else {
         content = null
     }
-    const id = crypto.randomUUID()
-
-    
     const newEntry = files.createNewEntry(id, name, content, location, userid, type)
 
-    // establish a tcp connection with the server
-    serverip = "127.0.0.1"
-    serverport = 9120
-    const client = new net.Socket();
-    client.connect(serverport, serverip, () => {
-        //console.log("connection was succesful")
-    })
-
-    const serverRequest = "post " + id + " " + content + '\n'
-    client.write(serverRequest)
-    
-    client.on('data', (data) => {
-        const response = data.toString().trim()
-        const status = parseInt(response.split(' ')[0])
-        res.status(status).end()
-    });
+    // use the cpp server to create the file in disk
+    const serverResponse = client.sendRequest("post " + id + " " + content + '\n')
+    const status = serverResponse.split(' ')[0]
+    return res.status(status).end()
 }
 
 const getEntry = (req, res) => {
@@ -66,20 +63,6 @@ const getEntry = (req, res) => {
     return res.status(200).json(file)
 }
 
-const validateEntryFields = (fileds) => {
-    const {name, location, type} = req.body
-    if (!name) {
-        return "name"
-    }
-    if (!location) {
-        return "location"
-    }
-    if (!type) {
-        return "type"
-    }
-    return ""
-}
-
 // gets a name, location, userid, type = {"file", "dir"}
 // if the type is a file, also needs a content field
 // also gets the entries id in the request parameter
@@ -87,68 +70,60 @@ const validateEntryFields = (fileds) => {
 // and saves a new entry with the new parameters in the cpp server
 // under the same id
 const updateEntry = (req, res) => {
+    // otherwise get the id provided
     const id = req.params.id
+    // check if updating is even possible
+    const oldEntry = files.getEntry(id)
+    if (!oldEntry)
+        return res.status(404).json({ error: 'entry not found' })
+
+    // validate the request body and header
+    const isRequestValid = validateRequest(req)
+    if (isRequestValid !=200)
+        // if not valid return 400
+        return res.status(400).json({error: `entry fields missing`})
+
+    // try to change the json in memory to the new fields
     const userid = req.headers.id
-    const isValid = validateEntryFields(req.body)
-    if (isValid != "")
-        return res.status(400).json({error: `entry ${isValid} required`})
+    const {name, location, type} = req.body
     var content
     if (type == "file") {
         content = req.body.content
-        if (!content)
-            return res.status(400).json({ error: 'entry content required' })
     } else {
         content = null
     }
     const newEntry = files.updateEntry(id, name, content, location, userid, type)
-    if (!newEntry)
-        return res.status(404).json({ error: 'file not found' })
 
-    if (type == "file") {
-            // establish a tcp connection with the server
-        serverip = "127.0.0.1"
-        serverport = 9120
-        const client = new net.Socket();
-        client.connect(serverport, serverip, () => {
-        //console.log("connection was succesful")
-        })
-
-        var serverRequest = "delete " + id  + '\n'
-        client.write(serverRequest)
-        serverRequest = "post" + id + " " + content + '\n'
-        client.write(serverRequest)
-        var status
-        client.on('data', (data) => {
-            const response = data.toString().trim()
-            status = parseInt(response.split(' ')[0])
-        });
-        return res.status(status).end()
+    const oldType = oldEntry.type
+    if (oldType == "file") {
+        const serverResponse = client.sendRequest("delete" + " " + id + '\n')
+        const status = serverResponse.split(' ')[0]
+        if (status != 204)
+            return res.status(500).json({error: "server error"})
     }
-
-
+    
+    if (type == "file") {
+        const serverResponse = client.sendRequest("post" + " " + id + " " + content + '\n')
+        const status = serverResponse.split(' ')[0]
+        if (status != 201)
+            return res.status(500).json({error: "server error"})
+        return res.status(200).end() 
+    }
 }
 
 const deleteEntry = (req, res) => {
     const id = req.headers.id
-    const deletedEntry = deleteEntry(id)
-    if (!deletedEntry) {
-        // entry doesnt exist didnt delete
-        return res.status(404).json({error: "file not found"})
-    }
-    if (deletedEntry.type == "file") {
-        // this file was saved in the cpp server under id
-        // needs to be deleted there also
+    // check if updating is even possible
+    const oldEntry = files.getEntry(id)
+    if (!oldEntry)
+        return res.status(404).json({ error: 'entry not found' })
+    files.deleteEntry(id)
 
-        serverip = "127.0.0.1"
-        serverport = 9120
-        const client = new net.Socket();
-        client.connect(serverport, serverip, () => {
-        //console.log("connection was succesful")
-        })
-
-        const serverRequest = "delete " + id  + '\n'
-        client.write(serverRequest)
-        var status
+    if (oldEntry.type == "file") {
+        const serverResponse = client.sendRequest("delete" + " " + id + '\n')
+        const status = serverResponse.split(' ')[0]
+        if (status != 204)
+            return res.status(500).json({error: "server error"})  
     }
     return res.status(204).end()
 }
