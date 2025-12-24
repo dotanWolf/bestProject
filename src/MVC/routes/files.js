@@ -4,12 +4,12 @@ const controllers = require('../controllers/files')
 
 router.route('/')
     .get(controllers.getAllEntries) // תחזיר את רשימת כל הקבצים והתיקיות של המשתמש ברמה העליונה ביותר
-    .post(controllers.createFileOrDirectory) // תיצור קובץ/תיקייה חדש/ה
+    .post(controllers.createEntry) // תיצור קובץ/תיקייה חדש/ה
 
 router.route('/:id')
-    .get(controllers.getFileOrDirectory) // נותנת את הפרטים של הקובץ/תיקייה שהמזהה שלו זה id
-    .patch(controllers.updateFileContent) // עורכת קובץ/תיקייה קיים id
-    .delete(controllers.deleteFile) // מוחקת קובץ/תיקייה קיים id:
+    .get(controllers.getEntry) // נותנת את הפרטים של הקובץ/תיקייה שהמזהה שלו זה id
+    .patch(controllers.updateEntry) // עורכת קובץ/תיקייה קיים id
+    .delete(controllers.deleteEntry) // מוחקת קובץ/תיקייה קיים id:
 
 router.route('/:id/permissions')
     .get(controllers.getPermissions) // נותנת את ההרשאות של הקובץ/תיקייה שהמזהה שלו זה id

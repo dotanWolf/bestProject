@@ -1,6 +1,7 @@
 const files = require('../models/files')
 const net = require('net')
-// const { param } = require('../routes/files')
+const crypto = require('crypto')
+const { getegid } = require('process')
 
 // no input, GET request
 const getAllEntries = (req, res) => {
@@ -10,14 +11,12 @@ const getAllEntries = (req, res) => {
 // gets a name, location, userid, type = {"file", "dir"}
 // if the type is a file, also needs a content field
 // saves the new entry under a uniuqe id through the cpp server
-const createFileOrDirectory = (req, res) => {
+const createEntry = (req, res) => {
     // for now we dont check if this user id actually exists and is signed in
     // we treat it as such
     const userid = req.headers.id
     const {name, location, type} = req.body
-    //const id = createId(userid, name, location)
 
-    const id = 1
     if (!name) {
         return res.status(400).json({ error: 'entry name required' })
     }
@@ -35,6 +34,9 @@ const createFileOrDirectory = (req, res) => {
     } else {
         content = null
     }
+    const id = crypto.randomUUID()
+
+    
     const newEntry = files.createNewEntry(id, name, content, location, userid, type)
 
     // establish a tcp connection with the server
@@ -55,13 +57,27 @@ const createFileOrDirectory = (req, res) => {
     });
 }
 
-const getFileOrDirectory = (req, res) => {
-    const file = files.getFileOrDirectory(req.params.id)
+const getEntry = (req, res) => {
+    const file = files.getEntry(req.params.id)
     if (!file) {
         // id doesnt exist
        return res.status(404).json({error: "no entry with this id"})
     }
     return res.status(200).json(file)
+}
+
+const validateEntryFields = (fileds) => {
+    const {name, location, type} = req.body
+    if (!name) {
+        return "name"
+    }
+    if (!location) {
+        return "location"
+    }
+    if (!type) {
+        return "type"
+    }
+    return ""
 }
 
 // gets a name, location, userid, type = {"file", "dir"}
@@ -70,19 +86,12 @@ const getFileOrDirectory = (req, res) => {
 // if an entry exists with the given id, it deletes it
 // and saves a new entry with the new parameters in the cpp server
 // under the same id
-const updateFileContent = (req, res) => {
+const updateEntry = (req, res) => {
     const id = req.params.id
     const userid = req.headers.id
-    const {name, location, type} = req.body
-    if (!name) {
-        return res.status(400).json({ error: 'entry name required' })
-    }
-    if (!location) {
-        return res.status(400).json({ error: 'entry location required' })
-    }
-    if (!type) {
-        return res.status(400).json({ error: 'entry type required' })
-    }
+    const isValid = validateEntryFields(req.body)
+    if (isValid != "")
+        return res.status(400).json({error: `entry ${isValid} required`})
     var content
     if (type == "file") {
         content = req.body.content
@@ -91,7 +100,7 @@ const updateFileContent = (req, res) => {
     } else {
         content = null
     }
-    const newEntry = files.updateFile(id, name, content, location, userid, type)
+    const newEntry = files.updateEntry(id, name, content, location, userid, type)
     if (!newEntry)
         return res.status(404).json({ error: 'file not found' })
 
@@ -104,7 +113,7 @@ const updateFileContent = (req, res) => {
         //console.log("connection was succesful")
         })
 
-        const serverRequest = "delete " + id  + '\n'
+        var serverRequest = "delete " + id  + '\n'
         client.write(serverRequest)
         serverRequest = "post" + id + " " + content + '\n'
         client.write(serverRequest)
@@ -119,9 +128,9 @@ const updateFileContent = (req, res) => {
 
 }
 
-const deleteFile = (req, res) => {
+const deleteEntry = (req, res) => {
     const id = req.headers.id
-    const deletedEntry = deleteFile(id)
+    const deletedEntry = deleteEntry(id)
     if (!deletedEntry) {
         // entry doesnt exist didnt delete
         return res.status(404).json({error: "file not found"})
@@ -166,16 +175,13 @@ const deletePermission = (req, res) => {
     
 }
 
-const createId = () => {
-
-}
 
 module.exports = {
     getAllEntries,
-    createFileOrDirectory,
-    getFileOrDirectory,
-    updateFileContent,
-    deleteFile,
+    createEntry,
+    getEntry,
+    updateEntry,
+    deleteEntry,
     getPermissions,
     createPermissions,
     updatePermisssion,

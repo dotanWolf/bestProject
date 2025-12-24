@@ -24,7 +24,7 @@ const updateEntry = (id, name, content, location, userid, type) => {
 }
 
 const deleteEntry = (id) => {
-    const index = entries.findIndex((entry) => entry.id == id)
+    const index = entries.find((entry) => entry.id == id)
     if (!index) {
         // an entry doesnt exist with this id
         return null
@@ -41,6 +41,11 @@ const getPermissions = (id) => {
     return entry.permissions
 }
 
+const searchEntryNames = (query) => {
+    return entries.filter((entry) => entry.name.includes(query))
+}
+
+
 const createPermissions = (id, permissions) => {
     const entry = getEntry(id)
     if (!entry)
@@ -56,5 +61,6 @@ module.exports = {
     updateEntry,
     deleteEntry,
     getPermissions,
-    createPermissions
+    createPermissions,
+    searchEntryNames
 }
