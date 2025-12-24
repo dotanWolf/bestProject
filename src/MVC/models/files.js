@@ -40,6 +40,9 @@ const getPermissions = (id) => {
     return entry.permissions
 }
 
+
+
+
 const searchEntryNames = (query) => {
     return entries.filter((entry) => entry.name.includes(query))
 }
