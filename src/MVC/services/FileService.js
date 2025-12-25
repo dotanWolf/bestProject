@@ -3,9 +3,9 @@
  * Contains business logic for file/folder operations (Single Responsibility Principle)
  */
 const fileRepository = require('../repositeries/FileRepositery');
-const permissionRepository = require('../repositories/PermissionRepositery');
+const permissionRepository = require('../repositeries/PermissionRepositery');
 const client = require('../Client');
-const File = require('../models/File');
+const File = require('../models/Entry');
 const PermissionService = require('../services/PermissionsService')
 
 

@@ -1,4 +1,4 @@
-const userRepository = require('../repositories/UserRepository');
+const userRepository = require('../repositeries/UserRepositery');
 const User = require('../models/User');
 
 class UserService {
@@ -10,6 +10,14 @@ class UserService {
             error.statusCode = 400;
             throw error;
         }
+
+        // an email is supposed to be unique
+        if (userRepository.existsByEmail(userData.email)) {
+            const error = new Error("a user already exists with this email");
+            error.statusCode = 404;
+            throw error;
+        }
+
         // Create user
         return userRepository.create(userData);
     }

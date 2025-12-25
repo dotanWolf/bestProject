@@ -19,17 +19,17 @@ class UserRepository {
     return this.users.get(id) || null;
   }
 
-  findByUsername(username) {
+  findByEmail(email) {
     const users = Array.from(this.users.values());
-    return users.find(user => user.username === username) || null;
+    return users.find(user => user.email === email) || null;
   }
 
   findAll() {
     return Array.from(this.users.values());
   }
 
-  existsByUsername(username) {
-    return this.findByUsername(username) !== null;
+  existsByEmail(email) {
+    return this.findByEmail(email) !== null;
   }
 }
 

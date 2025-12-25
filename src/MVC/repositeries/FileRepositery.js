@@ -1,4 +1,4 @@
-const File = require('../models/File');
+const File = require('../models/Entry');
 const crypto = require('crypto')
 
 class FileRepository {
@@ -7,7 +7,7 @@ class FileRepository {
     }
 
     create(fileData) {
-        const file = new File({
+        const file = new Entry({
             id: crypto.randomUUID(),
             ...fileData
         });

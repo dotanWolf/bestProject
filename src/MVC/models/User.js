@@ -30,7 +30,7 @@ class User {
     if (!userData.password) {
       errors.push('Password is required');
     }
-    if (!userData.name) {
+    if (!userData.email) {
       errors.push('Name is required');
     }
     if (!userData.profileImage) {

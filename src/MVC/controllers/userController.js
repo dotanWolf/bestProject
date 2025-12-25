@@ -7,7 +7,7 @@ const createNewUser = (req, res) => {
     } catch (error) {
         return res.status(error.statusCode).json({error: error.message})
     }
-    res.status(201).location(`/api/users/${newUser.userId}`).end()
+    res.status(201).location(`/api/users/${newUser.id}`).end()
 }   
 
 const getUser = (req, res) => {
@@ -18,7 +18,7 @@ const getUser = (req, res) => {
     } catch (error) {
         return res.status(error.statusCode).json({error: error.message})
     }
-    res.status(201).json(user)
+    res.status(200).json(user)
 }
 
 module.exports = {

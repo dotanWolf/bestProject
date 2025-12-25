@@ -1,4 +1,4 @@
-const files = require('../models/files')
+const files = require('../models/Entry')
 const FileService = require('../services/FileService')
 const Client = require('../Client')
 const FileRepository = require('../repositeries/FileRepositery'
