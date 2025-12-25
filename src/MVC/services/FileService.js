@@ -18,6 +18,24 @@ class FileService {
             error.statusCode = 400;
             throw error;
         }
+
+        const parentId = fileData.parentId
+        if (parentId) {
+            // user set a custom parent id, we must check its a folder and userId can edit it
+            const folder = fileRepository.findById(parentId)
+            if (!folder) {
+                const error = new Error("folder doesnt exist");
+                error.statusCode = 404;
+                throw error;
+            }
+
+            if (!this.hasEditAccess(folder, userId)) {
+                // user cant edit the folder, he cant add entries there
+                const error = new Error("no access to add files to this folder");
+                error.statusCode = 403;
+                throw error;
+            }
+        }
         // Create file in repository
         const file = fileRepository.create({
             ...fileData,
@@ -30,7 +48,7 @@ class FileService {
             fileId: file.id,
             role: "owner"
         }, userId)
-        
+
         // If it's a file (not folder), save to cpp server
         if (file.isFile()) {
             const result = await client.saveFile(file.id, file.content);
@@ -46,7 +64,6 @@ class FileService {
     }
 
     getFileById(fileId, userId) {
-        console.log(fileRepository.files)
         const file = fileRepository.findById(fileId);
 
         if (!file) {
@@ -84,7 +101,7 @@ class FileService {
     }
 
     async updateFile(fileId, updates, userId) {
-        if (!updates.name || !updates.parentId || !updates.content) {
+        if (!updates.name || !updates.content) {
             const error = new Error('did not provide paramters');
             error.statusCode = 400;
             throw error;
@@ -92,7 +109,7 @@ class FileService {
 
         var file = fileRepository.findById(fileId);
 
-         // Update in repository
+        // Update in repository
         if (!file) {
             const error = new Error('File not found');
             error.statusCode = 404;
@@ -104,6 +121,7 @@ class FileService {
             error.statusCode = 403;
             throw error;
         }
+
         file = fileRepository.update(fileId, updates);
 
         // If updating file content, update in Assignment 2 server

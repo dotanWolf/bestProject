@@ -1,3 +1,4 @@
+const { permissions } = require('../repositeries/PermissionRepositery')
 const FileService = require('../services/FileService')
 const PermissionsService = require('../services/PermissionsService')
 
@@ -97,19 +98,39 @@ const createPermissions = (req, res) => {
         return res.status(400).json({error: "user id required"})
 
     try {
-        PermissionsService.createPermission(fileId, req.body, userId)
-        return res.status(201).end()
+        const permission = PermissionsService.createPermission(fileId, req.body, userId)
+        return res.status(201).json(permission)
     } catch (error) {
         return res.status(error.statusCode).json({err: error.message})
     }
 }
 
 const updatePermisssion = (req, res) => {
-    
+    const fileId = req.params.id
+    const permId = req.params.pId
+    const userId = req.headers.id
+    if (!userId)
+        return res.status(400).json({error: "user id required"})
+    try {
+        PermissionsService.updatePermission(fileId, permId, req.body, userId)
+        return res.status(200).end()
+    } catch (error) {
+        return res.status(error.statusCode).json({err: error.message})
+    }
 }
 
 const deletePermission = (req, res) => {
-    
+    const fileId = req.params.id
+    const permId = req.params.pId
+    const userId = req.headers.id
+    if (!userId)
+        return res.status(400).json({error: "user id required"})
+    try {
+        PermissionsService.deletePermission(fileId, permId, userId)
+        return res.status(204).end()
+    } catch (error) {
+        return res.status(error.statusCode).json({err: error.message})
+    }
 }
 
 

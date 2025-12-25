@@ -49,14 +49,14 @@ class PermissionService {
       throw error;
     }
 
-    // // Check if permission already exists for this user
-    // const existing = permissionRepository.findByFileAndUser(fileId, permissionData.userId);
+    // Check if permission already exists for this user
+    const existing = permissionRepository.findByFileAndUser(fileId, permissionData.userId);
 
-    // if (existing) {
-    //     const error = new Error('Permission already exists for this user');
-    //     error.statusCode = 400;
-    //     throw error;
-    // }
+    if (existing) {
+      const error = new Error('Permission already exists for this user');
+      error.statusCode = 404;
+      throw error;
+    }
 
     // Create permission
     return permissionRepository.create({
@@ -83,6 +83,7 @@ class PermissionService {
 
     const permission = permissionRepository.findById(permissionId);
 
+    
     if (!permission || permission.fileId !== fileId) {
       const error = new Error('Permission not found');
       error.statusCode = 404;

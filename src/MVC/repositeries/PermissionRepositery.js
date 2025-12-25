@@ -62,7 +62,7 @@ class PermissionRepository {
       return null;
     }
 
-    Object.assign(permission, updates);
+    permission.role = updates.role
     return permission;
   }
 
