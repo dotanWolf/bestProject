@@ -44,8 +44,15 @@ class Entry {
       return this.type === 'folder';
     }
 
-    update(updates) {
-      Object.assign(this, updates);
+    updateFile(updates) {
+      this.name = updates.name
+      this.content = updates.content
+      this.parentId = updates.parentId
+    }
+  
+      updateFolder(updates) {
+      this.name = updates.name
+      this.parentId = updates.parentId
     }
   }
 

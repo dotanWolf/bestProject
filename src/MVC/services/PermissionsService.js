@@ -2,8 +2,8 @@
  * Permission Service
  * Contains business logic for permission operations (Single Responsibility Principle)
  */
-const permissionRepository = require('../repositories/permissionRepository');
-const fileRepository = require('../repositories/fileRepository');
+const permissionRepository = require('../repositories/PermissionRepository');
+const fileRepository = require('../repositories/FileRepository');
 const Permission = require('../models/Permission');
 
 class PermissionService {

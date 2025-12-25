@@ -1,16 +1,18 @@
 const files = require('../models/files')
-const net = require('net')
 const FileService = require('../services/FileService')
 const Client = require('../Client')
+const FileRepository = require('../repositeries/FileRepositery'
 
+)
 const searchFiles = (req, res) => {
     const query = req.params.query
-    const entriesWithMatchingName = FileService.searchByName(query)
+    const entriesWithMatchingName = FileRepository.searchByName(query)
 
     // establish a tcp connection with the server
-    
-
-    listOfIds = Client.searchFiles(query).listOfIds
+    const {listOfIds, success} = Client.searchFiles(query)
+    if(!success) {
+        return res.status(500).json({error: "couldnt search files in the cpp server"})
+    }
 
     const listOfEntries = listOfIds.map(id => {
         files.getEntry(id)

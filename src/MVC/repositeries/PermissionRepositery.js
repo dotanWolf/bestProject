@@ -61,7 +61,7 @@ class PermissionRepository {
     if (!permission) {
       return null;
     }
-    
+
     Object.assign(permission, updates);
     return permission;
   }

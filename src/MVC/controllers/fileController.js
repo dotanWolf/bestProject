@@ -1,11 +1,7 @@
-const files = require('../models/files')
-const client = require('../Client')
-const net = require('net')
-const crypto = require('crypto')
 const FileService = require('../services/FileService')
 const PermissionsService = require('../services/PermissionsService')
 
-// no input, GET request
+// gets a user id in the http header
 const getAllEntries = (req, res) => {
     const userId = req.header.id
     if (!userId)

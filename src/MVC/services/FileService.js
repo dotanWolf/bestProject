@@ -6,6 +6,8 @@ const fileRepository = require('../repositeries/FileRepositery');
 const permissionRepository = require('../repositories/PermissionRepositery');
 const client = require('../Client');
 const File = require('../models/File');
+const PermissionService = require('../services/PermissionsService')
+
 
 class FileService {
     async createFile(fileData, userId) {
@@ -23,10 +25,17 @@ class FileService {
             ownerId: userId
         });
 
+        // create a permmision for the owner of the file
+        const ownerPermmision = PermissionService.create(file.id, {
+            userId: userId,
+            fileId: file.id,
+            role: "owner"
+        }, userId)
+
         // If it's a file (not folder), save to cpp server
         if (file.isFile()) {
             const result = await Client.saveFile(file.id, file.content);
-            
+
             if (!result.success) {
                 // couldnt save, delete from repository
                 fileRepository.delete(file.id);
@@ -36,22 +45,22 @@ class FileService {
             }
         }
         return file;
-  }
+    }
 
     getFileById(fileId, userId) {
         const file = fileRepository.findById(fileId);
-        
+
         if (!file) {
-        const error = new Error('File not found');
-        error.statusCode = 404;
-        throw error;
+            const error = new Error('File not found');
+            error.statusCode = 404;
+            throw error;
         }
 
         // Check permissions
         if (!this.hasReadAccess(file, userId)) {
-        const error = new Error('Access denied');
-        error.statusCode = 403;
-        throw error;
+            const error = new Error('Access denied');
+            error.statusCode = 403;
+            throw error;
         }
 
         return file;
@@ -60,73 +69,64 @@ class FileService {
     getRootFiles(userId) {
         // Get files at root level (parentId = null) owned by user
         const ownedFiles = fileRepository.findByOwnerAndParent(userId, null);
-        
+
         // Also get files shared with user at root level
         const sharedPermissions = permissionRepository.findByUserId(userId);
         const sharedFileIds = sharedPermissions.map(p => p.fileId);
         const sharedFiles = sharedFileIds
-        .map(id => fileRepository.findById(id))
-        .filter(file => file && file.parentId === null);
+            .map(id => fileRepository.findById(id))
+            .filter(file => file && file.parentId === null);
 
         // Combine and remove duplicates
         const fileMap = new Map();
         [...ownedFiles, ...sharedFiles].forEach(file => fileMap.set(file.id, file));
-        
+
         return Array.from(fileMap.values());
     }
 
     async updateFile(fileId, updates, userId) {
-        const oldEntry = fileRepository.getFileById(fileId)
-        if (!oldEntry) {
-            const error = new Error('File not found');
-            error.statusCode = 404;
-            throw error;
-        }
-
         // Check permissions
         if (!this.hasEditAccess(file, userId)) {
             const error = new Error('Access denied');
             error.statusCode = 403;
             throw error;
         }
-
-        // Validate updates
-        const validationErrors = File.validate(updates);
-        if (validationErrors.length > 0) {
-            const error = new Error(validationErrors.join(', '));
+        
+        if (!updates.name || !updates.parentId || !updates.content) {
+            const error = new Error('did not provide paramters');
             error.statusCode = 400;
             throw error;
         }
 
         // Update in repository
         const file = fileRepository.update(fileId, updates);
-        
-        if (oldEntry.isFile()) {
-            const result = await Client.deleteFile(fileId);
-            if (!result.success) {
-                fileRepository.delete(file.id);
-                const error = new Error('Failed to update file in storage server');
-                error.statusCode = 500;
-                throw error;
-            }
+        if (!file) {
+            const error = new Error('File not found');
+            error.statusCode = 404;
+            throw error;
         }
 
         // If updating file content, update in Assignment 2 server
         if (file.isFile()) {
-            const result = await Client.createFile(fileId, updates.content);
+            const result = await Client.deleteFile(fileId);
+            if (!result.success) {
+                const error = new Error('Failed to update file in storage server');
+                error.statusCode = 500;
+                throw error;
+            }
+            result = await Client.createFile(fileId, updates.content);
             if (!result.success) {
                 const error = new Error('Failed to update file in storage server');
                 error.statusCode = 500;
                 throw error;
             }
         }
-
         return file
     }
 
     async deleteFile(fileId, userId) {
         const file = fileRepository.findById(fileId);
-        
+
         if (!file) {
             const error = new Error('File not found');
             error.statusCode = 404;
@@ -168,21 +168,21 @@ class FileService {
 
     async deleteFolderContents(folderId) {
         const children = fileRepository.findByParentId(folderId);
-        
+
         for (const child of children) {
-        if (child.isFolder()) {
-            await this.deleteFolderContents(child.id);
-        } else if (child.isFile()) {
-           const result = await Client.deleteFile(child.id);
-            if (!result.success) {
-                const error = new Error('Failed to update file in storage server');
-                error.statusCode = 500;
-                throw error;
+            if (child.isFolder()) {
+                await this.deleteFolderContents(child.id);
+            } else if (child.isFile()) {
+                const result = await Client.deleteFile(child.id);
+                if (!result.success) {
+                    const error = new Error('Failed to update file in storage server');
+                    error.statusCode = 500;
+                    throw error;
+                }
             }
-        }
-        
-        permissionRepository.deleteByFileId(child.id);
-        fileRepository.delete(child.id);
+
+            permissionRepository.deleteByFileId(child.id);
+            fileRepository.delete(child.id);
         }
     }
 
