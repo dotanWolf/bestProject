@@ -1,27 +1,33 @@
 const files = require('../models/Entry')
 const FileService = require('../services/FileService')
-const Client = require('../Client')
-const FileRepository = require('../repositeries/FileRepositery'
+const Client = require('../client')
+const FileRepository = require('../repositeries/FileRepositery')
 
-)
-const searchFiles = (req, res) => {
+const searchFiles = async (req, res) => {
+    const userId = req.headers.id
+    if (!userId) {
+        return res.status(400).json({ error: "user id required" })
+    }
     const query = req.params.query
     const entriesWithMatchingName = FileRepository.searchByName(query)
 
     // establish a tcp connection with the server
-    const {listOfIds, success} = Client.searchFiles(query)
-    if(!success) {
-        return res.status(500).json({error: "couldnt search files in the cpp server"})
+    const { listOfIds, success } = await Client.searchFiles(query)
+    if (!success) {
+        return res.status(500).json({ error: "couldnt search files in the cpp server" })
     }
 
-    const listOfEntries = listOfIds.map(id => {
-        files.getEntry(id)
-    }).filter(boolean)
+    const listOfEntries = listOfIds.map(id => FileRepository.findById(id)).filter(Boolean)
     const entriesWithMatchingContent = listOfEntries.filter(
         entry => entry.content.includes(query)
     )
-    const results = [...new Set([...entriesWithMatchingContent, ...entriesWithMatchingName])];
-    return res.status(200).json(results)
+    var results = [...entriesWithMatchingContent, ...entriesWithMatchingName];
+    const resultMap = new Map();
+    results.forEach(file => resultMap.set(file.id, file))
+    results = Array.from(resultMap.values());
+
+    const userCanSee = results.filter(file => FileService.hasReadAccess(file, userId))
+    return res.status(200).json(userCanSee)
 }
 
 

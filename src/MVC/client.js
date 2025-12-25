@@ -94,8 +94,8 @@ class Client {
     async searchFiles(query) {
         const command = `search ${query}\n`;
         const response = await this.sendRequest(command);
-        const status = response.split(' ')[0]
-        const parts = data.split('\n\n');
+        const status = parseInt(response.split(' ')[0])
+        const parts = response.split('\n\n');
         const body = parts[1].trim();
         const listOfIds = body.split(' ')
         return { status, listOfIds, success: status === 200 };
