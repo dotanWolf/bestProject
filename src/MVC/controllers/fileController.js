@@ -3,7 +3,7 @@ const PermissionsService = require('../services/PermissionsService')
 
 // gets a user id in the http header
 const getAllEntries = (req, res) => {
-    const userId = req.header.id
+    const userId = req.headers.id
     if (!userId)
         return res.status(400).json({error: "user id required"})
     const files = FileService.getRootFiles(userId)
@@ -18,10 +18,10 @@ const getAllEntries = (req, res) => {
     if (!userId)
         return res.status(400).json({error: "user id required"})
     try {
-        const file = FileService.createFile(req.body, userId)
-        return res.status(201).json(file).location(`/api/files/${file.id}`)
+        const file = await FileService.createFile(req.body, userId)
+        return res.status(201).location(`/api/files/${file.id}`).end()
     } catch (error) {
-        return res.status(error.statusCode).end()
+        return res.status(error.statusCode).json({err: error.message})
     }
 }
 
@@ -35,7 +35,7 @@ const getEntry = (req, res) => {
         const file = FileService.getFileById(fileId, userId)
         return res.status(200).json(file)
     } catch (error) {
-        return res.status(error.statusCode).end()
+        return res.status(error.statusCode).json({err: error.message})
     }
 }
 
@@ -53,24 +53,24 @@ const updateEntry = async (req, res) => {
             return res.status(400).json({error: "user id required"})
 
         try {
-            const file = FileService.updateFile(fileId, req.body, userId)
+            const file = await FileService.updateFile(fileId, req.body, userId)
             return res.status(200).json(file)
         } catch (error) {
-            return res.status(error.statusCode).end()
+            return res.status(error.statusCode).json({err: error.message})
         }
 }
 
 const deleteEntry = async (req, res) => {
-    const fileId = req.headers.id
+    const fileId = req.params.id
     const userId = req.headers.id
     if (!userId)
         return res.status(400).json({error: "user id required"})
 
     try {
-        FileService.deleteFile(fileId, userId)
-        return res.status(204)
+        await FileService.deleteFile(fileId, userId)
+        return res.status(204).end()
     } catch (error) {
-        return res.status(error.statusCode).end()
+        return res.status(error.statusCode).json({err: error.message})
     }
 }
 
@@ -82,10 +82,10 @@ const getPermissions = (req, res) => {
         return res.status(400).json({error: "user id required"})
 
     try {
-        PermissionsService.getPermissions(fileId, userId)
-        return res.status(200)
+        const permissions = PermissionsService.getPermissions(fileId, userId)
+        return res.status(200).json(permissions)
     } catch (error) {
-        return res.status(error.statusCode).end()
+        return res.status(error.statusCode).json({err: error.message})
     }
 }
 
@@ -98,9 +98,9 @@ const createPermissions = (req, res) => {
 
     try {
         PermissionsService.createPermission(fileId, req.body, userId)
-        return res.status(201)
+        return res.status(201).end()
     } catch (error) {
-        return res.status(error.statusCode).end()
+        return res.status(error.statusCode).json({err: error.message})
     }
 }
 

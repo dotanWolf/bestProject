@@ -34,7 +34,7 @@ class PermissionRepository {
    */
   findByFileId(fileId) {
     const permissions = Array.from(this.permissions.values());
-    return permissions.filter(p => p.fileId === fileId);
+    return permissions.filter(p => p.fileId == fileId);
   }
 
   /**
@@ -89,6 +89,4 @@ class PermissionRepository {
     permissions.forEach(p => this.delete(p.id));
   }
 }
-
-// Singleton pattern
 module.exports = new PermissionRepository();

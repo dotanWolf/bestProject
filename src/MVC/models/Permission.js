@@ -12,9 +12,6 @@ class Permission {
     if (!permissionData.userId) {
       errors.push('User ID is required');
     }
-    if (!permissionData.fileId) {
-      errors.push('User ID is required');
-    }
     if (!permissionData.role || !['viewer', 'editor', 'owner', 'none'].includes(permissionData.role)) {
       errors.push('Role must be "viewer", "editor", "none" or "owner"');
     }

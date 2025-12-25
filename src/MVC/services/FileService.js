@@ -4,7 +4,7 @@
  */
 const fileRepository = require('../repositeries/FileRepositery');
 const permissionRepository = require('../repositeries/PermissionRepositery');
-const client = require('../Client');
+const client = require('../client');
 const File = require('../models/Entry');
 const PermissionService = require('../services/PermissionsService')
 
@@ -18,7 +18,6 @@ class FileService {
             error.statusCode = 400;
             throw error;
         }
-
         // Create file in repository
         const file = fileRepository.create({
             ...fileData,
@@ -26,16 +25,15 @@ class FileService {
         });
 
         // create a permmision for the owner of the file
-        const ownerPermmision = PermissionService.create(file.id, {
+        const ownerPermmision = PermissionService.createPermission(file.id, {
             userId: userId,
             fileId: file.id,
             role: "owner"
         }, userId)
-
+        
         // If it's a file (not folder), save to cpp server
         if (file.isFile()) {
-            const result = await Client.saveFile(file.id, file.content);
-
+            const result = await client.saveFile(file.id, file.content);
             if (!result.success) {
                 // couldnt save, delete from repository
                 fileRepository.delete(file.id);
@@ -48,6 +46,7 @@ class FileService {
     }
 
     getFileById(fileId, userId) {
+        console.log(fileRepository.files)
         const file = fileRepository.findById(fileId);
 
         if (!file) {
@@ -85,36 +84,37 @@ class FileService {
     }
 
     async updateFile(fileId, updates, userId) {
-        // Check permissions
-        if (!this.hasEditAccess(file, userId)) {
-            const error = new Error('Access denied');
-            error.statusCode = 403;
-            throw error;
-        }
-        
         if (!updates.name || !updates.parentId || !updates.content) {
             const error = new Error('did not provide paramters');
             error.statusCode = 400;
             throw error;
         }
 
-        // Update in repository
-        const file = fileRepository.update(fileId, updates);
+        var file = fileRepository.findById(fileId);
+
+         // Update in repository
         if (!file) {
             const error = new Error('File not found');
             error.statusCode = 404;
             throw error;
         }
+        // Check permissions
+        if (!this.hasEditAccess(file, userId)) {
+            const error = new Error('Access denied');
+            error.statusCode = 403;
+            throw error;
+        }
+        file = fileRepository.update(fileId, updates);
 
         // If updating file content, update in Assignment 2 server
         if (file.isFile()) {
-            const result = await Client.deleteFile(fileId);
+            var result = await client.deleteFile(fileId);
             if (!result.success) {
                 const error = new Error('Failed to update file in storage server');
                 error.statusCode = 500;
                 throw error;
             }
-            result = await Client.createFile(fileId, updates.content);
+            result = await client.saveFile(fileId, updates.content);
             if (!result.success) {
                 const error = new Error('Failed to update file in storage server');
                 error.statusCode = 500;
@@ -125,6 +125,7 @@ class FileService {
     }
 
     async deleteFile(fileId, userId) {
+        console.log(fileRepository.files)
         const file = fileRepository.findById(fileId);
 
         if (!file) {
@@ -151,7 +152,7 @@ class FileService {
 
         // If it's a file, delete from Assignment 2 server
         if (file.isFile()) {
-            const result = await Client.deleteFile(fileId);
+            const result = await client.deleteFile(fileId);
             if (!result.success) {
                 const error = new Error('Failed to update file in storage server');
                 error.statusCode = 500;
@@ -173,7 +174,7 @@ class FileService {
             if (child.isFolder()) {
                 await this.deleteFolderContents(child.id);
             } else if (child.isFile()) {
-                const result = await Client.deleteFile(child.id);
+                const result = await client.deleteFile(child.id);
                 if (!result.success) {
                     const error = new Error('Failed to update file in storage server');
                     error.statusCode = 500;

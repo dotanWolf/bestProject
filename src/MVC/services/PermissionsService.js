@@ -7,68 +7,67 @@ const fileRepository = require('../repositeries/FileRepositery');
 const Permission = require('../models/Permission');
 
 class PermissionService {
-    getPermissions(fileId, userId) {
-        const file = fileRepository.findById(fileId);
-        
-        if (!file) {
-            const error = new Error('File not found');
-            error.statusCode = 404;
-            throw error;
-        }
+  getPermissions(fileId, userId) {
+    const file = fileRepository.findById(fileId);
 
-        // Only owner can view permissions
-        if (file.ownerId !== userId) {
-            const error = new Error('Access denied');
-            error.statusCode = 403;
-            throw error;
-        }
-
-        return permissionRepository.findByFileId(fileId);
+    if (!file) {
+      const error = new Error('File not found');
+      error.statusCode = 404;
+      throw error;
     }
 
-    createPermission(fileId, permissionData, userId) {
-        const file = fileRepository.findById(fileId);
-        
-        if (!file) {
-            const error = new Error('File not found');
-            error.statusCode = 404;
-            throw error;
-        }
-
-        // Only owner can create permissions
-        if (file.ownerId !== userId) {
-            const error = new Error('Access denied');
-            error.statusCode = 403;
-            throw error;
-        }
-
-        // Validate permission data
-        const validationErrors = Permission.validate(permissionData);
-        if (validationErrors.length > 0) {
-            const error = new Error(validationErrors.join(', '));
-            error.statusCode = 400;
-            throw error;
-        }
-
-        // Check if permission already exists for this user
-        const existing = permissionRepository.findByFileAndUser(fileId, permissionData.userId);
-        
-        if (existing) {
-            const error = new Error('Permission already exists for this user');
-            error.statusCode = 400;
-            throw error;
-        }
-
-        // Create permission
-        return permissionRepository.create({
-            ...permissionData,
-            fileId
-        });
+    // Only owner can view permissions
+    if (file.ownerId !== userId) {
+      const error = new Error('Access denied');
+      error.statusCode = 403;
+      throw error;
     }
+    return permissionRepository.findByFileId(fileId);
+  }
+
+  createPermission(fileId, permissionData, userId) {
+    const file = fileRepository.findById(fileId);
+
+    if (!file) {
+      const error = new Error('File not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Only owner can create permissions
+    if (file.ownerId !== userId) {
+      const error = new Error('Access denied');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    // Validate permission data
+    const validationErrors = Permission.validate(permissionData);
+    if (validationErrors.length > 0) {
+      const error = new Error(validationErrors.join(', '));
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // // Check if permission already exists for this user
+    // const existing = permissionRepository.findByFileAndUser(fileId, permissionData.userId);
+
+    // if (existing) {
+    //     const error = new Error('Permission already exists for this user');
+    //     error.statusCode = 400;
+    //     throw error;
+    // }
+
+    // Create permission
+    return permissionRepository.create({
+      ...permissionData,
+      fileId
+    });
+  }
 
   updatePermission(fileId, permissionId, updates, userId) {
     const file = fileRepository.findById(fileId);
-    
+
     if (!file) {
       const error = new Error('File not found');
       error.statusCode = 404;
@@ -83,7 +82,7 @@ class PermissionService {
     }
 
     const permission = permissionRepository.findById(permissionId);
-    
+
     if (!permission || permission.fileId !== fileId) {
       const error = new Error('Permission not found');
       error.statusCode = 404;
@@ -103,7 +102,7 @@ class PermissionService {
 
   deletePermission(fileId, permissionId, userId) {
     const file = fileRepository.findById(fileId);
-    
+
     if (!file) {
       const error = new Error('File not found');
       error.statusCode = 404;
@@ -118,7 +117,7 @@ class PermissionService {
     }
 
     const permission = permissionRepository.findById(permissionId);
-    
+
     if (!permission || permission.fileId !== fileId) {
       const error = new Error('Permission not found');
       error.statusCode = 404;
@@ -129,5 +128,4 @@ class PermissionService {
   }
 }
 
-// Singleton pattern
 module.exports = new PermissionService();

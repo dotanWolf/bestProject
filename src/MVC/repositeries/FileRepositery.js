@@ -7,7 +7,7 @@ class FileRepository {
     }
 
     create(fileData) {
-        const file = new Entry({
+        const file = new File({
             id: crypto.randomUUID(),
             ...fileData
         });

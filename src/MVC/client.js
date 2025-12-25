@@ -7,24 +7,35 @@ class Client {
         this.timeout = 5000; // 5 seconds timeout
     }
 
-    sendRequest(command) {
+    async sendRequest(command) {
+        const port = this.serverport;
+        const ip = this.serverip;
         return new Promise((resolve, reject) => {
             const client = new net.Socket();
             // Set a timeout so web server doesn't hang forever if C++ crashes
             client.setTimeout(5000);
 
-            client.connect(serverport, serverip, () => {
-                client.write(request);
+            client.connect(port, ip, () => {
+                client.write(command);
             });
-            let responseData = '';
 
             client.on('data', (data) => {
-                responseData += data.toString();
+                const response = data.toString().trim();
+                client.destroy();
+                resolve(response);
             });
 
-            client.on('end', () => {
-                resolve(responseData.trim());
+            client.on('error', (err) => {
+                client.destroy();
+                reject(err);
             });
+
+            // client.on('timeout', () => {
+            //     client.destroy();
+            //     const error = new Error("C++ Server Timeout")
+            //     error.statusCode = 600
+            //     reject(error);
+            // });
         });
     }
 
@@ -32,7 +43,7 @@ class Client {
         const command = `post ${fileId} ${content}\n`;
         const response = await this.sendRequest(command);
         const status = parseInt(response.split(' ')[0]);
-        
+
         return { status, success: status === 201 };
     }
 
@@ -71,7 +82,7 @@ class Client {
         const command = `delete ${fileId}\n`;
         const response = await this.sendRequest(command);
         const status = parseInt(response.split(' ')[0]);
-        
+
         return { status, success: status === 204 };
     }
 
@@ -86,8 +97,8 @@ class Client {
         const status = response.split(' ')[0]
         const parts = data.split('\n\n');
         const body = parts[1].trim();
-        const listOfIds = body.split(' ')    
-        return { status,  listOfIds, success: status === 200 };
+        const listOfIds = body.split(' ')
+        return { status, listOfIds, success: status === 200 };
     }
 }
 
