@@ -1,6 +1,6 @@
 const express = require('express')
 var router = express.Router()
-const controllers = require('../controllers/files')
+const controllers = require('../controllers/fileController')
 
 router.route('/')
     .get(controllers.getAllEntries) // תחזיר את רשימת כל הקבצים והתיקיות של המשתמש ברמה העליונה ביותר
