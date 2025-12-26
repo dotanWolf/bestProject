@@ -2,7 +2,7 @@ const net = require('net');
 
 class Client {
     constructor() {
-        this.serverip = "127.0.0.1";
+        this.serverip = "host.docker.internal";
         this.serverport = 9120;
         this.timeout = 5000; // 5 seconds timeout
     }
