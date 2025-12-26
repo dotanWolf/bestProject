@@ -35,17 +35,17 @@ void addCommand::execute(std::optional<std::vector<std::string>> arguments) {
             
         case FileCreationStatus::ERROR_ENV_VAR_MISSING:
             // Server configuration error
-            printOutput(std::cout, "Internal Server Error 500");
+            printOutput(std::cout, "500 Internal Server Error");
             break;
             
         case FileCreationStatus::ERROR_FAILED_TO_OPEN:
             // Generic failure to open or write (could also be used as the default)
-            printOutput(std::cout, "Internal Server Error 500");
+            printOutput(std::cout, "500 Internal Server Error");
             break;
             
         default:
             // Catch any unexpected/unhandled enum values
-            printOutput(std::cout, "Internal Server Error 500");
+            printOutput(std::cout, "500 Internal Server Error");
             break;
     }
 }
