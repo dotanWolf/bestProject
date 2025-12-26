@@ -67,7 +67,16 @@ int main(int argc, char* argv[]) {
     }
 
     //IExecutor* executor = new ThreadPerClientExecutor(); 
-    IExecutor* executor = new ThreadPoolExecutor(); 
+    size_t poolSize = 0;
+
+    const char* envThread = std::getenv("THREAD_POOL_SIZE");
+    if (envThread != nullptr) {
+        poolSize = std::stoul(envThread);
+    } else {
+        poolSize = std::thread::hardware_concurrency();
+    }
+
+    IExecutor* executor = new ThreadPoolExecutor(poolSize); 
     Server* server = new Server(port, app, executor); 
 
     // Network Setup 

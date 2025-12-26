@@ -1,5 +1,7 @@
 #include "ThreadPoolExecutor.h"
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 ThreadPoolExecutor::ThreadPoolExecutor(size_t numThreads) : stop(false) {
     for (size_t i = 0; i < numThreads; ++i) {
@@ -19,7 +21,10 @@ ThreadPoolExecutor::ThreadPoolExecutor(size_t numThreads) : stop(false) {
                     task = std::move(this->tasks.front());
                     this->tasks.pop();
                 }
+
                 //std::cout << "Worker Thread [" << std::this_thread::get_id() << "] is starting a task." << std::endl;
+                //std::this_thread::sleep_for(std::chrono::milliseconds(300)); 
+
                 task();
             }
         });
