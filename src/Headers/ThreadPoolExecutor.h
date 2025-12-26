@@ -10,8 +10,8 @@
 
 class ThreadPoolExecutor : public IExecutor {
 public:
-    // Constructor: create a pool with a fixed number of threads
-    explicit ThreadPoolExecutor(size_t numThreads = 5);
+    // Constructor: create a pool with a number of threads
+    explicit ThreadPoolExecutor(size_t numThreads);
 
     // Must match IExecutor interface
     virtual void execute(Runnable command) override;
