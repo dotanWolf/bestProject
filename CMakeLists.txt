@@ -28,12 +28,14 @@ set(SERVER_SRCS
     src/Cpp/Parser.cpp
     src/Cpp/save.cpp
     src/Cpp/deleteFile.cpp
+    src/Cpp/ThreadPoolExecutor.cpp
 )
 
 set(CLIENT_SRCS
     src/Cpp/Client.cpp
     src/Cpp/Client.py
     src/Cpp/ThreadPerClientExecutor.cpp
+    src/Cpp/ThreadPoolExecutor.cpp
     src/Cpp/App.cpp
     src/Cpp/ICompressor.cpp
     src/Cpp/RLECompressor.cpp

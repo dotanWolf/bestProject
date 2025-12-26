@@ -6,10 +6,9 @@
 
 class ThreadPerClientExecutor : public IExecutor {
 public:
-    // This signature MUST match the virtual method in IExecutor.h
     virtual void execute(Runnable command) override; 
 
-    // Destructor (good practice)
+    // Destructor 
     virtual ~ThreadPerClientExecutor() = default; 
 };
 
