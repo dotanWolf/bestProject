@@ -26,6 +26,7 @@
 #include "Server.h"
 #include "IExecutor.h"
 #include "ThreadPerClientExecutor.h"
+#include "ThreadPoolExecutor.h"
 #include <mutex>
 
 using namespace std;
@@ -36,7 +37,7 @@ std::mutex m;
 int main(int argc, char* argv[]) {
     static std::mutex file_mutex; // shared between all threads
     if (argc != 2) {
-        cerr << "Usage: " << argv[0] << " <PortNumber>" << endl;
+        //cerr << "Usage: " << argv[0] << " <PortNumber>" << endl;
         return 1;
     }
 
@@ -65,8 +66,17 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    IExecutor* executor = new ThreadPerClientExecutor(); 
-    
+    //IExecutor* executor = new ThreadPerClientExecutor(); 
+    size_t poolSize = 0;
+
+    const char* envThread = std::getenv("THREAD_POOL_SIZE");
+    if (envThread != nullptr) {
+        poolSize = std::stoul(envThread);
+    } else {
+        poolSize = std::thread::hardware_concurrency();
+    }
+
+    IExecutor* executor = new ThreadPoolExecutor(poolSize); 
     Server* server = new Server(port, app, executor); 
 
     // Network Setup 

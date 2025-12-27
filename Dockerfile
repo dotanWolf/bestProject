@@ -22,6 +22,8 @@ RUN npm ci --only=production
 
 # create an environment variable
 ENV RLE_DIR=/app/data 
+ENV THREAD_POOL_SIZE=5
+
 RUN mkdir -p /app/data
 
 # Final setup
