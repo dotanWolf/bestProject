@@ -1,4 +1,4 @@
-class Entry {
+  class Entry {
   constructor({ id, name, type, ownerId, parentId, content}) {
       this.id = id;
       this.name = name;

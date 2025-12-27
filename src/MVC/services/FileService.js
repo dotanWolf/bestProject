@@ -45,7 +45,6 @@ class FileService {
         // create a permmision for the owner of the file
         const ownerPermmision = PermissionService.createPermission(file.id, {
             userId: userId,
-            fileId: file.id,
             role: "owner"
         }, userId)
 
@@ -143,7 +142,6 @@ class FileService {
     }
 
     async deleteFile(fileId, userId) {
-        console.log(fileRepository.files)
         const file = fileRepository.findById(fileId);
 
         if (!file) {
