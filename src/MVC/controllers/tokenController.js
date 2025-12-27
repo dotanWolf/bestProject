@@ -2,8 +2,6 @@ const User = require("../models/User");
 const UserRepositery = require("../repositeries/UserRepositery")
 
 const doesUserExist = (req, res) => {
-    if (!req.body)
-        return res.status(400).json({error: "must provide a json with user fields"})
     const {email, password } = req.body
     if (!email || !password)
         return res.status(400).json({error: 'email and password required'})

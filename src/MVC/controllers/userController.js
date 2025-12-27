@@ -2,8 +2,6 @@ const userService = require('../services/UserService')
 
 const createNewUser = (req, res) => {
     var newUser = null
-    if (!req.body)
-        return res.status(400).json({error: "must provide a json with user fields"})
     try {
         newUser = userService.createUser(req.body)
     } catch (error) {
