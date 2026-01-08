@@ -1,24 +1,36 @@
 import "./Input.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { useState
 
+ } from "react";
 function Input(props) {
-  const { createText, type, typeLabel, buttonText, handleNext } = props;
+  const { createText, type, typeLabel, buttonText, handleClick } = props;
+
+  const [inputValue, setInputValue] = useState("");
+
+  const onButtonClick = async () => {
+    const isValid = await handleClick(inputValue);
+    if (isValid) setInputValue("")
+  };
+
   return (
     <div className="input-container">
       <div className="top-container">
         <h1>Create {createText}</h1>
-        <div class="form-floating mb-3">
+        <div className="form-floating mb-3">
           <input
             type={type}
-            class="form-control"
+            className="form-control"
             id="floatingInput"
             placeholder="name@example.com"
+            value = {inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
-          <label for="floatingInput">{typeLabel}</label>
+          <label htmlFor="floatingInput">{typeLabel}</label>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onClick={handleNext}>
+      <button type="button" className="btn btn-primary" onClick={onButtonClick}>
         {buttonText}
       </button>
     </div>
