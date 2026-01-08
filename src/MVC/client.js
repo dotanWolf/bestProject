@@ -29,13 +29,6 @@ class Client {
                 client.destroy();
                 reject(err);
             });
-
-            // client.on('timeout', () => {
-            //     client.destroy();
-            //     const error = new Error("C++ Server Timeout")
-            //     error.statusCode = 600
-            //     reject(error);
-            // });
         });
     }
 
