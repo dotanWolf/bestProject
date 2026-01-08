@@ -1,0 +1,13 @@
+#root {
+  display: flex;
+  justify-content: center; /* Evenly splits the 30% width (15% left, 15% right) */
+  align-items: flex-start;
+
+  width: 100%;
+  height: 100vh;
+  background-color: #f0f4f9; /* Optional: to see the layout */
+}
+
+body {
+  margin: 0; /* Remove default browser spacing */
+}
