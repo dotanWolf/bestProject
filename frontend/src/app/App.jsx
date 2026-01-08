@@ -1,24 +1,48 @@
-import { useState } from 'react'
+import Input from "../input/Input.jsx";
+import { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const data = [
+    {
+      createText: "A UserName",
+      type: "text",
+      typeLabel: "username",
+      buttonText: "Next",
+    },
+    {
+      createText: "An Email Adress",
+      type: "email",
+      typeLabel: "email adress",
+      buttonText: "Next",
+    },
+    {
+      createText: "A Password",
+      type: "password",
+      typeLabel: "password",
+      buttonText: "Create",
+    },
+  ];
 
+  const [step, setStep] = useState(0);
+
+  const handleNext = () => {
+    if (step < data.length - 1) {
+      setStep(step + 1);
+    } else {
+      // create the acount using post
+    }
+  };
+
+  const currentItem = data[step];
   return (
-    <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save fadfadfsfdasto test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Input
+      createText= {currentItem.createText}
+      type={currentItem.type}
+      typeLabel={currentItem.typeLabel}
+      buttonText={currentItem.buttonText}
+      handleNext = {handleNext}
+    ></Input>
+  );
 }
 
-export default App
+export default App;
