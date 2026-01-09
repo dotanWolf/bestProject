@@ -1,0 +1,51 @@
+import "./TopBar.css";
+import { IoSearch, IoOptionsOutline, IoSettingsOutline, IoHelpCircleOutline, IoApps } from "react-icons/io5";
+import { FaGoogleDrive } from "react-icons/fa";
+
+function TopBar() {
+  return (
+    <div className="topbar">
+      
+     <div className="topbar-left">
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", color:"var(--text-color)", fontSize: "22px" }}>
+        <span style={{ fontSize: "28px", display: "flex", color: "#FFC107" }}>
+          <FaGoogleDrive />
+        </span>
+        <span style={{ fontFamily: "sans-serif", paddingTop: "4px" }}>
+          Drive
+        </span>
+      </div>
+    </div>
+
+      {/* 2. Center: Search Bar */}
+      <div className="topbar-center">
+        <div className="search-container">
+          <IoSearch size={20} className="icon-btn" style={{padding:0}} />
+          <input 
+            type="text" 
+            className="search-input" 
+            placeholder="Search in Drive" 
+          />
+          <IoOptionsOutline size={20} className="icon-btn" style={{padding:0}} />
+        </div>
+      </div>
+
+      {/* 3. Right: Action Icons */}
+      <div className="topbar-right">
+        <button className="icon-btn" title="Support">
+          <IoHelpCircleOutline size={24} />
+        </button>
+        <button className="icon-btn" title="Settings">
+          <IoSettingsOutline size={24} />
+        </button>
+        <button className="icon-btn" title="Google Apps">
+          <IoApps size={24} />
+        </button>
+        <div className="avatar-circle">!</div>
+      </div>
+
+    </div>
+  );
+}
+
+export default TopBar;
