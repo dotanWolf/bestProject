@@ -1,5 +1,5 @@
-import Input from "../input/Input.jsx";
 import Sidebar from "../components/Sidebar/Sidebar";
+import Input from "../input/Input.jsx"; 
 import { useState } from "react";
 import "../components/Sidebar/Sidebar.css";
 
@@ -45,16 +45,16 @@ function App() {
   const currentItem = data[step];
 
   return (
-    // We use a single main container with the dynamic class for Dark/Light mode
     <div 
       id="app-container" 
       className={isDarkMode ? "dark-mode" : "light-mode"}
       style={{ display: "flex", height: "100vh", width: "100%" }}
     >
       
-      {/* Pass the toggle function and state to Sidebar */}
+      {/* Sidebar with Theme Toggle */}
       <Sidebar toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
 
+      {/* Main Content Area */}
       <div style={{ 
         flex: 1, 
         display: "flex", 

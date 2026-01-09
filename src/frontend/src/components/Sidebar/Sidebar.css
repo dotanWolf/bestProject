@@ -1,0 +1,139 @@
+/* 1. Define the Color Palette (Variables) */
+.dark-mode {
+  --sidebar-bg: #1e1e1e;
+  --main-bg: #121212;      /* Main content background */
+  --text-color: #e3e3e3;
+  --btn-bg: #373737;
+  --btn-hover: #4a4a4a;
+  --btn-text: #ffffff;
+  --hover-bg: #2b2b2b;
+  --active-bg: #a8c7fa;
+  --active-text: #0b1d38;
+}
+
+light-mode {
+  --sidebar-bg: #f7f9fc;
+  --main-bg: #ffffff;      /* Main content background */
+  --text-color: #1f1f1f;
+  --btn-bg: #ffffff;
+  --btn-hover: #f1f3f4;
+  --btn-text: #1f1f1f;
+  --hover-bg: #f1f3f4;
+  --active-bg: #c2e7ff;
+  --active-text: #001d35;
+}
+
+
+/* 3. The Sidebar Styling (Using Variables) */
+.sidebar-container {
+  background-color: var(--sidebar-bg);
+  color: var(--text-color);
+  width: 250px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif;
+  padding-top: 10px;
+  transition: background-color 0.3s, color 0.3s; /* Smooth switch */
+}
+
+/* Logo */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-color); /* Dynamic */
+  margin-bottom: 10px;
+}
+.logo-icon {
+  margin-right: 10px;
+  color: #FFC107; /* Icon stays yellow */
+}
+
+/* "New" Button */
+.new-button-container {
+  padding: 8px 16px 16px 16px;
+}
+
+.new-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border: none;
+  padding: 18px 24px;
+  border-radius: 16px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3);
+  transition: all 0.2s;
+}
+
+.new-button:hover {
+  background-color: var(--btn-hover);
+  box-shadow: 0 4px 8px 3px rgba(0,0,0,0.15);
+}
+
+.plus {
+  font-size: 24px;
+  line-height: 10px;
+  font-weight: 400;
+  margin-top: -2px;
+}
+
+/* Menu Items */
+.sidebar-menu {
+  flex: 1;
+  padding-right: 15px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 25px;
+  margin-bottom: 2px;
+  cursor: pointer;
+  font-size: 14px;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  color: var(--text-color); /* Dynamic */
+}
+
+.menu-item:hover {
+  background-color: var(--hover-bg); /* Dynamic */
+}
+
+.menu-item.active {
+  background-color: var(--active-bg); /* Dynamic */
+  color: var(--active-text);          /* Dynamic */
+  font-weight: 500;
+}
+.icon {
+  margin-right: 15px;
+  font-size: 1.3rem; 
+  display: flex;     
+  align-items: center;
+}
+.plus-icon {
+  font-size: 24px;
+  margin-right: 8px;
+}
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
+  padding: 8px 12px;
+  border-radius: 20px; 
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+.theme-toggle:hover {
+  background-color: var(--hover-bg);
+}
