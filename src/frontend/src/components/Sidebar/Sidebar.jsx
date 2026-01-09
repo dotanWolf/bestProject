@@ -1,72 +1,93 @@
-import { useState } from 'react';
-import './Sidebar.css';
-// 1. Import real Google icons
-import { 
-  MdHomeFilled, 
-  MdStorage, 
-  MdPeople, 
-  MdAccessTime, 
-  MdStarBorder, 
-  MdDeleteOutline, 
-  MdCloudQueue,
-  MdAdd 
-} from "react-icons/md";
-import { FaGoogleDrive } from "react-icons/fa"; // Drive Logo
+import "./Sidebar.css";
+import { Link, useLocation } from "react-router-dom";
+import { FaPlus, FaClock, FaStar, FaTrash, FaCloud, FaGoogleDrive } from "react-icons/fa";
+import { IoMdPeople } from "react-icons/io";
+import { MdDevices } from "react-icons/md";
+
 
 const Sidebar = ({ toggleTheme, isDarkMode }) => {
-  
-  const menuItems = [
-    { name: 'Home', icon: <MdHomeFilled /> },
-    { name: 'My Drive', icon: <MdStorage /> }, 
-    { name: 'Shared with me', icon: <MdPeople /> },
-    { name: 'Recent', icon: <MdAccessTime /> },
-    { name: 'Starred', icon: <MdStarBorder /> },
-    { name: 'Trash', icon: <MdDeleteOutline /> },
+  const location = useLocation(); 
 
-  ];
-
-  const [activeItem, setActiveItem] = useState('My Drive');
+  const isActive = (path) => location.pathname === path ? 'active' : '';
 
   return (
     <div className="sidebar-container">
       
-      {/* Logo Section */}
-      <div className="sidebar-logo">
-        <span className="logo-icon" style={{ fontSize: '28px', marginTop: '5px' }}>
-          <FaGoogleDrive />
-        </span>
-        <span className="logo-text" style={{ marginTop: '10px' }}>TheDrive</span>
-      </div>
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <div className="sidebar-logo">
+          <span className="logo-icon">
+            <FaGoogleDrive />
+          </span>
+          <span className="logo-text">Drive</span>
+        </div>
+      </Link>
 
       <div className="new-button-container">
         <button className="new-button">
-          <MdAdd className="plus-icon" />
+          <FaPlus className="plus" />
           <span>New</span>
         </button>
       </div>
 
       <div className="sidebar-menu">
-        {menuItems.map((item) => (
-          <div
-            key={item.name}
-            className={`menu-item ${activeItem === item.name ? 'active' : ''}`}
-            onClick={() => setActiveItem(item.name)}
-          >
-            <span className="icon">{item.icon}</span>
-            <span className="label">{item.name}</span>
+        
+        <Link to="/my-drive" style={{ textDecoration: 'none' }}>
+          <div className={`menu-item ${isActive('/my-drive') || isActive('/')}`}>
+            <span className="icon"><MdDevices /></span>
+            <span>My Drive</span>
           </div>
-        ))}
+        </Link>
+
+        <Link to="/computers" style={{ textDecoration: 'none' }}>
+          <div className={`menu-item ${isActive('/computers')}`}>
+            <span className="icon"><MdDevices /></span>
+            <span>Computers</span>
+          </div>
+        </Link>
+
+        <Link to="/shared" style={{ textDecoration: 'none' }}>
+          <div className={`menu-item ${isActive('/shared')}`}>
+            <span className="icon"><IoMdPeople /></span>
+            <span>Shared with me</span>
+          </div>
+        </Link>
+
+        <Link to="/recent" style={{ textDecoration: 'none' }}>
+          <div className={`menu-item ${isActive('/recent')}`}>
+            <span className="icon"><FaClock /></span>
+            <span>Recent</span>
+          </div>
+        </Link>
+
+        <Link to="/starred" style={{ textDecoration: 'none' }}>
+          <div className={`menu-item ${isActive('/starred')}`}>
+            <span className="icon"><FaStar /></span>
+            <span>Starred</span>
+          </div>
+        </Link>
+
+        <Link to="/trash" style={{ textDecoration: 'none' }}>
+          <div className={`menu-item ${isActive('/trash')}`}>
+            <span className="icon"><FaTrash /></span>
+            <span>Trash</span>
+          </div>
+        </Link>
+
+        <Link to="/storage" style={{ textDecoration: 'none' }}>
+          <div className={`menu-item ${isActive('/storage')}`}>
+            <span className="icon"><FaCloud /></span>
+            <span>Storage</span>
+          </div>
+        </Link>
+
       </div>
 
-      {/* Theme Toggle */}
-      <div style={{ marginTop: "auto", padding: "20px" }}>
-        <button 
-          onClick={toggleTheme} 
-          className="theme-toggle"
-        >
-          {isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+      <div className="bottom-container">
+        <button className="theme-toggle" onClick={toggleTheme}>
+          {isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
         </button>
       </div>
+
     </div>
   );
 };
