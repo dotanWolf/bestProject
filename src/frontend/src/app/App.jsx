@@ -1,6 +1,10 @@
 import Input from "../input/Input.jsx";
 import { useState } from "react";
-
+import {
+  emailValidator,
+  passwordValidator,
+  usernameValidator,
+} from "./validator";
 function App() {
   const data = [
     {
@@ -8,39 +12,51 @@ function App() {
       type: "text",
       typeLabel: "username",
       buttonText: "Next",
+      validator: usernameValidator,
     },
     {
       createText: "An Email Adress",
       type: "email",
       typeLabel: "email adress",
       buttonText: "Next",
+      validator: emailValidator,
     },
     {
       createText: "A Password",
       type: "password",
       typeLabel: "password",
       buttonText: "Create",
+      validator: passwordValidator,
     },
   ];
 
   const [step, setStep] = useState(0);
+  const [userInput, setUserInput] = useState([]);
 
-  const handleNext = () => {
-    if (step < data.length - 1) {
-      setStep(step + 1);
+  const handleClick = async (input) => {
+    const isValid = await data[step].validator(input)
+    if (isValid) {
+      // data is valid for this section
+      setUserInput([...userInput, input]);
+      if (step < data.length - 1) {
+        setStep(step + 1);
+      } else {
+        // send a post request with userInput
+      }
+      return true
     } else {
-      // create the acount using post
+      return null
     }
   };
 
   const currentItem = data[step];
   return (
     <Input
-      createText= {currentItem.createText}
+      createText={currentItem.createText}
       type={currentItem.type}
       typeLabel={currentItem.typeLabel}
       buttonText={currentItem.buttonText}
-      handleNext = {handleNext}
+      handleClick={handleClick}
     ></Input>
   );
 }
