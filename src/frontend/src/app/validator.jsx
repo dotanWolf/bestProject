@@ -7,11 +7,13 @@ export const emailValidator = async (email) => {
     // check if email exists already
     try {
         console.log("sending request")
-        const response = await fetch("http://localhost:8080/api/tokens/email")
-        console.log("finshed request")
-        data = await response.json()
+        const response = await fetch(`http://localhost:8080/api/tokens/${email}`)
+        console.log("finished request")
+        const data = await response.json()
+        console.log(data)
         if (data.exists) return false
     } catch (error) {
+        console.log(error)
         return false
     }
     

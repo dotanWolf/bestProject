@@ -20,8 +20,7 @@ const doesUserExist = (req, res) => {
 }
 
 const doesEmailExist = (req, res) => {
-    console.log("server")
-    return UserRepositery.existsByEmail(req.params.email)
+    return res.status(200).json({exists: UserRepositery.existsByEmail(req.params.email)})
 }
 
 module.exports = {

@@ -4,7 +4,9 @@ const files = require('./routes/files');
 const users = require('./routes/users');
 const tokens = require('./routes/tokens');
 const search = require('./routes/search');
+const cors = require('cors');
 
+app.use(cors());
 app.use(express.json())
 app.use('/api/files', files)
 app.use('/api/users', users)
