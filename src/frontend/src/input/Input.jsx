@@ -1,9 +1,7 @@
 import "./Input.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { useState
-
- } from "react";
+import { useState} from "react";
 function Input(props) {
   const { createText, type, typeLabel, buttonText, handleClick } = props;
 

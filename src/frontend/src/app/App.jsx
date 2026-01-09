@@ -67,7 +67,7 @@ function App() {
           type={currentItem.type}
           typeLabel={currentItem.typeLabel}
           buttonText={currentItem.buttonText}
-          handleNext={handleNext}
+          handleClick={handleNext}
         />
       </div>
 
