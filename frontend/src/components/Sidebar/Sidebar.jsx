@@ -1,16 +1,28 @@
 import { useState } from 'react';
 import './Sidebar.css';
+// 1. Import real Google icons
+import { 
+  MdHomeFilled, 
+  MdStorage, 
+  MdPeople, 
+  MdAccessTime, 
+  MdStarBorder, 
+  MdDeleteOutline, 
+  MdCloudQueue,
+  MdAdd 
+} from "react-icons/md";
+import { FaGoogleDrive } from "react-icons/fa"; // Drive Logo
 
-const Sidebar = ({ toggleTheme, isDarkMode }) => { 
+const Sidebar = ({ toggleTheme, isDarkMode }) => {
   
   const menuItems = [
-    { name: 'Home', icon: '🏠' },
-    { name: 'My Drive', icon: '💿' },
-    { name: 'Shared with me', icon: '👥' },
-    { name: 'Recent', icon: '🕒' },
-    { name: 'Starred', icon: '⭐' },
-    { name: 'Trash', icon: '🗑️' },
-    { name: 'Storage', icon: '☁️' },
+    { name: 'Home', icon: <MdHomeFilled /> },
+    { name: 'My Drive', icon: <MdStorage /> }, 
+    { name: 'Shared with me', icon: <MdPeople /> },
+    { name: 'Recent', icon: <MdAccessTime /> },
+    { name: 'Starred', icon: <MdStarBorder /> },
+    { name: 'Trash', icon: <MdDeleteOutline /> },
+
   ];
 
   const [activeItem, setActiveItem] = useState('My Drive');
@@ -18,21 +30,21 @@ const Sidebar = ({ toggleTheme, isDarkMode }) => {
   return (
     <div className="sidebar-container">
       
-      {/* 1. The Drive Logo */}
+      {/* Logo Section */}
       <div className="sidebar-logo">
-        <span className="logo-icon">📐</span>
-        <span className="logo-text">TheDrive</span>
+        <span className="logo-icon" style={{ fontSize: '28px', marginTop: '5px' }}>
+          <FaGoogleDrive />
+        </span>
+        <span className="logo-text" style={{ marginTop: '10px' }}>TheDrive</span>
       </div>
 
-      {/* 2. The Big "New" Button */}
       <div className="new-button-container">
         <button className="new-button">
-          <span className="plus">+</span>
+          <MdAdd className="plus-icon" />
           <span>New</span>
         </button>
       </div>
 
-      {/* 3. The Menu List */}
       <div className="sidebar-menu">
         {menuItems.map((item) => (
           <div
@@ -46,19 +58,11 @@ const Sidebar = ({ toggleTheme, isDarkMode }) => {
         ))}
       </div>
 
-      {/* 4. The Theme Toggle Button */}
+      {/* Theme Toggle */}
       <div style={{ marginTop: "auto", padding: "20px" }}>
         <button 
           onClick={toggleTheme} 
-          style={{ 
-            background: "none", 
-            border: "1px solid var(--text-color)", 
-            color: "var(--text-color)", 
-            padding: "5px 10px", 
-            borderRadius: "5px",
-            cursor: "pointer",
-            width: "100%"
-          }}
+          className="theme-toggle"
         >
           {isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
         </button>
