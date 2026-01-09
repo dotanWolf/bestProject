@@ -113,3 +113,27 @@ light-mode {
   color: var(--active-text);          /* Dynamic */
   font-weight: 500;
 }
+.icon {
+  margin-right: 15px;
+  font-size: 1.3rem; 
+  display: flex;     
+  align-items: center;
+}
+.plus-icon {
+  font-size: 24px;
+  margin-right: 8px;
+}
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
+  padding: 8px 12px;
+  border-radius: 20px; 
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+.theme-toggle:hover {
+  background-color: var(--hover-bg);
+}
