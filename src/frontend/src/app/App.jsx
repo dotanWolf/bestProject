@@ -1,5 +1,6 @@
 import Sidebar from "../components/Sidebar/Sidebar";
 import Input from "../input/Input.jsx"; 
+import TopBar from "../components/TopBar/TopBar"; 
 import { useState } from "react";
 import "../components/Sidebar/Sidebar.css";
 
@@ -44,33 +45,36 @@ function App() {
 
   const currentItem = data[step];
 
-  return (
+return (
     <div 
       id="app-container" 
       className={isDarkMode ? "dark-mode" : "light-mode"}
-      style={{ display: "flex", height: "100vh", width: "100%" }}
+      style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100%" }}
     >
-      
-      {/* Sidebar with Theme Toggle */}
-      <Sidebar toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+      <TopBar />
 
-      {/* Main Content Area */}
-      <div style={{ 
-        flex: 1, 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center",
-        backgroundColor: "var(--main-bg)" 
-      }}>
-        <Input
-          createText={currentItem.createText}
-          type={currentItem.type}
-          typeLabel={currentItem.typeLabel}
-          buttonText={currentItem.buttonText}
-          handleClick={handleNext}
-        />
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        
+        <Sidebar toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+
+        <div style={{ 
+          flex: 1, 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center",
+          backgroundColor: "var(--main-bg)",
+          transition: "background-color 0.3s ease"
+        }}>
+          <Input
+            createText={currentItem.createText}
+            type={currentItem.type}
+            typeLabel={currentItem.typeLabel}
+            buttonText={currentItem.buttonText}
+            handleClick={handleNext}
+          />
+        </div>
+
       </div>
-
     </div>
   );
 }

@@ -1,0 +1,132 @@
+:root {
+  --sidebar-width: 250px; /* Define width to align logo with sidebar */
+}
+
+.dark-mode {
+  --sidebar-bg: #1e1e1e;
+  --topbar-bg: #1e1e1e; /* Match topbar to sidebar in dark mode */
+  --main-bg: #121212;
+  --text-color: #e3e3e3;
+  --search-bg: #2b2b2b;
+  --icon-color: #e3e3e3;
+  --hover-bg: #333333;
+}
+
+.light-mode { /* <--- FIXED: Added the missing dot */
+  --sidebar-bg: #f7f9fc;
+  --topbar-bg: #f7f9fc;
+  --main-bg: #ffffff;
+  --text-color: #444746;
+  --search-bg: #e9eef6;
+  --icon-color: #444746;
+  --hover-bg: rgba(68, 71, 70, 0.08);
+}
+
+/* --- Layout --- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background-color: var(--topbar-bg); /* Uses variable now */
+  height: 64px;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  width: var(--sidebar-width);
+  padding-right: 20px;
+}
+
+.logo-wrapper { 
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logo-icon {
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  color: #FFC107; /* Keep the drive icon yellow/colored */
+}
+
+.logo-text {
+  font-family: 'Product Sans', Arial, sans-serif; /* Google-like font */
+  font-size: 22px;
+  color: var(--text-color); /* Adapts to dark/light mode */
+  font-weight: 400;
+  padding-top: 2px; /* Visual alignment fix */
+}
+
+.topbar-center {
+  flex: 1;
+  max-width: 720px;
+  margin: 0 10px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--search-bg);
+  border-radius: 24px;
+  padding: 0 16px;
+  height: 48px;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.search-container:focus-within {
+  background-color: var(--main-bg);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1), 0 1px 6px rgba(0,0,0,0.1);
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  flex: 1;
+  margin: 0 10px;
+  font-size: 16px;
+  outline: none;
+  color: var(--text-color);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--icon-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:hover {
+  background-color: var(--hover-bg);
+}
+
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #045a4f;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 8px;
+}
