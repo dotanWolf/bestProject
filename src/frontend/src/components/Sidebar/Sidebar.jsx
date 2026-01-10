@@ -1,47 +1,34 @@
 import "./Sidebar.css";
 import { Link, useLocation } from "react-router-dom";
-import { FaPlus, FaClock, FaStar, FaTrash, FaCloud, FaGoogleDrive } from "react-icons/fa";
+import { FaPlus, FaClock, FaStar, FaTrash, FaCloud } from "react-icons/fa";
 import { IoMdPeople } from "react-icons/io";
 import { MdDevices } from "react-icons/md";
 
-
-const Sidebar = ({ toggleTheme, isDarkMode }) => {
+const Sidebar = () => {
   const location = useLocation(); 
-
+  
+  // Helper to check active route
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
   return (
     <div className="sidebar-container">
       
-      <Link to="/" style={{ textDecoration: 'none' }}>
-        <div className="sidebar-logo">
-          <span className="logo-icon">
-            <FaGoogleDrive />
-          </span>
-          <span className="logo-text">Drive</span>
-        </div>
-      </Link>
-
+      {/* New Button -> Navigates to Create Page */}
       <div className="new-button-container">
-        <button className="new-button">
-          <FaPlus className="plus" />
-          <span>New</span>
-        </button>
+        <Link to="/create" style={{ textDecoration: 'none' }}>
+          <button className="new-button">
+            <FaPlus className="plus" />
+            <span>New</span>
+          </button>
+        </Link>
       </div>
 
+      {/* Menu Items */}
       <div className="sidebar-menu">
-        
         <Link to="/my-drive" style={{ textDecoration: 'none' }}>
           <div className={`menu-item ${isActive('/my-drive') || isActive('/')}`}>
             <span className="icon"><MdDevices /></span>
             <span>My Drive</span>
-          </div>
-        </Link>
-
-        <Link to="/shared" style={{ textDecoration: 'none' }}>
-          <div className={`menu-item ${isActive('/shared')}`}>
-            <span className="icon"><IoMdPeople /></span>
-            <span>Shared with me</span>
           </div>
         </Link>
 
@@ -72,15 +59,7 @@ const Sidebar = ({ toggleTheme, isDarkMode }) => {
             <span>Storage</span>
           </div>
         </Link>
-
       </div>
-
-      <div className="bottom-container">
-        <button className="theme-toggle" onClick={toggleTheme}>
-          {isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        </button>
-      </div>
-
     </div>
   );
 };

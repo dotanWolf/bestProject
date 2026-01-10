@@ -84,6 +84,17 @@
   background-color: var(--main-bg);
   box-shadow: 0 1px 2px rgba(0,0,0,0.1), 0 1px 6px rgba(0,0,0,0.1);
 }
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
+  padding: 8px 12px;
+  border-radius: 20px; 
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+  font-size: 13px;
+}
 
 .search-input {
   border: none;
