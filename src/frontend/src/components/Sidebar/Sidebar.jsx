@@ -38,13 +38,6 @@ const Sidebar = ({ toggleTheme, isDarkMode }) => {
           </div>
         </Link>
 
-        <Link to="/computers" style={{ textDecoration: 'none' }}>
-          <div className={`menu-item ${isActive('/computers')}`}>
-            <span className="icon"><MdDevices /></span>
-            <span>Computers</span>
-          </div>
-        </Link>
-
         <Link to="/shared" style={{ textDecoration: 'none' }}>
           <div className={`menu-item ${isActive('/shared')}`}>
             <span className="icon"><IoMdPeople /></span>
