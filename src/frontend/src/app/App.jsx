@@ -3,49 +3,56 @@ import { useState } from "react";
 
 import Sidebar from "../components/Sidebar/Sidebar"; 
 import TopBar from "../components/Topbar/Topbar"; 
-import "../components/Sidebar/Sidebar.css";
 import SearchResults from "../pages/search/SearchResults";
 import Create from "../pages/Create/create";
-import Delete from "../pages/Delete/delete";
+import Update from "../pages/Update/update"; 
 
-// Placeholder components for other pages
-const MyDrive = () => <h1 style={{color: 'var(--text-color)'}}>My Drive Content</h1>;
-const Recent = () => <h1 style={{color: 'var(--text-color)'}}>Recent Files</h1>;
-const Starred = () => <h1 style={{color: 'var(--text-color)'}}>Starred Files</h1>;
+const MyDrive = () => (
+  <div style={{ padding: "40px", color: 'var(--text-color)' }}>
+    <h1>My Drive Content</h1>
+  </div>
+);
+
+const Recent = () => (
+  <div style={{ padding: "40px", color: 'var(--text-color)' }}>
+    <h1>Recent Files</h1>
+  </div>
+);
+
+const Starred = () => (
+  <div style={{ padding: "40px", color: 'var(--text-color)' }}>
+    <h1>Starred Files</h1>
+  </div>
+);
 
 function App() {
-  // State for Dark Mode
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // Toggle Function
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
-  
   return (
     <div 
-      id="app-container" 
       className={isDarkMode ? "dark-mode" : "light-mode"}
-      style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100%" }}
+      style={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        height: "100vh", 
+        width: "100vw",
+        overflow: "hidden"
+      }}
     >
-      {/* Pass theme props to TopBar so the button can be there  */}
-      <TopBar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+      <TopBar isDarkMode={isDarkMode} toggleTheme={() => setIsDarkMode(!isDarkMode)} />
 
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        
-        {/* Sidebar for navigation */}
+      <div style={{ 
+        display: "flex", 
+        flex: 1,
+        overflow: "hidden"
+      }}>
         <Sidebar />
 
-        <div style={{ 
-          flex: 1, 
-          display: "flex", 
-          justifyContent: "center", 
-          alignItems: "center",
-          backgroundColor: "var(--main-bg)",
-          transition: "background-color 0.3s ease"
+        <main style={{ 
+          flex: 1,
+          overflow: "auto",
+          background: "var(--main-bg)"
         }}>
-          
           <Routes>
             <Route path="/" element={<MyDrive />} />
             <Route path="/my-drive" element={<MyDrive />} />
@@ -53,13 +60,10 @@ function App() {
             <Route path="/starred" element={<Starred />} />
             <Route path="/search/:query" element={<SearchResults />} />
             <Route path="/search" element={<SearchResults />} />
-            {/* The Create Page */}
             <Route path="/create" element={<Create />} />
-            {/* The Delete Page */}
-            <Route path="/delete" element={<Delete />} />
+            <Route path="/update/:id" element={<Update />} />
           </Routes>
-
-        </div>
+        </main>
       </div>
     </div>
   );

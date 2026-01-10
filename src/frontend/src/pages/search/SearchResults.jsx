@@ -1,75 +1,60 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import './SearchResults.css';
+import { useDelete } from "../../hooks/useDelete.jsx";
 
 function SearchResults() {
-  const { query } = useParams(); // שואב את מילת החיפוש מה-URL
+  const { query } = useParams();
+  const navigate = useNavigate();
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchResults = async () => {
-      const term = query?.trim() || ""; 
-      
-      setIsLoading(true);
-      try {
-        const response = await fetch(`http://localhost:8080/api/search/${encodeURIComponent(term)}`, {
-          method: 'GET',
-          headers: {
-            'id': '1',
-            'Content-Type': 'application/json'
-          }
-        });
+  const fetchResults = async () => {
+    const term = query?.trim() || " "; 
+    setIsLoading(true);
+    try {
+      const response = await fetch(`http://localhost:8080/api/search/${encodeURIComponent(term)}`, {
+        method: 'GET',
+        headers: { 'id': '1', 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) { setResults([]); return; }
+      const data = await response.json();
+      setResults(Array.isArray(data) ? data : []); 
+    } catch (error) {
+      setResults([]); 
+    } finally { setIsLoading(false); }
+  };
 
-        if (!response.ok) {
-          console.warn("Server error:", response.status);
-          setResults([]);
-          return;
-        }
+  const { deleteItem } = useDelete(fetchResults)
+  useEffect(() => { fetchResults(); }, [query]);
 
-        const data = await response.json();
-        
-        // ודא שהנתונים הם מערך לפני עדכון ה-State
-        setResults(Array.isArray(data) ? data : []); 
-        
-      } catch (error) {
-        console.error("Search failed:", error);
-        setResults([]); 
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchResults();
-  }, [query]); // ירוץ מחדש בכל פעם שהמשתמש מקליד משהו ב-TopBar
-
-  return (
-    <div className="search-results-container" style={{ padding: "20px", color: "var(--text-color)" }}>
-      <h2>Results for: {query || "All Files"}</h2>
-      
-      {isLoading && <p>Searching...</p>}
-
-      {!isLoading && results.length === 0 && <p>No files or folders found.</p>}
-
-      <div className="results-list">
-        {results.map((item) => (
-          <div 
-            key={item.id || item.name} 
-            className="result-item" 
-            style={{ 
-              borderBottom: "1px solid #ccc", 
-              padding: "10px", 
-              display: "flex", 
-              alignItems: "center",
-              gap: "10px" 
-            }}
-          >
-            <span style={{ fontSize: "20px" }}>
-              {item.type === 'folder' ? '📁' : '📄'}
-            </span>
-            <strong>{item.name}</strong>
-          </div>
-        ))}
-      </div>
+ return (
+    <div className="search-container">
+      {isLoading && <p className="status-msg">Searching...</p>}
+      {!isLoading && results.length === 0 && (
+        <p className="status-msg">No files found for "{query}"</p>
+      )}
+      {!isLoading && results.length > 0 && (
+        <div className="results-list">
+          {results.map((item) => (
+            <div key={item.id} className="result-item">
+              <span className="icon">{item.type === 'folder' ? '📁' : '📄'}</span>
+              <span className="file-name">{item.name}</span>
+              
+              <div className="button-group">
+                {item.type !== 'folder' && (
+                  <button className="edit-btn" onClick={() => navigate(`/update/${item.id}`)}>
+                    ✏️ Edit
+                  </button>
+                )}
+                <button className="delete-btn" onClick={() => deleteItem(item)}>
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
