@@ -3,9 +3,10 @@ import { useState } from "react";
 
 import Sidebar from "../components/Sidebar/Sidebar"; 
 import TopBar from "../components/Topbar/Topbar"; 
-import Input from "../input/Input"; 
 import "../components/Sidebar/Sidebar.css";
-import SearchResults from "../components/search/SearchResults";
+import SearchResults from "../pages/search/SearchResults";
+import Create from "../pages/Create/create";
+import Delete from "../pages/Delete/delete";
 
 // Placeholder components for other pages
 const MyDrive = () => <h1 style={{color: 'var(--text-color)'}}>My Drive Content</h1>;
@@ -21,57 +22,7 @@ function App() {
     setIsDarkMode(!isDarkMode);
   };
 
-  // Server Logic for Creating Folder or Uploading File [cite: 50, 63]
-  const handleCreate = async (data, mode) => {
-    const token = localStorage.getItem("token"); // Get JWT [cite: 56]
-    
-    // Safety check: User must be logged in [cite: 59]
-    if (!token) {
-      alert("You are not logged in!");
-      return false;
-    }
-
-    const url = "http://localhost:5000/api/files"; 
-    
-    const headers = {
-      'Authorization': `Bearer ${token}` // Attach JWT [cite: 57]
-    };
-
-    let body;
-
-    if (mode === "folder") {
-      // JSON for creating a folder
-      headers['Content-Type'] = 'application/json';
-      body = JSON.stringify({ name: data, type: "folder" });
-    } else {
-      // FormData for uploading a file
-      const formData = new FormData();
-      formData.append("file", data); 
-      // Note: Do NOT set Content-Type for FormData, browser does it automatically
-      body = formData;
-    }
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: headers,
-        body: body
-      });
-
-      if (response.ok) {
-        alert(`${mode === 'folder' ? 'Folder created' : 'File uploaded'} successfully!`);
-        return true; 
-      } else {
-        alert("Server error: Failed to create item.");
-        return false;
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Network error");
-      return false;
-    }
-  };
-
+  
   return (
     <div 
       id="app-container" 
@@ -103,15 +54,9 @@ function App() {
             <Route path="/search/:query" element={<SearchResults />} />
             <Route path="/search" element={<SearchResults />} />
             {/* The Create Page */}
-            <Route 
-              path="/create" 
-              element={
-                <Input
-                  createText="Create New Item"
-                  handleClick={handleCreate} 
-                />
-              } 
-            />
+            <Route path="/create" element={<Create />} />
+            {/* The Delete Page */}
+            <Route path="/delete" element={<Delete />} />
           </Routes>
 
         </div>
