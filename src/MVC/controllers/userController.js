@@ -9,7 +9,7 @@ const createNewUser = (req, res) => {
     } catch (error) {
         return res.status(error.statusCode).json({error: error.message})
     }
-    res.status(201).location(`/api/users/${newUser.id}`).end()
+    res.status(201).location(`/api/users/${newUser.userId}`).json(newUser);
 }   
 
 const getUser = (req, res) => {

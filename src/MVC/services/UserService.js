@@ -19,7 +19,12 @@ class UserService {
         }
 
         // Create user
-        return userRepository.create(userData);
+        const newUser = userRepository.create(userData);
+        return {
+        token: `mock-jwt-token-${newUser.id}-${Date.now()}`,
+        userId: newUser.id,
+        username: newUser.username
+        };
     }
 
     getUserById(id) {

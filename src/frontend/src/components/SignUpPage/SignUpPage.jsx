@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom"; // Add this
 import InputUser from "../InputUser/InputUser.jsx";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import ImageInput from "../../ImageInput/ImageInput.jsx";
 import {
@@ -97,16 +97,13 @@ function SignUpPage() {
       setUserInput(updatedInput);
 
       if (step < data.length - 1) {
-        // Not the last step: save data and move forward
-        setUserInput([...userInput, input]);
         setStep(step + 1);
         return true;
       } else {
         createUser(updatedInput)
       }
-      return true;
     }
-    return null;
+    return false;
   };
 
   if (step <= 2) {

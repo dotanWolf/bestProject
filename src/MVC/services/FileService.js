@@ -100,12 +100,6 @@ class FileService {
     }
 
     async updateFile(fileId, updates, userId) {
-        if (!updates.name || !updates.content) {
-            const error = new Error('did not provide paramters');
-            error.statusCode = 400;
-            throw error;
-        }
-
         var file = fileRepository.findById(fileId);
 
         // Update in repository
@@ -224,6 +218,9 @@ class FileService {
         const permission = permissionRepository.findByFileAndUser(file.id, userId);
         return permission && permission.canEdit();
     }
+    getEntriesByStatus(userId, isTrashed) {
+        const allFiles = fileRepository.findByOwnerId(userId); 
+        return allFiles.filter(file => file.isTrashed === isTrashed);
+    }
 }
-
 module.exports = new FileService();

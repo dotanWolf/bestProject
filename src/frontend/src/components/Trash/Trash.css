@@ -1,0 +1,137 @@
+/* Main Container - Standard Alignment */
+.trash-page-container {
+  padding: 30px;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: var(--bg-canvas, #181818); /* Fallback color */
+  color: #fff;
+  overflow-y: auto; /* Scroll if list is long */
+}
+
+/* Header Section */
+.trash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 15px;
+}
+
+.trash-heading {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* "Empty Trash" Button */
+.btn-empty-trash {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #eee;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.btn-empty-trash:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #fff;
+}
+
+/* --- List Styles --- */
+.trash-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Individual File Row */
+.trash-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Pushes actions to the right */
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: 12px 20px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  border: 1px solid transparent;
+}
+
+.trash-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Icon & Name Group */
+.trash-item-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 16px;
+}
+
+.trash-icon {
+  font-size: 20px;
+}
+
+/* Action Buttons (Restore / Delete) */
+.trash-actions {
+  display: flex;
+  gap: 10px;
+  opacity: 0.6; /* Dimmed by default */
+  transition: opacity 0.2s;
+}
+
+.trash-item:hover .trash-actions {
+  opacity: 1; /* Fully visible on hover */
+}
+
+.btn-action {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.btn-action.restore:hover {
+  color: #4caf50; /* Green for restore */
+}
+
+.btn-action.delete:hover {
+  color: #f44336; /* Red for delete */
+}
+
+/* --- Empty State (Centered) --- */
+/* We need to handle the specific empty state centering differently */
+.trash-empty-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.trash-empty-state h2 {
+  margin-bottom: 10px;
+}
+
+.trash-subtext {
+  color: #aaa;
+  max-width: 400px;
+  margin: 0 auto;
+}

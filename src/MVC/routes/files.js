@@ -2,6 +2,9 @@ const express = require('express')
 var router = express.Router()
 const controllers = require('../controllers/fileController')
 
+router.route('/trash')
+    .get(controllers.getTrashEntries);
+    
 router.route('/')
     .get(controllers.getAllEntries) // תחזיר את רשימת כל הקבצים והתיקיות של המשתמש ברמה העליונה ביותר
     .post(controllers.createEntry) // תיצור קובץ/תיקייה חדש/ה
