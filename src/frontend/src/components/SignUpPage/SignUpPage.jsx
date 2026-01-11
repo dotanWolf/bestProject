@@ -1,6 +1,5 @@
 import InputUser from "../InputUser/InputUser.jsx";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   emailValidator,
   passwordValidator,

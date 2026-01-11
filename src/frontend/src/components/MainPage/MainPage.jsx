@@ -27,7 +27,6 @@ const Starred = () => (
 
 function MainPage() {
   const token = localStorage.getItem("token"); 
-  console.log(token)
   // State for Dark Mode
   const [isDarkMode, setIsDarkMode] = useState(true);
 
@@ -37,44 +36,30 @@ function MainPage() {
   };
 
   // Server Logic for Creating Folder or Uploading File
-  const handleCreate = async (data, mode) => {
-    const token = localStorage.getItem("token"); // Get JWT [cite: 56]
-    
-    // Safety check: User must be logged in [cite: 59]
+  const handleCreate = async (data) => {    
+    // Safety check: User must be logged in
     if (!token) {
       alert("You are not logged in!");
       return false;
     }
 
-    const url = "http://localhost:5000/api/files"; 
+    const url = "http://localhost:8080/api/files"; 
     
     const headers = {
-      'Authorization': `Bearer ${token}` // Attach JWT [cite: 57]
+      'token': token,// Attach JWT
+      'Content-Type': 'application/json',
+      'userId': '123'
     };
-
-    let body;
-
-    if (mode === "folder") {
-      // JSON for creating a folder
-      headers['Content-Type'] = 'application/json';
-      body = JSON.stringify({ name: data, type: "folder" });
-    } else {
-      // FormData for uploading a file
-      const formData = new FormData();
-      formData.append("file", data); 
-      // Note: Do NOT set Content-Type for FormData, browser does it automatically
-      body = formData;
-    }
 
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: headers,
-        body: body
+        body: JSON.stringify(data)
       });
-
       if (response.ok) {
-        alert(`${mode === 'folder' ? 'Folder created' : 'File uploaded'} successfully!`);
+        const type = data.type
+        alert(`${type === 'folder' ? 'Folder created' : 'File uploaded'} successfully!`);
         return true; 
       } else {
         alert("Server error: Failed to create item.");

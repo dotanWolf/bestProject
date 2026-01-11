@@ -19,8 +19,9 @@ const getTrashEntries = (req, res) => {
 // if the type is a file, also needs a content field
 // saves the new entry under a uniuqe id through the cpp server
  const createEntry = async (req, res) => {
-    const userId = req.headers.id
-    if (!userId)
+    const userId = req.headers.userId
+    const JWT = req.headers.token
+    if (!JWT)
         return res.status(400).json({error: "user id required"})
     if (!req.body)
         return res.status(400).json({error: "must provide a json with entry fields"})

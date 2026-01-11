@@ -6,21 +6,58 @@ function Input(props) {
   const { createText, handleClick, buttonText } = props;
 
   // State to switch between Folder creation and File upload
-  const [mode, setMode] = useState("folder"); 
-  const [inputValue, setInputValue] = useState("");
-  const [fileValue, setFileValue] = useState(null);
- 
-  
+  const [type, setType] = useState("folder");
+  const [folderName, setFolderName] = useState("");
+  const [file, setFile] = useState(null);
+
+  const handleFileUpload = (fileSelected) => {
+    const reader = new FileReader();
+
+    // This runs once the file is fully read into memory
+    reader.onload = () => {
+      const base64String = reader.result; // This is the 'content' your controller wants
+
+      // Construct the JSON object exactly as your controller expects
+      const fileJson = {
+        name: fileSelected.name,
+        type: "file",
+        content: base64String,
+      };
+
+      setFile(fileJson);
+    };
+
+    // Start reading the file as a Data URL (Base64)
+    reader.readAsDataURL(fileSelected);
+  };
+
   const onButtonClick = async () => {
-    // Determine what data to send based on mode
-    const dataToSend = mode === "folder" ? inputValue : fileValue;
-    
-    // Call the server logic passed from App.jsx
-    const isValid = await handleClick(dataToSend, mode);
-    
+    let dataToSend;
+    if (type === "folder") {
+      if (!folderName.trim()) return alert("Please enter a folder name");
+      dataToSend = {
+        name: folderName,
+        type: "folder",
+      };
+    } else {
+      // If the user clicks 'Create' but the reader isn't done yet
+      if (!file) {
+        return alert(
+          "Please select a file and wait a moment for it to process."
+        );
+      }
+      dataToSend = file; // This is the fileJson object from handleFileUpload
+    }
+
+    const isValid = await handleClick(dataToSend);
+
     if (isValid) {
-      setInputValue("");
-      setFileValue(null);
+      setFolderName("");
+      setFile(null);
+      // If it's a file input, we want to clear the actual HTML input too
+      // if (type === "file") {
+      //    document.getElementById('fileInput')?.value = "";
+      // }
     }
   };
 
@@ -28,20 +65,24 @@ function Input(props) {
     <div className="input-container">
       <div className="top-container">
         <h1>{createText}</h1>
-        
+
         {/* Toggle Buttons */}
         <div className="btn-group mb-3" role="group">
-          <button 
-            type="button" 
-            className={`btn ${mode === 'folder' ? 'btn-primary' : 'btn-outline-primary'}`} 
-            onClick={() => setMode("folder")}
+          <button
+            type="button"
+            className={`btn ${
+              type === "folder" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            onClick={() => setType("folder")}
           >
             New Folder
           </button>
-          <button 
-            type="button" 
-            className={`btn ${mode === 'file' ? 'btn-primary' : 'btn-outline-primary'}`} 
-            onClick={() => setMode("file")}
+          <button
+            type="button"
+            className={`btn ${
+              type === "file" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            onClick={() => setType("file")}
           >
             Upload File
           </button>
@@ -49,36 +90,36 @@ function Input(props) {
 
         {/* Dynamic Input Field */}
         <div className="form-floating mb-3">
-          {mode === "folder" ? (
-            // Folder Mode: Text Input
+          {type === "folder" ? (
+            // Folder type: Text Input
             <>
               <input
                 type="text"
                 className="form-control"
                 id="floatingInput"
                 placeholder="Folder Name"
-                value={inputValue || ""}
-                onChange={(e) => setInputValue(e.target.value)}
+                value={folderName || ""}
+                onChange={(e) => setFolderName(e.target.value)}
               />
               <label htmlFor="floatingInput">Folder Name</label>
             </>
           ) : (
-            // File Mode: File Input
+            // File type: File Input
             <input
               type="file"
               className="form-control"
-              onChange={(e) => setFileValue(e.target.files[0])}
+              onChange={(e) => handleFileUpload(e.target.files[0])}
             />
           )}
         </div>
       </div>
 
-    <button 
-        type="button" 
-        className={`btn ${buttonText ? 'btn-danger' : 'btn-success'}`} 
+      <button
+        type="button"
+        className={`btn ${buttonText ? "btn-danger" : "btn-success"}`}
         onClick={onButtonClick}
       >
-        {buttonText || (mode === "folder" ? "Create Folder" : "Upload File")}
+        {buttonText || (type === "folder" ? "Create Folder" : "Upload File")}
       </button>
     </div>
   );
