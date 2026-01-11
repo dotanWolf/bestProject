@@ -97,9 +97,11 @@ const Trash = () => {
   if (trashedFiles.length === 0) {
     return (
       <div className="trash-page-container">
-        <div className="trash-empty-state">
-          <h2 className="trash-heading">Trash is empty</h2>
-          <p className="trash-subtext">Items moved to the trash will be permanently deleted after 30 days.</p>
+        <div className="trash-empty-wrapper"> 
+          <div className="trash-empty-state">
+            <h2 className="trash-heading">Trash is empty</h2>
+            <p className="trash-subtext">Items moved to the trash will be permanently deleted after 30 days.</p>
+          </div>
         </div>
       </div>
     );
