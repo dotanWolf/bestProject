@@ -101,10 +101,11 @@ function MainPage() {
         <div style={{ 
           flex: 1, 
           display: "flex", 
-          justifyContent: "center", 
-          alignItems: "center",
+          flexDirection: "column", 
+          justifyContent: "flex-start", 
+          alignItems: "stretch", 
           backgroundColor: "var(--main-bg)",
-          transition: "background-color 0.3s ease"
+          padding: "20px" 
         }}>
           
           <Routes>
