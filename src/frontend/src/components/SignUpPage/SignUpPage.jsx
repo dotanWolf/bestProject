@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom"; // Add this
 import InputUser from "../InputUser/InputUser.jsx";
 import { useState } from "react";
+import ImageInput from "../../ImageInput/ImageInput.jsx";
 import {
   emailValidator,
   passwordValidator,
@@ -43,7 +44,7 @@ function SignUpPage() {
       const updatedInput = [...userInput, input];
       setUserInput(updatedInput);
 
-      if (step < data.length - 1) {
+      if (step < data.length) {
         // Not the last step: save data and move forward
         setUserInput([...userInput, input]);
         setStep(step + 1);
@@ -78,7 +79,7 @@ function SignUpPage() {
 
             if (tokenRes.ok) {
               const tokenData = await tokenRes.json();
-              
+
               // 3. Save the JWT to localStorage
               // The key "token" must match what your MainPage looks for
               localStorage.setItem("token", tokenData.token);
@@ -100,17 +101,21 @@ function SignUpPage() {
     return null;
   };
 
-  const currentItem = data[step];
+  if (step <= 2) {
+    const currentItem = data[step];
 
-  return (
-    <InputUser
-      createText={currentItem.createText}
-      type={currentItem.type}
-      typeLabel={currentItem.typeLabel}
-      buttonText={currentItem.buttonText}
-      handleClick={handleClick}
-    />
-  );
+    return (
+      <InputUser
+        createText={currentItem.createText}
+        type={currentItem.type}
+        typeLabel={currentItem.typeLabel}
+        buttonText={currentItem.buttonText}
+        handleClick={handleClick}
+      />
+    );
+  } else {
+    return <ImageInput/>
+  }
 }
 
 export default SignUpPage;
