@@ -36,7 +36,6 @@ class Client {
         const command = `post ${fileId} ${content}\n`;
         const response = await this.sendRequest(command);
         const status = parseInt(response.split(' ')[0]);
-
         return { status, success: status === 201 };
     }
 
@@ -86,12 +85,20 @@ class Client {
      */
     async searchFiles(query) {
         const command = `search ${query}\n`;
-        const response = await this.sendRequest(command);
-        const status = parseInt(response.split(' ')[0])
-        const parts = response.split('\n\n');
-        const body = parts[1].trim();
-        const listOfIds = body.split(' ')
-        return { status, listOfIds, success: status === 200 };
+        try {
+            const response = await this.sendRequest(command);
+            //console.log('C++ server response:', response); // Debug log
+            const parts = response.split(' ');
+            const status = parseInt(parts[0]);
+            if (status === 404) {
+                return { status: 200, listOfIds: [], success: true };
+            }
+            const listOfIds = parts.slice(1).filter(id => id.trim() !== '');
+            return { status, listOfIds, success: status === 200 };
+        } catch (error) {
+            console.error('Search error:', error);
+            return { status: 500, listOfIds: [], success: false };
+        }
     }
 }
 

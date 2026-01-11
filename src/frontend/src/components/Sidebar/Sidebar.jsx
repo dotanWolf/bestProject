@@ -52,13 +52,13 @@ const Sidebar = () => {
             <span>Trash</span>
           </div>
         </Link>
-
-        <Link to="/storage" style={{ textDecoration: 'none' }}>
-          <div className={`menu-item ${isActive('/storage')}`}>
-            <span className="icon"><FaCloud /></span>
-            <span>Storage</span>
+        <Link to="/shared-with-me" style={{ textDecoration: 'none' }}>
+          <div className={`menu-item ${isActive('/shared-with-me')}`}>
+            <span className="icon"><IoMdPeople /></span>
+            <span>Shared with me</span>
           </div>
         </Link>
+        
       </div>
     </div>
   );

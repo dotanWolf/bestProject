@@ -1,10 +1,10 @@
 :root {
-  --sidebar-width: 250px; /* Define width to align logo with sidebar */
+  --sidebar-width: 250px;
 }
 
 .dark-mode {
   --sidebar-bg: #1e1e1e;
-  --topbar-bg: #1e1e1e; /* Match topbar to sidebar in dark mode */
+  --topbar-bg: #1e1e1e;
   --main-bg: #121212;
   --text-color: #e3e3e3;
   --search-bg: #2b2b2b;
@@ -12,7 +12,7 @@
   --hover-bg: #333333;
 }
 
-.light-mode { /* <--- FIXED: Added the missing dot */
+.light-mode {
   --sidebar-bg: #f7f9fc;
   --topbar-bg: #f7f9fc;
   --main-bg: #ffffff;
@@ -22,46 +22,30 @@
   --hover-bg: rgba(68, 71, 70, 0.08);
 }
 
-/* --- Layout --- */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  background-color: var(--topbar-bg); /* Uses variable now */
+  padding: 0 16px;
+  background-color: var(--topbar-bg);
   height: 64px;
-  width: 100%;
   transition: background-color 0.3s ease;
+  flex-shrink: 0;
 }
 
 .topbar-left {
   display: flex;
   align-items: center;
-  width: var(--sidebar-width);
+  width: 250px;
   padding-right: 20px;
 }
 
-.logo-wrapper { 
+.logo-wrapper {
   display: flex;
   align-items: center;
   gap: 12px;
   text-decoration: none;
   cursor: pointer;
-}
-
-.logo-icon {
-  font-size: 28px;
-  display: flex;
-  align-items: center;
-  color: #FFC107; /* Keep the drive icon yellow/colored */
-}
-
-.logo-text {
-  font-family: 'Product Sans', Arial, sans-serif; /* Google-like font */
-  font-size: 22px;
-  color: var(--text-color); /* Adapts to dark/light mode */
-  font-weight: 400;
-  padding-top: 2px; /* Visual alignment fix */
 }
 
 .topbar-center {
@@ -83,17 +67,6 @@
 .search-container:focus-within {
   background-color: var(--main-bg);
   box-shadow: 0 1px 2px rgba(0,0,0,0.1), 0 1px 6px rgba(0,0,0,0.1);
-}
-.theme-toggle {
-  background: none;
-  border: 1px solid var(--text-color);
-  color: var(--text-color);
-  padding: 8px 12px;
-  border-radius: 20px; 
-  cursor: pointer;
-  width: 100%;
-  transition: all 0.2s;
-  font-size: 13px;
 }
 
 .search-input {
