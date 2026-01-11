@@ -19,6 +19,8 @@ const Starred = () => (
 );
 
 function MainPage() {
+  const token = localStorage.getItem("token"); 
+  console.log(token)
   // State for Dark Mode
   const [isDarkMode, setIsDarkMode] = useState(true);
 
@@ -27,9 +29,8 @@ function MainPage() {
     setIsDarkMode(!isDarkMode);
   };
 
-  // Server Logic for Creating Folder or Uploading File [cite: 50, 63]
+  // Server Logic for Creating Folder or Uploading File
   const handleCreate = async (data, mode) => {
-    const token = localStorage.getItem("token"); // Get JWT [cite: 56]
 
     // Safety check: User must be logged in [cite: 59]
     if (!token) {

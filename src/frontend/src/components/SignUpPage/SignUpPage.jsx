@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"; // Add this
 import InputUser from "../InputUser/InputUser.jsx";
 import { useState } from "react";
 import {
@@ -5,6 +6,7 @@ import {
   passwordValidator,
   usernameValidator,
 } from "./validator";
+
 function SignUpPage() {
   const data = [
     {
@@ -30,24 +32,69 @@ function SignUpPage() {
     },
   ];
 
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [userInput, setUserInput] = useState([]);
 
   const handleClick = async (input) => {
     const isValid = await data[step].validator(input);
+
     if (isValid) {
-      // data is valid for this section
-      setUserInput([...userInput, input]);
+      const updatedInput = [...userInput, input];
+      setUserInput(updatedInput);
+
       if (step < data.length - 1) {
         setStep(step + 1);
       } else {
-        // send a post request with userInput
-        
+        const user = {
+          username: updatedInput[0],
+          email: updatedInput[1],
+          password: updatedInput[2],
+          profileImage: "placeholder",
+        };
+
+        try {
+          // 1. Create the user
+          const userRes = await fetch("http://localhost:8080/api/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(user),
+          });
+
+          if (userRes.ok) {
+            // 2. User created! Now get the JWT token
+            const tokenRes = await fetch("http://localhost:8080/api/tokens", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              // Note: Usually you send username/password to get a token
+              body: JSON.stringify({
+                email: user.email,
+                password: user.password,
+              }),
+            });
+
+            if (tokenRes.ok) {
+              const tokenData = await tokenRes.json();
+              
+              // 3. Save the JWT to localStorage
+              // The key "token" must match what your MainPage looks for
+              localStorage.setItem("token", tokenData.token);
+              // 4. Move to the main page
+              navigate("/");
+            } else {
+              alert("Account created, but failed to log in automatically.");
+              navigate("/login");
+            }
+          } else {
+            alert("Sign up failed. User might already exist.");
+          }
+        } catch (error) {
+          console.error("Connection Error:", error);
+        }
       }
       return true;
-    } else {
-      return null;
     }
+    return null;
   };
 
   const currentItem = data[step];
