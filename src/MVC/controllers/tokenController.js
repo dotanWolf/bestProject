@@ -13,10 +13,10 @@ const doesUserExist = (req, res) => {
     )
     if (connectedUsers.length > 0) {
         // user exist return its id
-        const idsOnly = connectedUsers.map(user => ({ id: user.id }));
-        return res.status(200).json(idsOnly);
+        const idsOnly = connectedUsers.map(user => ({ token: user.id }));
+        return res.status(200).json(idsOnly[0]);
     }
-    return res.status(200).json({error: 'user doesnt exist'})
+    return res.status(404).json({error: 'user doesnt exist'})
 }
 
 const doesEmailExist = (req, res) => {

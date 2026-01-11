@@ -6,7 +6,9 @@ const tokens = require('./routes/tokens');
 const search = require('./routes/search');
 const cors = require('cors');
 
-app.use(cors());
+app.use(cors({
+  exposedHeaders: ['Location'],
+}));
 app.use(express.json())
 app.use('/api/files', files)
 app.use('/api/users', users)
