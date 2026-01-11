@@ -43,10 +43,10 @@ class FileService {
         });
 
         // create a permmision for the owner of the file
-        const ownerPermmision = PermissionService.createPermission(file.id, {
-            userId: userId,
-            role: "owner"
-        }, userId)
+        // const ownerPermmision = PermissionService.createPermission(file.id, {
+        //     userId: userId,
+        //     role: "owner"
+        // }, userId)
 
         // If it's a file (not folder), save to cpp server
         if (file.isFile()) {
