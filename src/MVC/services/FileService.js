@@ -225,7 +225,7 @@ class FileService {
         return permission && permission.canEdit();
     }
     getEntriesByStatus(userId, isTrashed) {
-        const allFiles = this.getAllFilesForUser(userId);
+        const allFiles = this.getRootFiles(userId);
         return allFiles.filter(file => file.isTrashed === isTrashed);
     }
 }

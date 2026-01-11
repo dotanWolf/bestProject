@@ -1,33 +1,28 @@
-import { useNavigate } from "react-router-dom"; // Add this
+import { useNavigate } from "react-router-dom";
 import InputUser from "../InputUser/InputUser.jsx";
 import { useState } from "react";
-import {
-  emailValidator,
-  passwordValidator,
-  usernameValidator,
-} from "../SignUpPage/validator";
+import { passwordValidator } from "../SignUpPage/validator";
 
 function LoginPage() {
-  const data = [
-    {
-      createText: "An Email Adress",
-      type: "email",
-      typeLabel: "email adress",
-      buttonText: "Next",
-      validator: emailValidator,
-    },
-    {
-      createText: "A Password",
-      type: "password",
-      typeLabel: "password",
-      buttonText: "Create",
-      validator: passwordValidator,
-    },
-  ];
-
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [userInput, setUserInput] = useState([]);
+
+  const data = [
+    {
+      createText: "Enter Your Email",
+      type: "email",
+      typeLabel: "email address",
+      buttonText: "Next",
+      // LOGIN: Valid only if user EXISTS
+      validator: async (input) => {
+        const response = await fetch(`http://localhost:8080/api/users/${input}`);
+        const result = await response.json();
+        return result.exists === true;
+      },
+    },
+    { createText: "Enter Your Password", type: "password", typeLabel: "password", buttonText: "Login", validator: passwordValidator },
+  ];
 
   const handleClick = async (input) => {
     const isValid = await data[step].validator(input);
@@ -40,45 +35,32 @@ function LoginPage() {
         setStep(step + 1);
         return true;
       } else {
-        // Last step: login
         try {
           const tokenRes = await fetch("http://localhost:8080/api/tokens", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: updatedInput[0],
-              password: updatedInput[1],
-            }),
+            body: JSON.stringify({ email: updatedInput[0], password: updatedInput[1] }),
           });
 
           if (tokenRes.ok) {
             const tokenData = await tokenRes.json();
             localStorage.setItem("token", tokenData.token);
-            navigate("/");
+            localStorage.setItem("userId", tokenData.userId || tokenData.id); //
+            navigate("/my-drive");
             return true;
-          } else {
-            alert("Login failed.");
-            return false;
           }
+          alert("Invalid credentials.");
         } catch (error) {
-          console.error("Connection Error:", error);
-          return false;
+          console.error(error);
         }
       }
+    } else {
+      alert("User not found.");
     }
     return false;
   };
 
   const currentItem = data[step];
-
-  return (
-    <InputUser
-      createText={currentItem.createText}
-      type={currentItem.type}
-      typeLabel={currentItem.typeLabel}
-      buttonText={currentItem.buttonText}
-      handleClick={handleClick}
-    />
-  );
+  return <InputUser {...currentItem} handleClick={handleClick} />;
 }
 export default LoginPage;

@@ -1,37 +1,34 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Input from "../../input/Input";
 
 function Create() {
-  const handleCreate = async (data, mode) => {
-    const token = localStorage.getItem("token"); // Get JWT 
-    
-    // Safety check: User must be logged in 
-    if (!token) {
-      alert("You are not logged in!");
+  const navigate = useNavigate();
+
+  const handleCreate = async (dataToSend) => {
+    const token = localStorage.getItem("token"); 
+    const userId = localStorage.getItem("userId");
+
+    // 1. Validation: Ensure we have a valid ID and Token
+    if (!token || !userId || userId === "undefined") {
+      alert("Session expired or invalid. Please log in again.");
+      navigate("/login");
       return false;
     }
 
     const url = "http://localhost:8080/api/files"; 
     
+    // 2. Uniform Headers: Always send JSON
     const headers = {
-      'Authorization': `Bearer ${token}`, // Attach JWT 
-      'id': '12345', // Example static ID, replace with actual logic if needed
+      'Authorization': `Bearer ${token}`,
+      'id': userId, 
+      'Content-Type': 'application/json'
     };
 
-    let body;
-
-    if (mode === "folder") {
-      // JSON for creating a folder
-      headers['Content-Type'] = 'application/json';
-      body = JSON.stringify({ name: data, type: "folder" });
-    } else {
-      // FormData for uploading a file
-      const formData = new FormData();
-      formData.append("file", data); 
-      // Note: Do NOT set Content-Type for FormData, browser does it automatically
-      body = formData;
-    }
+    const body = JSON.stringify({ 
+      ...dataToSend, 
+      parentId: null, 
+      isTrashed: false 
+    });
 
     try {
       const response = await fetch(url, {
@@ -41,25 +38,26 @@ function Create() {
       });
 
       if (response.ok) {
-        alert(`${mode === 'folder' ? 'Folder created' : 'File uploaded'} successfully!`);
+        navigate("/my-drive"); // Redirect to see the new item
         return true; 
       } else {
-        alert("Server error: Failed to create item.");
+        const errorData = await response.json();
+        alert(`Server error: ${errorData.error || "Failed to create item"}`);
         return false;
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Network error");
+      console.error("Network Error:", error);
+      alert("Network error - check if server is running");
       return false;
     }
   };
 
-
   return (
-    <div className="create-container" style={{ padding: "20px", color: "white" }}>
-      <h1>Create or Upload</h1>
-      <Input handleClick={handleCreate} mode="folder" />
-      <hr style={{ margin: "20px 0" }} />
+    <div className="create-container" style={{ padding: "40px", color: "white" }}>
+      <Input 
+        createText="Create New Item" 
+        handleClick={handleCreate} 
+      />
     </div>
   );
 }

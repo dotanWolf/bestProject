@@ -2,150 +2,171 @@ const { permissions } = require('../repositeries/PermissionRepositery')
 const FileService = require('../services/FileService')
 const PermissionsService = require('../services/PermissionsService')
 
-// gets a user id in the http header
+/**
+ * Standardized Header Helper
+ * Note: Express automatically lowercases header keys (userid, token)
+ */
+
 const getAllEntries = (req, res) => {
-    const userId = req.headers.id
-    if (!userId)
-        return res.status(400).json({error: "user id required"})
-    const files = FileService.getEntriesByStatus(userId, false);
-    return res.status(200).json(files)
-}
-const getTrashEntries = (req, res) => {
-    const userId = req.headers.id;
-    const files = FileService.getEntriesByStatus(userId, true); 
-    return res.status(200).json(files);
-}
-// gets a name, location, userId, type = {"file", "dir"}
-// if the type is a file, also needs a content field
-// saves the new entry under a uniuqe id through the cpp server
- const createEntry = async (req, res) => {
-    const userId = req.headers.userId
-    const JWT = req.headers.token
-    if (!JWT)
-        return res.status(400).json({error: "user id required"})
-    if (!req.body)
-        return res.status(400).json({error: "must provide a json with entry fields"})
+    const userId = req.headers.userid; 
+    const token = req.headers.token;
+
+    if (!userId || !token)
+        return res.status(400).json({error: "user id and token required"});
+
     try {
-        const file = await FileService.createFile(req.body, userId)
-        return res.status(201).location(`/api/files/${file.id}`).end()
+        const files = FileService.getEntriesByStatus(userId, false);
+        return res.status(200).json(files);
     } catch (error) {
-        return res.status(error.statusCode).json({error: error.message})
+        return res.status(error.statusCode || 500).json({error: error.message});
+    }
+}
+
+const getTrashEntries = (req, res) => {
+    const userId = req.headers.userid; 
+    const token = req.headers.token; 
+
+    if (!userId || !token)
+        return res.status(400).json({error: "user id and token required"});
+
+    try {
+        const files = FileService.getEntriesByStatus(userId, true); 
+        return res.status(200).json(files);
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({error: error.message});
+    }
+}
+
+const createEntry = async (req, res) => {
+    const userId = req.headers.userid; 
+    const token = req.headers.token;
+
+    if (!token || !userId)
+        return res.status(400).json({error: "user id and token required"});
+    
+    if (!req.body)
+        return res.status(400).json({error: "must provide a json with entry fields"});
+
+    try {
+        const file = await FileService.createFile(req.body, userId);
+        // Returns the file object so the Frontend can update the UI immediately
+        return res.status(201).json(file); 
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({error: error.message});
     }
 }
 
 const getEntry = (req, res) => {
-    const fileId = req.params.id
-    const userId = req.headers.id
+    const fileId = req.params.id;
+    const userId = req.headers.userid; 
+
     if (!userId)
-        return res.status(400).json({error: "user id required"})
+        return res.status(400).json({error: "user id required"});
+
     try {
-        const file = FileService.getFileById(fileId, userId)
-        return res.status(200).json(file)
+        const file = FileService.getFileById(fileId, userId);
+        return res.status(200).json(file);
     } catch (error) {
-        return res.status(error.statusCode).json({error: error.message})
+        return res.status(error.statusCode || 500).json({error: error.message});
     }
 }
 
-// gets a name, location, userId, type = {"file", "dir"}
-// if the type is a file, also needs a content field
-// also gets the entries id in the request parameter
-// if an entry exists with the given id, it deletes it
-// and saves a new entry with the new parameters in the cpp server
-// under the same id
 const updateEntry = async (req, res) => {
-    // otherwise get the id provided
-    const fileId = req.params.id
-    const userId = req.headers.id
-        if (!userId)
-            return res.status(400).json({error: "user id required"})
-        if (!req.body)
-            return res.status(400).json({error: "must provide a json with entry fields"})
-        try {
-            const file = await FileService.updateFile(fileId, req.body, userId)
-            return res.status(200).json(file)
-        } catch (error) {
-            return res.status(error.statusCode).json({error: error.message})
-        }
+    const fileId = req.params.id;
+    const userId = req.headers.userid; 
+
+    if (!userId)
+        return res.status(400).json({error: "user id required"});
+
+    if (!req.body)
+        return res.status(400).json({error: "must provide a json with entry fields"});
+
+    try {
+        const file = await FileService.updateFile(fileId, req.body, userId);
+        return res.status(200).json(file);
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({error: error.message});
+    }
 }
 
 const deleteEntry = async (req, res) => {
-    const fileId = req.params.id
-    const userId = req.headers.id
+    const fileId = req.params.id;
+    const userId = req.headers.userid; 
+
     if (!userId)
-        return res.status(400).json({error: "user id required"})
+        return res.status(400).json({error: "user id required"});
 
     try {
-        await FileService.deleteFile(fileId, userId)
-        return res.status(204).end()
+        await FileService.deleteFile(fileId, userId);
+        return res.status(204).end();
     } catch (error) {
-        return res.status(error.statusCode).json({error: error.message})
+        return res.status(error.statusCode || 500).json({error: error.message});
     }
 }
 
 const getPermissions = (req, res) => {
-    const fileId = req.params.id
-    const userId = req.headers.id
+    const fileId = req.params.id;
+    const userId = req.headers.userid; 
 
     if (!userId)
-        return res.status(400).json({error: "user id required"})
+        return res.status(400).json({error: "user id required"});
 
     try {
-        const permissions = PermissionsService.getPermissions(fileId, userId)
-        return res.status(200).json(permissions)
+        const permissions = PermissionsService.getPermissions(fileId, userId);
+        return res.status(200).json(permissions);
     } catch (error) {
-        return res.status(error.statusCode).json({error: error.message})
+        return res.status(error.statusCode || 500).json({error: error.message});
     }
 }
 
 const createPermissions = (req, res) => {
-    const fileId = req.params.id
-    const userId = req.headers.id
+    const fileId = req.params.id;
+    const userId = req.headers.userid; 
     
     if (!userId)
-        return res.status(400).json({error: "user id required"})
+        return res.status(400).json({error: "user id required"});
     if (!req.body)
-        return res.status(400).json({error: "must provide a json with permission fields"})
+        return res.status(400).json({error: "must provide a json with permission fields"});
     try {
-        const permission = PermissionsService.createPermission(fileId, req.body, userId)
-        res.status(201).location(`/api/permissions/${permission.id}`).end()
+        const permission = PermissionsService.createPermission(fileId, req.body, userId);
+        return res.status(201).location(`/api/permissions/${permission.id}`).end();
     } catch (error) {
-        return res.status(error.statusCode).json({error: error.message})
+        return res.status(error.statusCode || 500).json({error: error.message});
     }
 }
 
 const updatePermisssion = (req, res) => {
-    const fileId = req.params.id
-    const permId = req.params.pId
-    const userId = req.headers.id
+    const fileId = req.params.id;
+    const permId = req.params.pId;
+    const userId = req.headers.userid; 
     if (!userId)
-        return res.status(400).json({error: "user id required"})
+        return res.status(400).json({error: "user id required"});
     if (!req.body)
-        return res.status(400).json({error: "must provide a json with permission fields"})
+        return res.status(400).json({error: "must provide a json with permission fields"});
     try {
-        PermissionsService.updatePermission(fileId, permId, req.body, userId)
-        return res.status(200).end()
+        PermissionsService.updatePermission(fileId, permId, req.body, userId);
+        return res.status(200).end();
     } catch (error) {
-        return res.status(error.statusCode).json({error: error.message})
+        return res.status(error.statusCode || 500).json({error: error.message});
     }
 }
 
 const deletePermission = (req, res) => {
-    const fileId = req.params.id
-    const permId = req.params.pId
-    const userId = req.headers.id
+    const fileId = req.params.id;
+    const permId = req.params.pId;
+    const userId = req.headers.userid; 
     if (!userId)
-        return res.status(400).json({error: "user id required"})
+        return res.status(400).json({error: "user id required"});
     try {
-        PermissionsService.deletePermission(fileId, permId, userId)
-        return res.status(204).end()
+        PermissionsService.deletePermission(fileId, permId, userId);
+        return res.status(204).end();
     } catch (error) {
-        return res.status(error.statusCode).json({error: error.message})
+        return res.status(error.statusCode || 500).json({error: error.message});
     }
 }
 
 
 module.exports = {
-    getEntriesByStatus,
     getAllEntries,
     getTrashEntries,
     createEntry,

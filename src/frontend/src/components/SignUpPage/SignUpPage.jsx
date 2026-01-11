@@ -1,39 +1,18 @@
 import InputUser from "../InputUser/InputUser.jsx";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import {
-  emailValidator,
-  passwordValidator,
-  usernameValidator,
-} from "./validator";
+import { emailValidator, passwordValidator, usernameValidator } from "./validator";
 
 function SignUpPage() {
-  const data = [
-    {
-      createText: "A UserName",
-      type: "text",
-      typeLabel: "username",
-      buttonText: "Next",
-      validator: usernameValidator,
-    },
-    {
-      createText: "An Email Adress",
-      type: "email",
-      typeLabel: "email adress",
-      buttonText: "Next",
-      validator: emailValidator,
-    },
-    {
-      createText: "A Password",
-      type: "password",
-      typeLabel: "password",
-      buttonText: "Create",
-      validator: passwordValidator,
-    },
-  ];
-
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [userInput, setUserInput] = useState([]);
+
+  const data = [
+    { createText: "A UserName", type: "text", typeLabel: "username", buttonText: "Next", validator: usernameValidator },
+    { createText: "An Email Address", type: "email", typeLabel: "email address", buttonText: "Next", validator: emailValidator },
+    { createText: "A Password", type: "password", typeLabel: "password", buttonText: "Create", validator: passwordValidator },
+  ];
 
   const handleClick = async (input) => {
     const isValid = await data[step].validator(input);
@@ -43,20 +22,17 @@ function SignUpPage() {
       setUserInput(updatedInput);
 
       if (step < data.length - 1) {
-        // Not the last step: save data and move forward
-        setUserInput([...userInput, input]);
         setStep(step + 1);
         return true;
       } else {
-        const user = {
-          username: updatedInput[0],
-          email: updatedInput[1],
-          password: updatedInput[2],
-          profileImage: "placeholder",
+        const user = { 
+          username: updatedInput[0], 
+          email: updatedInput[1], 
+          password: updatedInput[2], 
+          profileImage: "placeholder" 
         };
 
         try {
-          // 1. Create the user
           const userRes = await fetch("http://localhost:8080/api/users", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -64,52 +40,28 @@ function SignUpPage() {
           });
 
           if (userRes.ok) {
-            // 2. User created! Now get the JWT token
-            const tokenRes = await fetch("http://localhost:8080/api/tokens", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              // Note: Usually you send username/password to get a token
-              body: JSON.stringify({
-                email: user.email,
-                password: user.password,
-              }),
-            });
+            // The response now contains { token, userId, username }
+            const data = await userRes.json();
+            console.log("Response Data:", data); 
 
-            if (tokenRes.ok) {
-              const tokenData = await tokenRes.json();
-              
-              // 3. Save the JWT to localStorage
-              // The key "token" must match what your MainPage looks for
-              localStorage.setItem("token", tokenData.token);
-              // 4. Move to the main page
-              navigate("/");
-            } else {
-              alert("Account created, but failed to log in automatically.");
-              navigate("/login");
-            }
-          } else {
-            alert("Sign up failed. User might already exist.");
+            localStorage.setItem("token", data.token);
+            // This will no longer be undefined
+            localStorage.setItem("userId", data.userId); 
+            
+            navigate("/my-drive");
+            return true;
           }
+          alert("Sign up failed.");
         } catch (error) {
           console.error("Connection Error:", error);
         }
       }
-      return true;
     }
-    return null;
+    return false;
   };
 
   const currentItem = data[step];
-
-  return (
-    <InputUser
-      createText={currentItem.createText}
-      type={currentItem.type}
-      typeLabel={currentItem.typeLabel}
-      buttonText={currentItem.buttonText}
-      handleClick={handleClick}
-    />
-  );
+  return <InputUser {...currentItem} handleClick={handleClick} />;
 }
 
 export default SignUpPage;

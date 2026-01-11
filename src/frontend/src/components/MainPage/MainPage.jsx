@@ -1,73 +1,67 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
+// Import your components
 import Sidebar from "../Sidebar/Sidebar"; 
 import TopBar from "../Topbar/Topbar"; 
 import SearchResults from "../../pages/search/SearchResults";
-import Input from "../input/Input"
+import Input from "../input/Input";
 import Trash from "../Trash/Trash.jsx";
+import MyDrive from "../MyDrive/MyDrive.jsx"; 
 
-const MyDrive = () => (
-  <div style={{ padding: "40px", color: 'var(--text-color)' }}>
-    <h1>My Drive Content</h1>
-  </div>
-);
-
-const Recent = () => (
-  <div style={{ padding: "40px", color: 'var(--text-color)' }}>
-    <h1>Recent Files</h1>
-  </div>
-);
-
-const Starred = () => (
-  <div style={{ padding: "40px", color: 'var(--text-color)' }}>
-    <h1>Starred Files</h1>
-  </div>
-);
+// Placeholder components for routes that don't have files yet
+const Recent = () => <div style={{ padding: "40px", color: 'white' }}><h1>Recent Files</h1></div>;
+const Starred = () => <div style={{ padding: "40px", color: 'white' }}><h1>Starred Files</h1></div>;
 
 function MainPage() {
-  const token = localStorage.getItem("token"); 
-  // State for Dark Mode
+  const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // Toggle Function
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  // Server Logic for Creating Folder or Uploading File
-  const handleCreate = async (data) => {    
-    // Safety check: User must be logged in
-    if (!token) {
-      alert("You are not logged in!");
+  const handleCreate = async (dataToSend) => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+
+    // 1. Validation check
+    if (!token || !userId || userId === "undefined") {
+      alert("Session error. Please log in again.");
+      navigate("/login");
       return false;
     }
 
-    const url = "http://localhost:8080/api/files"; 
-    
-    const headers = {
-      'token': token,// Attach JWT
-      'Content-Type': 'application/json',
-      'userId': '123'
-    };
-
     try {
-      const response = await fetch(url, {
+      const response = await fetch("http://localhost:8080/api/files", {
         method: 'POST',
-        headers: headers,
-        body: JSON.stringify(data)
+        headers: { 
+          // 2. Standardized Headers (Lowercase to match Controller)
+          'userid': userId, 
+          'token': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          name: dataToSend.name,
+          type: dataToSend.type,
+          content: dataToSend.content || "", // Handle file content
+          parentId: null,
+          isTrashed: false 
+        })
       });
+
       if (response.ok) {
-        const type = data.type
-        alert(`${type === 'folder' ? 'Folder created' : 'File uploaded'} successfully!`);
-        return true; 
+        // Success: Redirect to My Drive to see the new file
+        navigate("/my-drive");
+        return true;
       } else {
-        alert("Server error: Failed to create item.");
+        const err = await response.json();
+        alert(err.error || "Creation failed");
         return false;
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Network error");
+      console.error("Network Error:", error);
+      alert("Network error - check console");
       return false;
     }
   };
@@ -78,22 +72,17 @@ function MainPage() {
       className={isDarkMode ? "dark-mode" : "light-mode"}
       style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100%" }}
     >
-      {/* Pass theme props to TopBar so the button can be there  */}
       <TopBar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        
-        {/* Sidebar for navigation */}
         <Sidebar />
 
         <div style={{ 
           flex: 1, 
           display: "flex", 
           flexDirection: "column", 
-          justifyContent: "flex-start", 
-          alignItems: "stretch", 
           backgroundColor: "var(--main-bg)",
-          padding: "20px" 
+          overflowY: "auto"
         }}>
           
           <Routes>
@@ -104,14 +93,15 @@ function MainPage() {
             <Route path="/trash" element={<Trash />} />
             <Route path="/search/:query" element={<SearchResults />} />
             <Route path="/search" element={<SearchResults />} />
-            {/* The Create Page */}
             <Route 
               path="/create" 
               element={
-                <Input
-                  createText="Create New Item"
-                  handleClick={handleCreate} 
-                />
+                <div style={{ padding: "40px" }}>
+                    <Input
+                      createText="Create New Item"
+                      handleClick={handleCreate} 
+                    />
+                </div>
               } 
             />
           </Routes>
@@ -119,7 +109,7 @@ function MainPage() {
         </div>
       </div>
     </div>
-  );
+  ); 
 }
 
 export default MainPage;
