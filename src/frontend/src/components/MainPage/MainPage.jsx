@@ -8,6 +8,7 @@ import SearchResults from "../../pages/search/SearchResults";
 import Input from "../input/Input";
 import Trash from "../Trash/Trash.jsx";
 import MyDrive from "../MyDrive/MyDrive.jsx"; 
+import Update from "../../pages/Update/update.jsx";
 
 // Placeholder components for routes that don't have files yet
 const Recent = () => <div style={{ padding: "40px", color: 'white' }}><h1>Recent Files</h1></div>;
@@ -93,17 +94,8 @@ function MainPage() {
             <Route path="/trash" element={<Trash />} />
             <Route path="/search/:query" element={<SearchResults />} />
             <Route path="/search" element={<SearchResults />} />
-            <Route 
-              path="/create" 
-              element={
-                <div style={{ padding: "40px" }}>
-                    <Input
-                      createText="Create New Item"
-                      handleClick={handleCreate} 
-                    />
-                </div>
-              } 
-            />
+            <Route path="/create" element={<div style={{ padding: "40px" }}> <Input createText="Create New Item" handleClick={handleCreate} />  </div>} />
+            <Route path="/update/:id" element={<Update />} />
           </Routes>
 
         </div>

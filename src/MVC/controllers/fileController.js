@@ -1,6 +1,7 @@
 const { permissions } = require('../repositeries/PermissionRepositery')
 const FileService = require('../services/FileService')
 const PermissionsService = require('../services/PermissionsService')
+const Entry = require('../models/Entry');
 
 /**
  * Standardized Header Helper
@@ -22,20 +23,23 @@ const getAllEntries = (req, res) => {
     }
 }
 
-const getTrashEntries = (req, res) => {
-    const userId = req.headers.userid; 
-    const token = req.headers.token; 
-
-    if (!userId || !token)
-        return res.status(400).json({error: "user id and token required"});
+const getTrashEntries = async (req, res) => {
+    const userId = req.get('userid'); // Lowercase check
+    
+    if (!userId) {
+        return res.status(400).json({ error: "User ID required" });
+    }
 
     try {
-        const files = FileService.getEntriesByStatus(userId, true); 
+        // Call the service method we fixed earlier
+        // This fetches ALL files (root + subfolders) that are trashed
+        const files = FileService.getEntriesByStatus(userId, true);
+        
         return res.status(200).json(files);
     } catch (error) {
-        return res.status(error.statusCode || 500).json({error: error.message});
+        return res.status(500).json({ error: error.message });
     }
-}
+};
 
 const createEntry = async (req, res) => {
     const userId = req.headers.userid; 
@@ -73,13 +77,19 @@ const getEntry = (req, res) => {
 
 const updateEntry = async (req, res) => {
     const fileId = req.params.id;
-    const userId = req.headers.userid; 
+    const userId = req.get('userid');
 
     if (!userId)
         return res.status(400).json({error: "user id required"});
 
-    if (!req.body)
+    if (!req.body || Object.keys(req.body).length === 0)
         return res.status(400).json({error: "must provide a json with entry fields"});
+    console.log("DEBUG HEADERS:", req.headers);
+    const validationErrors = Entry.validate(req.body, true);
+    
+    if (validationErrors.length > 0) {
+        return res.status(400).json({ error: validationErrors.join(', ') });
+    }
 
     try {
         const file = await FileService.updateFile(fileId, req.body, userId);
