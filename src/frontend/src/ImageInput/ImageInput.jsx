@@ -5,11 +5,11 @@ function ImageInput() {
   const [isDefault, setIsDefault] = useState(true);
   const [previewUrl, setPreviewUrl] = useState(defaultPicture);
   const [picture, setPicture] = useState(null);
-  const handleDefaultClick = () => {
+  const handleDefaultClick = (props) => {
     setIsDefault(true);
     setPreviewUrl(defaultPicture);
   };
-  
+
   const handleUploadClick = (fileSelected) => {
     if (!fileSelected) return;
 
@@ -21,6 +21,9 @@ function ImageInput() {
     setPreviewUrl(objectUrl);
   };
 
+  const handleClick = () => {
+    props.handleClick(previewUrl)
+  }
   return (
     <div className="input-container">
       <div className="top-container">
@@ -47,7 +50,7 @@ function ImageInput() {
         </div>
       </div>
 
-      <button type="button" className="btn btn-primary">
+      <button type="button" className="btn btn-primary" onClick={handleClick}>
         Upload Picture
       </button>
     </div>
