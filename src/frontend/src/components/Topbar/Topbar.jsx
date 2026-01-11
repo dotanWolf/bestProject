@@ -12,7 +12,7 @@ import {
 import { FaGoogleDrive } from "react-icons/fa";
 import { useState } from "react";
 
-function TopBar({ isDarkMode, toggleTheme }) {
+function TopBar({ isDarkMode, toggleTheme, user }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
 
@@ -27,7 +27,7 @@ function TopBar({ isDarkMode, toggleTheme }) {
     }
   };
 
-
+  console.log(user);
 
   return (
     <div className="topbar">
@@ -87,8 +87,23 @@ function TopBar({ isDarkMode, toggleTheme }) {
         <button className="icon-btn" title="Google Apps">
           <IoApps size={24} />
         </button>
-        <Link to ="/signup" title="Sign Up" >Sign Up</Link>
-        <Link to= "/login" title="Login" >Login</Link>
+        <div style={{ display: "flex" }}>
+          {user ? (
+            <img
+              src={user.profileImage}
+              style={{ maxWidth: "40px", maxHeight: "40px" }}
+            ></img>
+          ) : (
+            <>
+              <Link to="/signup" title="Sign Up">
+                Sign Up
+              </Link>
+              <Link to="/login" title="Login">
+                Login
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import defaultPicture from "./default.png";
-function ImageInput() {
+function ImageInput(props) {
   const [isDefault, setIsDefault] = useState(true);
   const [previewUrl, setPreviewUrl] = useState(defaultPicture);
   const [picture, setPicture] = useState(null);
-  const handleDefaultClick = (props) => {
+  const handleDefaultClick = () => {
     setIsDefault(true);
     setPreviewUrl(defaultPicture);
   };
@@ -22,6 +22,7 @@ function ImageInput() {
   };
 
   const handleClick = () => {
+    console.log(previewUrl)
     props.handleClick(previewUrl)
   }
   return (

@@ -31,13 +31,16 @@ function SignUpPage() {
       buttonText: "Create",
       validator: passwordValidator,
     },
+    {
+      validator: () => true
+    }
   ];
 
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [userInput, setUserInput] = useState([]);
 
-  const createUser = async () => {
+  const createUser = async (updatedInput) => {
     const user = {
       username: updatedInput[0],
       email: updatedInput[1],
@@ -86,19 +89,20 @@ function SignUpPage() {
   };
 
   const handleClick = async (input) => {
+    console.log(input)
     const isValid = await data[step].validator(input);
 
     if (isValid) {
       const updatedInput = [...userInput, input];
       setUserInput(updatedInput);
 
-      if (step < data.length) {
+      if (step < data.length - 1) {
         // Not the last step: save data and move forward
         setUserInput([...userInput, input]);
         setStep(step + 1);
         return true;
       } else {
-        createUser()
+        createUser(updatedInput)
       }
       return true;
     }
