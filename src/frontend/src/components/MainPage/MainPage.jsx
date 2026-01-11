@@ -1,5 +1,5 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Import your components
 import Sidebar from "../Sidebar/Sidebar"; 
@@ -10,24 +10,54 @@ import Trash from "../Trash/Trash.jsx";
 import MyDrive from "../MyDrive/MyDrive.jsx"; 
 import Update from "../../pages/Update/update.jsx";
 
-// Placeholder components for routes that don't have files yet
-const Recent = () => <div style={{ padding: "40px", color: 'white' }}><h1>Recent Files</h1></div>;
+// Placeholder for Starred/Recent if not ready yet
+const RecentPlaceholder = () => <div style={{ padding: "40px", color: 'white' }}><h1>Recent Files (Coming Soon)</h1></div>;
 const Starred = () => <div style={{ padding: "40px", color: 'white' }}><h1>Starred Files</h1></div>;
 
 function MainPage() {
   const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(true);
+  
+  // זה ה-State שיחזיק את התמונה
+  const [user, setUser] = useState(null); 
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
 
+  // --- תיקון: שליפת המשתמש כדי להציג תמונה ב-TopBar ---
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId"); // שליפה לפי ID
+
+    if (token && userId) {
+      const fetchData = async () => {
+        try {
+          // שימוש ב-userId בכתובת ה-URL
+          const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
+             headers: {
+               'userid': userId,
+               'token': token
+             }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setUser(data); // עדכון ה-State עם המידע (כולל תמונה)
+          }
+        } catch (error) {
+          console.error("Failed to fetch user profile:", error);
+        }
+      };
+      fetchData();
+    }
+  }, []);
+
   const handleCreate = async (dataToSend) => {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
 
-    // 1. Validation check
-    if (!token || !userId || userId === "undefined") {
+    if (!token || !userId) {
       alert("Session error. Please log in again.");
       navigate("/login");
       return false;
@@ -37,7 +67,6 @@ function MainPage() {
       const response = await fetch("http://localhost:8080/api/files", {
         method: 'POST',
         headers: { 
-          // 2. Standardized Headers (Lowercase to match Controller)
           'userid': userId, 
           'token': token,
           'Content-Type': 'application/json'
@@ -45,14 +74,13 @@ function MainPage() {
         body: JSON.stringify({ 
           name: dataToSend.name,
           type: dataToSend.type,
-          content: dataToSend.content || "", // Handle file content
+          content: dataToSend.content || "", 
           parentId: null,
           isTrashed: false 
         })
       });
 
       if (response.ok) {
-        // Success: Redirect to My Drive to see the new file
         navigate("/my-drive");
         return true;
       } else {
@@ -62,7 +90,6 @@ function MainPage() {
       }
     } catch (error) {
       console.error("Network Error:", error);
-      alert("Network error - check console");
       return false;
     }
   };
@@ -73,7 +100,8 @@ function MainPage() {
       className={isDarkMode ? "dark-mode" : "light-mode"}
       style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100%" }}
     >
-      <TopBar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+      {/* מעבירים את ה-user ל-TopBar כדי שהתמונה תוצג */}
+      <TopBar isDarkMode={isDarkMode} toggleTheme={toggleTheme} user={user} />
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <Sidebar />
@@ -89,7 +117,10 @@ function MainPage() {
           <Routes>
             <Route path="/" element={<MyDrive />} />
             <Route path="/my-drive" element={<MyDrive />} />
-            <Route path="/recent" element={<Recent />} />
+            
+            {/* החזרתי את Recent ל-Placeholder כדי לא לשבור לך את הקוד */}
+            <Route path="/recent" element={<RecentPlaceholder />} />
+            
             <Route path="/starred" element={<Starred />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="/search/:query" element={<SearchResults />} />

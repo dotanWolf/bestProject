@@ -12,7 +12,7 @@ import {
 import { FaGoogleDrive } from "react-icons/fa";
 import { useState } from "react";
 
-function TopBar({ isDarkMode, toggleTheme }) {
+function TopBar({ isDarkMode, toggleTheme, user }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
 
@@ -26,8 +26,6 @@ function TopBar({ isDarkMode, toggleTheme }) {
       navigate(`/search/${value}`);
     }
   };
-
-
 
   return (
     <div className="topbar">
@@ -70,6 +68,7 @@ function TopBar({ isDarkMode, toggleTheme }) {
         </div>
       </div>
 
+      {/* Right: Icons & User Profile */}
       <div className="topbar-right">
         <button
           className="icon-btn"
@@ -87,8 +86,42 @@ function TopBar({ isDarkMode, toggleTheme }) {
         <button className="icon-btn" title="Google Apps">
           <IoApps size={24} />
         </button>
-        <Link to ="/signup" title="Sign Up" >Sign Up</Link>
-        <Link to= "/login" title="Login" >Login</Link>
+
+        {/* User Profile Logic */}
+        <div style={{ display: "flex", alignItems: "center", marginLeft: "10px", gap: "15px" }}>
+          {user ? (
+            <img
+              src={user.profileImage}
+              alt="Profile"
+              title={user.username}
+              style={{
+                width: "35px",
+                height: "35px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                cursor: "pointer",
+                border: "2px solid var(--text-color)"
+              }}
+            />
+          ) : (
+            <div style={{ display: 'flex', gap: '10px', fontSize: '14px' }}>
+              <Link 
+                to="/signup" 
+                title="Sign Up" 
+                style={{ color: 'var(--text-color)', textDecoration: 'none', fontWeight: '500' }}
+              >
+                Sign Up
+              </Link>
+              <Link 
+                to="/login" 
+                title="Login" 
+                style={{ color: 'var(--text-color)', textDecoration: 'none', fontWeight: '500' }}
+              >
+                Login
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
