@@ -224,6 +224,9 @@ class FileService {
         const permission = permissionRepository.findByFileAndUser(file.id, userId);
         return permission && permission.canEdit();
     }
+    getEntriesByStatus(userId, isTrashed) {
+        const allFiles = this.getAllFilesForUser(userId);
+        return allFiles.filter(file => file.isTrashed === isTrashed);
+    }
 }
-
 module.exports = new FileService();

@@ -18,5 +18,8 @@ router.route('/:id/permissions')
 router.route('/:id/permissions/:pId')
     .patch(controllers.updatePermisssion) // מעדכנת את ההרשאות של pId
     .delete(controllers.deletePermission) // מוחקת את ההרשאות של pId
+
+router.route('/trash')
+    .get(controllers.getTrashEntries);
     
 module.exports = router

@@ -7,10 +7,14 @@ const getAllEntries = (req, res) => {
     const userId = req.headers.id
     if (!userId)
         return res.status(400).json({error: "user id required"})
-    const files = FileService.getRootFiles(userId)
+    const files = FileService.getEntriesByStatus(userId, false);
     return res.status(200).json(files)
 }
-
+const getTrashEntries = (req, res) => {
+    const userId = req.headers.id;
+    const files = FileService.getEntriesByStatus(userId, true); 
+    return res.status(200).json(files);
+}
 // gets a name, location, userId, type = {"file", "dir"}
 // if the type is a file, also needs a content field
 // saves the new entry under a uniuqe id through the cpp server
@@ -140,7 +144,9 @@ const deletePermission = (req, res) => {
 
 
 module.exports = {
+    getEntriesByStatus,
     getAllEntries,
+    getTrashEntries,
     createEntry,
     getEntry,
     updateEntry,

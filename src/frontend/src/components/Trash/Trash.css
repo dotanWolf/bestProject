@@ -1,0 +1,41 @@
+.trash-page-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; 
+  background-color: var(--bg-canvas);
+  transition: background-color 0.3s ease;
+}
+
+.trash-empty-state {
+  text-align: center;
+  max-width: 450px;
+  padding: 20px;
+}
+
+.illustration-wrapper {
+  margin-bottom: 32px;
+}
+
+.trash-img {
+  width: 160px;
+  height: auto;
+  opacity: 0.9;
+}
+
+.trash-heading {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+
+.trash-subtext {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.dark-mode .trash-img {
+  filter: brightness(0.8);
+}

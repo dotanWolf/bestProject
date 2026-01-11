@@ -1,11 +1,12 @@
   class Entry {
-  constructor({ id, name, type, ownerId, parentId, content}) {
+  constructor({ id, name, type, ownerId, parentId, content, isTrashed = false }) {
       this.id = id;
       this.name = name;
       this.type = type; // 'file' or 'folder'
       this.ownerId = ownerId;
       this.parentId = parentId || null; // null means root level '/'
       this.content = content || null; //  for files
+      this.isTrashed = isTrashed; // indicates if the entry is in trash
     }
 
     toJSON() {

@@ -5,6 +5,7 @@ import Sidebar from "../Sidebar/Sidebar";
 import TopBar from "../Topbar/Topbar"; 
 import SearchResults from "../../pages/search/SearchResults";
 import Input from "../input/Input"
+import Trash from "../Trash/Trash.jsx";
 
 const MyDrive = () => (
   <div style={{ padding: "40px", color: 'var(--text-color)' }}>
@@ -115,6 +116,7 @@ function MainPage() {
             <Route path="/my-drive" element={<MyDrive />} />
             <Route path="/recent" element={<Recent />} />
             <Route path="/starred" element={<Starred />} />
+            <Route path="/trash" element={<Trash />} />
             <Route path="/search/:query" element={<SearchResults />} />
             <Route path="/search" element={<SearchResults />} />
             {/* The Create Page */}
