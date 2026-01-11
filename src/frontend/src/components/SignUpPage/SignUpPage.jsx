@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom"; // Add this
 import InputUser from "../InputUser/InputUser.jsx";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   emailValidator,
   passwordValidator,
@@ -44,7 +45,10 @@ function SignUpPage() {
       setUserInput(updatedInput);
 
       if (step < data.length - 1) {
+        // Not the last step: save data and move forward
+        setUserInput([...userInput, input]);
         setStep(step + 1);
+        return true;
       } else {
         const user = {
           username: updatedInput[0],
@@ -98,6 +102,7 @@ function SignUpPage() {
   };
 
   const currentItem = data[step];
+
   return (
     <InputUser
       createText={currentItem.createText}
@@ -105,7 +110,7 @@ function SignUpPage() {
       typeLabel={currentItem.typeLabel}
       buttonText={currentItem.buttonText}
       handleClick={handleClick}
-    ></InputUser>
+    />
   );
 }
 

@@ -3,13 +3,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 
 function Input(props) {
-  const { createText, handleClick } = props;
+  const { createText, handleClick, buttonText } = props;
 
   // State to switch between Folder creation and File upload
   const [mode, setMode] = useState("folder"); 
   const [inputValue, setInputValue] = useState("");
   const [fileValue, setFileValue] = useState(null);
-
+ 
+  
   const onButtonClick = async () => {
     // Determine what data to send based on mode
     const dataToSend = mode === "folder" ? inputValue : fileValue;
@@ -56,7 +57,7 @@ function Input(props) {
                 className="form-control"
                 id="floatingInput"
                 placeholder="Folder Name"
-                value={inputValue}
+                value={inputValue || ""}
                 onChange={(e) => setInputValue(e.target.value)}
               />
               <label htmlFor="floatingInput">Folder Name</label>
@@ -72,8 +73,12 @@ function Input(props) {
         </div>
       </div>
 
-      <button type="button" className="btn btn-success" onClick={onButtonClick}>
-        {mode === "folder" ? "Create Folder" : "Upload File"}
+    <button 
+        type="button" 
+        className={`btn ${buttonText ? 'btn-danger' : 'btn-success'}`} 
+        onClick={onButtonClick}
+      >
+        {buttonText || (mode === "folder" ? "Create Folder" : "Upload File")}
       </button>
     </div>
   );
