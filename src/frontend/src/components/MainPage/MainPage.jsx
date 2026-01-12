@@ -18,22 +18,19 @@ function MainPage() {
   const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(true);
   
-  // זה ה-State שיחזיק את התמונה
   const [user, setUser] = useState(null); 
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  // --- תיקון: שליפת המשתמש כדי להציג תמונה ב-TopBar ---
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId"); // שליפה לפי ID
+    const userId = localStorage.getItem("userId"); 
 
     if (token && userId) {
       const fetchData = async () => {
         try {
-          // שימוש ב-userId בכתובת ה-URL
           const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
              headers: {
                'userid': userId,
@@ -43,7 +40,7 @@ function MainPage() {
           
           if (response.ok) {
             const data = await response.json();
-            setUser(data); // עדכון ה-State עם המידע (כולל תמונה)
+            setUser(data); 
           }
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
@@ -100,7 +97,6 @@ function MainPage() {
       className={isDarkMode ? "dark-mode" : "light-mode"}
       style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100%" }}
     >
-      {/* מעבירים את ה-user ל-TopBar כדי שהתמונה תוצג */}
       <TopBar isDarkMode={isDarkMode} toggleTheme={toggleTheme} user={user} />
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
@@ -118,7 +114,6 @@ function MainPage() {
             <Route path="/" element={<MyDrive />} />
             <Route path="/my-drive" element={<MyDrive />} />
             
-            {/* החזרתי את Recent ל-Placeholder כדי לא לשבור לך את הקוד */}
             <Route path="/recent" element={<RecentPlaceholder />} />
             
             <Route path="/starred" element={<Starred />} />
