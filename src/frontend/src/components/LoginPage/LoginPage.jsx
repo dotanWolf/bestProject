@@ -16,12 +16,20 @@ function LoginPage() {
       buttonText: "Next",
       // LOGIN: Valid only if user EXISTS
       validator: async (input) => {
-        const response = await fetch(`http://localhost:8080/api/users/${input}`);
+        const response = await fetch(
+          `http://localhost:8080/api/tokens/${input}`
+        );
         const result = await response.json();
         return result.exists === true;
       },
     },
-    { createText: "Enter Your Password", type: "password", typeLabel: "password", buttonText: "Login", validator: passwordValidator },
+    {
+      createText: "Enter Your Password",
+      type: "password",
+      typeLabel: "password",
+      buttonText: "Login",
+      validator: passwordValidator,
+    },
   ];
 
   const handleClick = async (input) => {
@@ -39,13 +47,16 @@ function LoginPage() {
           const tokenRes = await fetch("http://localhost:8080/api/tokens", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: updatedInput[0], password: updatedInput[1] }),
+            body: JSON.stringify({
+              email: updatedInput[0],
+              password: updatedInput[1],
+            }),
           });
 
           if (tokenRes.ok) {
             const tokenData = await tokenRes.json();
             localStorage.setItem("token", tokenData.token);
-            localStorage.setItem("userId", tokenData.userId || tokenData.id); //
+            localStorage.setItem("userId", tokenData.userId); 
             navigate("/my-drive");
             return true;
           }

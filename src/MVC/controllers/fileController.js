@@ -24,7 +24,6 @@ const getRootEntries = (req, res) => {
 const getFolderEntries = (req, res) => {
     const parentId = req.headers.parentId
     const userId = req.user.userId; 
-    console.log("userId from token is ", userId)
     if (!userId)
         return res.status(400).json({error: "user id and token required"});
     try {
