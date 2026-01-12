@@ -8,15 +8,27 @@ const Entry = require('../models/Entry');
  * Note: Express automatically lowercases header keys (userid, token)
  */
 
-const getAllEntries = (req, res) => {
-    const userId = req.headers.userid; 
-    const token = req.headers.token;
+const getRootEntries = (req, res) => {
+    const userId = req.user.userId; 
 
-    if (!userId || !token)
+    if (!userId)
         return res.status(400).json({error: "user id and token required"});
-
     try {
-        const files = FileService.getEntriesByStatus(userId, false);
+        const files = FileService.getRootFiles(userId);
+        return res.status(200).json(files);
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({error: error.message});
+    }
+}
+
+const getFolderEntries = (req, res) => {
+    const parentId = req.headers.parentId
+    const userId = req.user.userId; 
+    console.log("userId from token is ", userId)
+    if (!userId)
+        return res.status(400).json({error: "user id and token required"});
+    try {
+        const files = FileService.getFolderEntries(userId, parentId);
         return res.status(200).json(files);
     } catch (error) {
         return res.status(error.statusCode || 500).json({error: error.message});
@@ -60,10 +72,9 @@ const getStarredEntries = async (req, res) => {
     }
 };
 const createEntry = async (req, res) => {
-    const userId = req.headers.userid; 
-    const token = req.headers.token;
+    const userId = req.user.userId; 
 
-    if (!token || !userId)
+    if (!userId)
         return res.status(400).json({error: "user id and token required"});
     
     if (!req.body)
@@ -195,7 +206,8 @@ const deletePermission = (req, res) => {
 
 
 module.exports = {
-    getAllEntries,
+    getRootEntries,
+    getFolderEntries,
     getTrashEntries,
     getStarredEntries,
     createEntry,

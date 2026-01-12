@@ -22,19 +22,7 @@ class UserService {
         // Create user
         const newUser = userRepository.create(userData);
 
-        // --- JWT GENERATION USING .ENV ---
-        const token = jwt.sign(
-            { 
-                id: newUser.id, 
-                email: newUser.email,
-                username: newUser.username 
-            }, 
-            process.env.JWT_SECRET, // <--- Reads from .env file
-            { expiresIn: '24h' }
-        );
-
         return {
-            token: token,
             userId: newUser.id,
             username: newUser.username
         };

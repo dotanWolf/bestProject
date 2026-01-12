@@ -3,7 +3,7 @@ var router = express.Router()
 const controllers = require('../controllers/tokenController')
 
 router.route('/')
-    .post(controllers.doesUserExist)
+    .post(controllers.createJWT)
 
 router.route('/:email')
     .get(controllers.doesEmailExist)

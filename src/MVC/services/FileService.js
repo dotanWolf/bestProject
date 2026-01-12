@@ -85,18 +85,23 @@ class FileService {
         // Get files at root level (parentId = null) owned by user
         const ownedFiles = fileRepository.findByOwnerAndParent(userId, null);
 
-        // Also get files shared with user at root level
-        const sharedPermissions = permissionRepository.findByUserId(userId);
-        const sharedFileIds = sharedPermissions.map(p => p.fileId);
-        const sharedFiles = sharedFileIds
-            .map(id => fileRepository.findById(id))
-            .filter(file => file && file.parentId === null);
+        // // Also get files shared with user at root level
+        // const sharedPermissions = permissionRepository.findByUserId(userId);
+        // const sharedFileIds = sharedPermissions.map(p => p.fileId);
+        // const sharedFiles = sharedFileIds
+        //     .map(id => fileRepository.findById(id))
+        //     .filter(file => file && file.parentId === null);
 
-        // Combine and remove duplicates
-        const fileMap = new Map();
-        [...ownedFiles, ...sharedFiles].forEach(file => fileMap.set(file.id, file));
+        // // Combine and remove duplicates
+        // const fileMap = new Map();
+        // [...ownedFiles, ...sharedFiles].forEach(file => fileMap.set(file.id, file));
 
-        return Array.from(fileMap.values());
+        return Array.from(ownedFiles.values());
+    }
+
+    getFolderEntries(userId, parentId) {
+        const folderFiles = fileRepository.findByOwnerAndParent(userId, parentId);
+        return folderFiles
     }
 
     async updateFile(fileId, updates, userId) {
