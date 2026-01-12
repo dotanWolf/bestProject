@@ -38,6 +38,27 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
        console.error(err);
      }
   };
+  const handleStarred = async () => {
+    if(!window.confirm("Move to Starred?")) return;
+     
+     const userId = localStorage.getItem("userId");
+     const token = localStorage.getItem("token");
+
+     try {
+       await fetch(`http://localhost:8080/api/files/${file.id}`, {
+         method: 'PATCH',
+         headers: { 
+            'Content-Type': 'application/json',
+            'userid': userId, 
+            'token': token 
+         },
+         body: JSON.stringify({ isStarred: true })
+       });
+       refreshFiles();
+     } catch(err) {
+       console.error(err);
+     }
+  };
 
   return (
     <div className="menu-container" style={{ position: 'relative' }}>
@@ -79,7 +100,7 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
           </button>
 
           {/* 2. STAR BUTTON (Placeholder) */}
-          <button className="menu-item" style={menuItemStyle}>
+          <button  onClick={handleStarred} className="menu-item" style={menuItemStyle}>
              ⭐ Star
           </button>
 

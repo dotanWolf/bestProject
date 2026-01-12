@@ -222,5 +222,9 @@ class FileService {
         const allFiles = fileRepository.findByOwnerId(userId); 
         return allFiles.filter(file => file.isTrashed === isTrashed);
     }
+      getEntriesForStarred(userId, isStarred) {
+        const allFiles = fileRepository.findByOwnerId(userId); 
+        return allFiles.filter(file => file.isStarred === isStarred && !file.isTrashed);
+    }
 }
 module.exports = new FileService();
