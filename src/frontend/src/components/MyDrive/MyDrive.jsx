@@ -3,9 +3,14 @@ import { useNavigate } from "react-router-dom";
 import FileActionMenu from "../FileActionMenu/FileActionMenu";
 
 const MyDrive = () => {
+  const rootFolder = {
+    name: "root",
+    parentId: null,
+  };
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentFolderId, setCurrentFolderId] = useState(null); // Track folder depth
+  const [folder, setFolder] = useState(rootFolder);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -16,7 +21,7 @@ const MyDrive = () => {
       ? `http://localhost:8080/api/files/folders/${currentFolderId}`
       : `http://localhost:8080/api/files`;
 
-    console.log("get url is ", url)
+    console.log("get url is ", url);
     try {
       const response = await fetch(url, {
         headers: {
@@ -39,12 +44,40 @@ const MyDrive = () => {
     }
   };
 
+  const fetchCurrentFolder = async () => {
+    if (currentFolderId) {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/files/${currentFolderId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+          setFolder(data);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setFolder(rootFolder);
+    }
+  };
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
     }
     fetchFiles();
+    fetchCurrentFolder();
   }, [navigate, currentFolderId]); // Re-fetch when folder changes
 
   const handleDoubleClick = (file) => {
@@ -53,6 +86,34 @@ const MyDrive = () => {
       setCurrentFolderId(file.id); // Go inside folder
     } else {
       navigate(`/update/${file.id}`);
+    }
+  };
+
+  const handleBackClick = async () => {
+    if (!folder.parentId) {
+      setFolder(rootFolder)
+      setCurrentFolderId(null)
+    } else {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/files/${folder.parentId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setFolder(data);
+          setCurrentFolderId(data.id);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -80,19 +141,22 @@ const MyDrive = () => {
         }}
       >
         {currentFolderId && (
-          <button
-            onClick={() => setCurrentFolderId(null)}
-            style={{
-              background: "none",
-              border: "1px solid var(--border-color)",
-              color: "var(--text-primary)",
-              cursor: "pointer",
-              borderRadius: "4px",
-              padding: "5px 10px",
-            }}
-          >
-            ← Back
-          </button>
+          <>
+            <button
+              onClick={handleBackClick}
+              style={{
+                background: "none",
+                border: "1px solid var(--border-color)",
+                color: "var(--text-primary)",
+                cursor: "pointer",
+                borderRadius: "4px",
+                padding: "5px 10px",
+              }}
+            >
+              ← Back
+            </button>
+            <h1 style={{ color: "var(--text-primary)" }}>{folder.name}</h1>
+          </>
         )}
         <h1
           style={{

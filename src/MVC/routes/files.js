@@ -13,7 +13,7 @@ router.route('/')
     .post(tokenController.authenticateToken, fileController.createEntry) // תיצור קובץ/תיקייה חדש/ה
 
 router.route('/:id')
-    .get(fileController.getEntry) // נותנת את הפרטים של הקובץ/תיקייה שהמזהה שלו זה id
+    .get(tokenController.authenticateToken, fileController.getEntry) // נותנת את הפרטים של הקובץ/תיקייה שהמזהה שלו זה id
     .patch(fileController.updateEntry) // עורכת קובץ/תיקייה קיים id
     .delete(fileController.deleteEntry) // מוחקת קובץ/תיקייה קיים id:
 
