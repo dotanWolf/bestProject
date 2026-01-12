@@ -2,9 +2,41 @@ import InputUser from "../InputUser/InputUser.jsx";
 import ImageInput from "../../ImageInput/ImageInput.jsx"; 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { emailValidator, passwordValidator, usernameValidator } from "./validator";
+import ImageInput from "../../ImageInput/ImageInput.jsx";
+import {
+  emailValidator,
+  passwordValidator,
+  usernameValidator,
+} from "./validator";
 
 function SignUpPage() {
+  const data = [
+    {
+      createText: "A UserName",
+      type: "text",
+      typeLabel: "username",
+      buttonText: "Next",
+      validator: usernameValidator,
+    },
+    {
+      createText: "An Email Adress",
+      type: "email",
+      typeLabel: "email adress",
+      buttonText: "Next",
+      validator: emailValidator,
+    },
+    {
+      createText: "A Password",
+      type: "password",
+      typeLabel: "password",
+      buttonText: "Create",
+      validator: passwordValidator,
+    },
+    {
+      validator: () => true
+    }
+  ];
+
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [userInput, setUserInput] = useState([]);
