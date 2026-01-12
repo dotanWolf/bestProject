@@ -23,7 +23,7 @@ const Trash = () => {
 
       if (response.ok) {
         const trashFiles = await response.json();
-        console.log("Trash Files fetched:", trashFiles);
+        //console.log("Trash Files fetched:", trashFiles);
         // Backend now handles filtering, so we just set state
         setTrashedFiles(trashFiles);
       } else {
@@ -107,20 +107,22 @@ const Trash = () => {
     );
   }
 
-  return (
-    <div className="trash-page-container">
+ return (
+    <div className="trash-page-container" style={{ backgroundColor: "var(--bg-main)" }}>
       <div className="trash-header">
-        <h2 className="trash-heading">Trash ({trashedFiles.length})</h2>
-        <button className="btn-empty-trash" onClick={() => alert("Implement Empty Trash All feature here!")}>Empty Trash</button>
+        <h2 className="trash-heading" style={{ color: "var(--text-primary)" }}>
+            Trash ({trashedFiles.length})
+        </h2>
+        <button className="btn-empty-trash" style={{ borderColor: "var(--border-color)", color: "var(--text-primary)" }}>
+            Empty Trash
+        </button>
       </div>
       
       <div className="trash-list">
         {trashedFiles.map((file) => (
-          <div key={file.id} className="trash-item">
-            <div className="trash-item-info">
-              <span className="trash-icon">
-                {file.type === 'folder' ? '📁' : '📄'} 
-              </span>
+          <div key={file.id} className="trash-item" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
+            <div className="trash-item-info" style={{ color: "var(--text-primary)" }}>
+              <span className="trash-icon">{file.type === 'folder' ? '📁' : '📄'}</span>
               <span className="trash-name">{file.name}</span>
             </div>
             

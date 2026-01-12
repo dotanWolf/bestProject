@@ -3,8 +3,9 @@
   padding: 30px;
   height: 100%;
   box-sizing: border-box;
-  background-color: var(--bg-canvas, #181818); /* Fallback color */
-  color: #fff;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease;
   overflow-y: auto; /* Scroll if list is long */
 }
 
@@ -14,7 +15,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-color); /* גבול דינמי */
   padding-bottom: 15px;
 }
 
@@ -53,11 +54,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between; /* Pushes actions to the right */
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: var(--bg-card); /* שימוש בכרטיסייה הדינמית */
   padding: 12px 20px;
   border-radius: 8px;
   transition: background-color 0.2s;
-  border: 1px solid transparent;
+  border: 1px solid var(--border-color);
 }
 
 .trash-item:hover {

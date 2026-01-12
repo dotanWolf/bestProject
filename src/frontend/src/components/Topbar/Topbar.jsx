@@ -30,7 +30,7 @@ function TopBar({ isDarkMode, toggleTheme, user }) {
   return (
     <div className="topbar">
       {/* Left: Logo (Clicking goes Home) */}
-      <Link to="/" className="topbar-left" style={{ textDecoration: "none" }}>
+      <Link to="/my-drive" className="topbar-left" style={{ textDecoration: "none" }}>
         <div
           style={{
             display: "flex",

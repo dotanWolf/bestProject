@@ -1,32 +1,66 @@
+/* src/components/input/Input.css */
+
 .input-container {
-  margin-top: 13vh;
-  width: 75vw; /* 70% of window width */
-  height: 65vh; /* 60% of window height */
-  background-color: white;
-  box-sizing: border-box;
-  border-radius: 20px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* Evenly splits the 30% width (15% left, 15% right) */
-  align-items: flex-end;
-  padding: 5% 2% 2% 2%;
-}
-
-.top-container {
+  /* Use !important to override any Bootstrap card styles */
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color);
+  
+  padding: 40px;
+  border-radius: 12px;
   width: 100%;
-  display: flex;
-  justify-content: space-between; /* Evenly splits the 30% width (15% left, 15% right) */
-  align-items: center;
+  max-width: 450px;
+  margin: 50px auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  text-align: center;
+  
+  /* Ensure transitions happen smoothly */
+  transition: background-color 0.3s, color 0.3s;
 }
 
-h1 {
-  font-size: 2rem;
-  font-family: "Google Sans", roboto, "Noto Sans Myanmar UI", "Noto Sans Khmer",
-    arial, sans-serif;
+/* Header Text */
+.input-container h1, 
+.input-container h2 {
+  color: var(--text-primary) !important;
+  margin-bottom: 25px;
 }
 
-.form-floating {
-  width: 50%; /* Makes the input area take up half the container */
-  margin-top: 2rem; /* Adjust this to align vertically with H1 */
+/* Toggle Buttons */
+.btn-dark-outline {
+  background-color: transparent;
+  /* Use the main text color (White in Dark Mode, Black in Light Mode) */
+  color: var(--text-primary) !important; 
+  border: 1px solid var(--border-color) !important;
+  
+  /* Make it 50% transparent to show it is "inactive" */
+  opacity: 0.5; 
+  transition: all 0.3s ease;
+}
+.btn-dark-outline:hover {
+  opacity: 1;
+  background-color: var(--bg-hover);
+  border-color: var(--text-primary) !important;
+}
+/* Force Input Fields to follow theme */
+.form-control {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--input-border) !important;
+}
+
+.form-control:focus {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--accent-color) !important;
+  box-shadow: none !important;
+}
+
+.form-control::placeholder {
+  color: var(--text-secondary) !important;
+}
+
+.form-label {
+  color: var(--text-secondary) !important;
+  text-align: left;
+  display: block;
 }

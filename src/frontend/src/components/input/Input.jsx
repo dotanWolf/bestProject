@@ -1,122 +1,110 @@
 import "./Input.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css"; // Keep Bootstrap
+import { useState, useRef } from "react";
 
 function Input(props) {
   const { createText, handleClick, buttonText } = props;
 
-  // State to switch between Folder creation and File upload
-  const [type, setType] = useState("folder");
+  // State
+  const [type, setType] = useState("folder"); 
   const [folderName, setFolderName] = useState("");
-  const [file, setFile] = useState(null);
+  const [fileData, setFileData] = useState(null);
+  
+  const fileInputRef = useRef(null);
 
   const handleFileUpload = (fileSelected) => {
+    if (!fileSelected) return;
+
     const reader = new FileReader();
+    const isBinary = fileSelected.type.startsWith("image/") || fileSelected.type === "application/pdf";
 
-    // This runs once the file is fully read into memory
     reader.onload = () => {
-      const base64String = reader.result; // This is the 'content' your controller wants
-
-      // Construct the JSON object exactly as your controller expects
-      const fileJson = {
+      setFileData({
         name: fileSelected.name,
         type: "file",
-        content: base64String,
-      };
-
-      setFile(fileJson);
+        content: reader.result, 
+      });
     };
 
-    // Start reading the file as a Data URL (Base64)
-    reader.readAsDataURL(fileSelected);
+    if (isBinary) {
+      reader.readAsDataURL(fileSelected); 
+    } else {
+      reader.readAsText(fileSelected); 
+    }
   };
 
   const onButtonClick = async () => {
     let dataToSend;
+
     if (type === "folder") {
       if (!folderName.trim()) return alert("Please enter a folder name");
-      dataToSend = {
-        name: folderName,
-        type: "folder",
-      };
+      dataToSend = { name: folderName, type: "folder", content: "" };
     } else {
-      // If the user clicks 'Create' but the reader isn't done yet
-      if (!file) {
-        return alert(
-          "Please select a file and wait a moment for it to process."
-        );
-      }
-      dataToSend = file; // This is the fileJson object from handleFileUpload
+      if (!fileData) return alert("Please select a file.");
+      dataToSend = fileData;
     }
 
-    const isValid = await handleClick(dataToSend);
+    const success = await handleClick(dataToSend);
 
-    if (isValid) {
+    if (success) {
       setFolderName("");
-      setFile(null);
-      // If it's a file input, we want to clear the actual HTML input too
-      // if (type === "file") {
-      //    document.getElementById('fileInput')?.value = "";
-      // }
+      setFileData(null);
+      if (fileInputRef.current) fileInputRef.current.value = ""; 
     }
   };
 
   return (
     <div className="input-container">
-      <div className="top-container">
-        <h1>{createText}</h1>
+      <h2 style={{ marginBottom: "20px", fontWeight: "bold" }}>{createText}</h2>
 
-        {/* Toggle Buttons */}
-        <div className="btn-group mb-3" role="group">
-          <button
-            type="button"
-            className={`btn ${
-              type === "folder" ? "btn-primary" : "btn-outline-primary"
-            }`}
-            onClick={() => setType("folder")}
-          >
-            New Folder
-          </button>
-          <button
-            type="button"
-            className={`btn ${
-              type === "file" ? "btn-primary" : "btn-outline-primary"
-            }`}
-            onClick={() => setType("file")}
-          >
-            Upload File
-          </button>
-        </div>
+      {/* Toggle Buttons (Bootstrap Group) */}
+      <div className="btn-group mb-4 w-100" role="group">
+        <button
+          type="button"
+          className={`btn ${type === "folder" ? "btn-primary" : "btn-dark-outline"}`}
+          onClick={() => setType("folder")}
+        >
+          New Folder
+        </button>
+        <button
+          type="button"
+          className={`btn ${type === "file" ? "btn-primary" : "btn-dark-outline"}`}
+          onClick={() => setType("file")}
+        >
+          Upload File
+        </button>
+      </div>
 
-        {/* Dynamic Input Field */}
-        <div className="form-floating mb-3">
-          {type === "folder" ? (
-            // Folder type: Text Input
-            <>
-              <input
-                type="text"
-                className="form-control"
-                id="floatingInput"
-                placeholder="Folder Name"
-                value={folderName || ""}
-                onChange={(e) => setFolderName(e.target.value)}
-              />
-              <label htmlFor="floatingInput">Folder Name</label>
-            </>
-          ) : (
-            // File type: File Input
+      {/* Inputs (Bootstrap form-control overridden by CSS) */}
+      <div className="form-group mb-4">
+        {type === "folder" ? (
+          <>
+            <label className="form-label">Folder Name</label>
+            <input
+              type="text"
+              className="form-control dark-input"
+              placeholder="e.g. My Documents"
+              value={folderName}
+              onChange={(e) => setFolderName(e.target.value)}
+            />
+          </>
+        ) : (
+          <>
+            <label className="form-label">Select File</label>
             <input
               type="file"
-              className="form-control"
+              className="form-control dark-input"
+              ref={fileInputRef}
               onChange={(e) => handleFileUpload(e.target.files[0])}
             />
-          )}
-        </div>
+          </>
+        )}
       </div>
 
       <button
         type="button"
-        className={`btn ${buttonText ? "btn-danger" : "btn-success"}`}
+        className={`btn w-100 py-2 ${buttonText ? "btn-danger" : "btn-success"}`}
+        style={{ fontWeight: "600" }}
         onClick={onButtonClick}
       >
         {buttonText || (type === "folder" ? "Create Folder" : "Upload File")}

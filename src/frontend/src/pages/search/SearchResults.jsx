@@ -15,7 +15,7 @@ function SearchResults() {
     try {
       const response = await fetch(`http://localhost:8080/api/search/${encodeURIComponent(term)}`, {
         method: 'GET',
-        headers: { 'id': '1', 'Content-Type': 'application/json' }
+        headers: { 'id': localStorage.getItem("userId"), 'Content-Type': 'application/json' }
       });
       if (!response.ok) { setResults([]); return; }
       const data = await response.json();
