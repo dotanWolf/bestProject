@@ -1,13 +1,19 @@
-#root {
-  display: flex;
-  justify-content: center; /* Evenly splits the 30% width (15% left, 15% right) */
-  align-items: flex-start;
-
-  width: 100%;
-  height: 100vh;
-  background-color: #f0f4f9; /* Optional: to see the layout */
+:root {
+  /* Light Mode */
+  --bg-main: #ffffff;
+  --bg-card: #f8f9fa;
+  --bg-hover: #f1f3f4;
+  --text-primary: #202124;
+  --text-secondary: #5f6368;
+  --border-color: #dadce0;
 }
 
-body {
-  margin: 0; /* Remove default browser spacing */
+.dark-mode {
+  /* Dark Mode */
+  --bg-main: #121212;
+  --bg-card: #1e1e1e;
+  --bg-hover: #2d2d2d;
+  --text-primary: #e8eaed;
+  --text-secondary: #9aa0a6;
+  --border-color: #3c4043;
 }

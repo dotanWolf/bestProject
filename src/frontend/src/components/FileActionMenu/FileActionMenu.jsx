@@ -1,93 +1,134 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useFileActions } from '../../hooks/useFileActions';
 
-const FileActionMenu = ({ file, refreshFiles }) => {
+const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const { moveToTrash, deleteFile, toggleStar } = useFileActions(refreshFiles);
 
-  const toggleMenu = (e) => {
-    e.stopPropagation(); // Prevent opening the file when clicking the menu
-    setIsOpen(!isOpen);
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  // Handle the primary action (Open or Edit)
+  const handleOpen = () => {
+    if (file.type === 'folder') {
+       onNavigate(file); // Call the function passed from MainPage
+    } else {
+       navigate(`/update/${file.id}`); // Navigate to Edit page
+    }
+    setIsOpen(false);
+  };
+
+  const handleDelete = async () => {
+     if(!window.confirm("Move to trash?")) return;
+     
+     const userId = localStorage.getItem("userId");
+     const token = localStorage.getItem("token");
+
+     try {
+       await fetch(`http://localhost:8080/api/files/${file.id}`, {
+         method: 'PATCH',
+         headers: { 
+            'Content-Type': 'application/json',
+            'userid': userId, 
+            'token': token 
+         },
+         body: JSON.stringify({ isTrashed: true })
+       });
+       refreshFiles(); // Refresh list after delete
+     } catch(err) {
+       console.error(err);
+     }
+  };
+  const handleStarred = async () => {
+    if(!window.confirm("Move to Starred?")) return;
+     
+     const userId = localStorage.getItem("userId");
+     const token = localStorage.getItem("token");
+
+     try {
+       await fetch(`http://localhost:8080/api/files/${file.id}`, {
+         method: 'PATCH',
+         headers: { 
+            'Content-Type': 'application/json',
+            'userid': userId, 
+            'token': token 
+         },
+         body: JSON.stringify({ isStarred: true })
+       });
+       refreshFiles();
+     } catch(err) {
+       console.error(err);
+     }
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      {/* 3 Dots Button */}
+    <div className="menu-container" style={{ position: 'relative' }}>
       <button 
-        onClick={toggleMenu}
-        style={{
-          background: 'transparent',
-          border: 'none',
-          color: 'white',
-          fontSize: '20px',
-          cursor: 'pointer',
-          padding: '0 10px'
+        onClick={toggleMenu} 
+        className="menu-trigger"
+        style={{ 
+           background: 'transparent', 
+           border: 'none', 
+           color: 'var(--text-secondary)', 
+           fontSize: '1.2rem', 
+           cursor: 'pointer' 
         }}
       >
-        &#8942;
+        ⋮
       </button>
-
+      
       {isOpen && (
-        <div style={{
-          position: 'absolute',
-          right: 0,
-          top: '100%',
-          backgroundColor: '#333',
-          border: '1px solid #555',
-          borderRadius: '5px',
-          zIndex: 100,
-          display: 'flex',
-          flexDirection: 'column',
-          minWidth: '120px',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+        <div className="menu-dropdown" style={{
+           position: 'absolute',
+           right: 0,
+           top: '30px',
+           backgroundColor: 'var(--bg-card)',
+           border: '1px solid var(--border-color)',
+           borderRadius: '8px',
+           padding: '5px',
+           zIndex: 100,
+           minWidth: '150px',
+           boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
         }}>
-          {/* Edit / Update */}
+          
+          {/* 1. DYNAMIC OPEN BUTTON */}
           <button 
-            onClick={(e) => { e.stopPropagation(); navigate(`/update/${file.id}`); }}
-            style={menuItemStyle}
+             onClick={handleOpen} 
+             className="menu-item"
+             style={menuItemStyle}
           >
-            ✏️ Edit
+             {file.type === 'folder' ? '📂 Open' : '✏️ Edit'}
           </button>
 
-          {/* Star */}
-          <button 
-            onClick={(e) => { e.stopPropagation(); toggleStar(file); setIsOpen(false); }}
-            style={menuItemStyle}
-          >
-            ⭐ Star
+          {/* 2. STAR BUTTON (Placeholder) */}
+          <button  onClick={handleStarred} className="menu-item" style={menuItemStyle}>
+             ⭐ Star
           </button>
 
-          {/* Move to Trash */}
+          {/* 3. TRASH BUTTON */}
           <button 
-            onClick={(e) => { e.stopPropagation(); moveToTrash(file); setIsOpen(false); }}
-            style={{ ...menuItemStyle, color: '#ff6b6b' }}
+             onClick={handleDelete} 
+             className="menu-item" 
+             style={{ ...menuItemStyle, color: '#d93025' }}
           >
-            🗑️ Trash
+             🗑️ Trash
           </button>
         </div>
-      )}
-      
-      {/* Invisible overlay to close menu when clicking outside */}
-      {isOpen && (
-        <div 
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99 }} 
-          onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-        />
       )}
     </div>
   );
 };
 
+// Simple inline style helper for menu items
 const menuItemStyle = {
-  background: 'transparent',
-  border: 'none',
-  color: 'white',
-  padding: '10px',
+  display: 'block',
+  width: '100%',
   textAlign: 'left',
+  padding: '8px 12px',
+  background: 'none',
+  border: 'none',
+  color: 'var(--text-primary)',
   cursor: 'pointer',
-  borderBottom: '1px solid #444'
+  fontSize: '14px'
 };
 
 export default FileActionMenu;

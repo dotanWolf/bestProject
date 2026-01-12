@@ -27,12 +27,10 @@ function TopBar({ isDarkMode, toggleTheme, user }) {
     }
   };
 
-  console.log(user);
-
   return (
     <div className="topbar">
       {/* Left: Logo (Clicking goes Home) */}
-      <Link to="/" className="topbar-left" style={{ textDecoration: "none" }}>
+      <Link to="/my-drive" className="topbar-left" style={{ textDecoration: "none" }}>
         <div
           style={{
             display: "flex",
@@ -70,6 +68,7 @@ function TopBar({ isDarkMode, toggleTheme, user }) {
         </div>
       </div>
 
+      {/* Right: Icons & User Profile */}
       <div className="topbar-right">
         <button
           className="icon-btn"
@@ -87,21 +86,40 @@ function TopBar({ isDarkMode, toggleTheme, user }) {
         <button className="icon-btn" title="Google Apps">
           <IoApps size={24} />
         </button>
-        <div style={{ display: "flex" }}>
+
+        {/* User Profile Logic */}
+        <div style={{ display: "flex", alignItems: "center", marginLeft: "10px", gap: "15px" }}>
           {user ? (
             <img
               src={user.profileImage}
-              style={{ maxWidth: "40px", maxHeight: "40px" }}
-            ></img>
+              alt="Profile"
+              title={user.username}
+              style={{
+                width: "35px",
+                height: "35px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                cursor: "pointer",
+                border: "2px solid var(--text-color)"
+              }}
+            />
           ) : (
-            <>
-              <Link to="/signup" title="Sign Up">
+            <div style={{ display: 'flex', gap: '10px', fontSize: '14px' }}>
+              <Link 
+                to="/signup" 
+                title="Sign Up" 
+                style={{ color: 'var(--text-color)', textDecoration: 'none', fontWeight: '500' }}
+              >
                 Sign Up
               </Link>
-              <Link to="/login" title="Login">
+              <Link 
+                to="/login" 
+                title="Login" 
+                style={{ color: 'var(--text-color)', textDecoration: 'none', fontWeight: '500' }}
+              >
                 Login
               </Link>
-            </>
+            </div>
           )}
         </div>
       </div>

@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import './Trash.css';
 
-const Trash = () => {
-  const [trashedFiles, setTrashedFiles] = useState([]);
+const Starred = () => {
+  const [starredFiles, setStarredFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // 1. Fetch Trashed Files
-  const fetchTrashedFiles = async () => {
+  // 1. Fetch Starred Files
+  const fetchStarredFiles = async () => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
-
+    console.log("Fetching starred files for user:", userId);
     try {
-      // FIX: Point to the specific trash endpoint
-      const response = await fetch(`http://localhost:8080/api/files/trash`, {
+      // FIX: Point to the specific starred endpoint
+      const response = await fetch(`http://localhost:8080/api/files/starred`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -22,10 +20,11 @@ const Trash = () => {
       });
 
       if (response.ok) {
-        const trashFiles = await response.json();
-        //console.log("Trash Files fetched:", trashFiles);
+        const starredFiles = await response.json();
+        //console.log("Starred Files fetched:", starredFiles);
         // Backend now handles filtering, so we just set state
-        setTrashedFiles(trashFiles);
+        setStarredFiles(starredFiles);
+        
       } else {
         console.error("Failed to fetch files");
       }
@@ -36,8 +35,8 @@ const Trash = () => {
     }
   };
 
-  // 2. Restore File Logic
-  const handleRestore = async (file) => {
+  // 2. Unstar File Logic
+  /*const unStarred = async (file) => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
 
@@ -60,47 +59,21 @@ const Trash = () => {
     } catch (error) {
       console.error("Error restoring file:", error);
     }
-  };
-
-  // 3. Delete Forever Logic
-  const handleDeleteForever = async (file) => {
-    if (!window.confirm(`Permanently delete "${file.name}"?`)) return;
-
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
-
-    try {
-      const response = await fetch(`http://localhost:8080/api/files/${file.id}`, {
-        method: 'DELETE',
-        headers: {
-          'userid': userId,
-          'token': token
-        }
-      });
-
-      if (response.ok || response.status === 204) {
-        fetchTrashedFiles();
-      } else {
-        alert("Failed to delete file");
-      }
-    } catch (error) {
-      console.error("Error deleting file:", error);
-    }
-  };
+  };*/
 
   useEffect(() => {
-    fetchTrashedFiles();
+    fetchStarredFiles();
   }, []);
 
   if (isLoading) return <div className="trash-page-container">Loading...</div>;
 
-  if (trashedFiles.length === 0) {
+  if (starredFiles.length === 0) {
     return (
       <div className="trash-page-container">
         <div className="trash-empty-wrapper"> 
           <div className="trash-empty-state">
-            <h2 className="trash-heading">Trash is empty</h2>
-            <p className="trash-subtext">Items moved to the trash will be permanently deleted after 30 days.</p>
+            <h2 className="trash-heading">Starred is empty</h2>
+            <p className="trash-subtext"> No starred files yet.⭐</p>
           </div>
         </div>
       </div>
@@ -111,28 +84,16 @@ const Trash = () => {
     <div className="trash-page-container" style={{ backgroundColor: "var(--bg-main)" }}>
       <div className="trash-header">
         <h2 className="trash-heading" style={{ color: "var(--text-primary)" }}>
-            Trash ({trashedFiles.length})
+            Starred ({starredFiles.length})
         </h2>
-        <button className="btn-empty-trash" style={{ borderColor: "var(--border-color)", color: "var(--text-primary)" }}>
-            Empty Trash
-        </button>
       </div>
       
       <div className="trash-list">
-        {trashedFiles.map((file) => (
+        {starredFiles.map((file) => (
           <div key={file.id} className="trash-item" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
             <div className="trash-item-info" style={{ color: "var(--text-primary)" }}>
               <span className="trash-icon">{file.type === 'folder' ? '📁' : '📄'}</span>
               <span className="trash-name">{file.name}</span>
-            </div>
-            
-            <div className="trash-actions">
-              <button className="btn-action restore" onClick={() => handleRestore(file)} title="Restore">
-                 ♻️
-              </button>
-              <button className="btn-action delete" onClick={() => handleDeleteForever(file)} title="Delete Forever">
-                 🗑️
-              </button>
             </div>
           </div>
         ))}
@@ -141,4 +102,4 @@ const Trash = () => {
   );
 };
 
-export default Trash;
+export default Starred;
