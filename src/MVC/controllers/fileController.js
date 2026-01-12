@@ -40,7 +40,25 @@ const getTrashEntries = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+const getStarredEntries = async (req, res) => {
+    const userId = req.get('userid'); // Lowercase check
+    
+    if (!userId) {
+        console.log("HOW COME NO USER ID?");
+        return res.status(400).json({ error: "User ID required" });
+    }
 
+    try {
+        // Call the service method we fixed earlier
+        // This fetches ALL files (root + subfolders) that are starred
+        const files = FileService.getEntriesForStarred(userId, true);
+        
+        return res.status(200).json(files);
+    } catch (error) {
+        console.error("Error in getStarredEntries:", error);
+        return res.status(500).json({ error: error.message });
+    }
+};
 const createEntry = async (req, res) => {
     const userId = req.headers.userid; 
     const token = req.headers.token;
@@ -179,6 +197,7 @@ const deletePermission = (req, res) => {
 module.exports = {
     getAllEntries,
     getTrashEntries,
+    getStarredEntries,
     createEntry,
     getEntry,
     updateEntry,

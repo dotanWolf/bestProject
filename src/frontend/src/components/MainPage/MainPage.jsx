@@ -9,6 +9,7 @@ import Input from "../input/Input";
 import Trash from "../Trash/Trash.jsx";
 import MyDrive from "../MyDrive/MyDrive.jsx"; 
 import Update from "../../pages/Update/update.jsx";
+import Starred from "../Starred/Starred.jsx";
 
 const RecentPlaceholder = () => (
   <div style={{ padding: "40px", color: "white" }}>
@@ -16,11 +17,6 @@ const RecentPlaceholder = () => (
   </div>
 );
 
-const Starred = () => (
-  <div style={{ padding: "40px", color: "white" }}>
-    <h1 style={{ fontSize: '1.8rem', fontWeight: '500' }}>Starred Files</h1>
-  </div>
-);
 
 function MainPage() {
   const navigate = useNavigate();
@@ -124,11 +120,7 @@ function MainPage() {
             <Route path="/trash" element={<Trash />} />
             <Route path="/search/:query" element={<SearchResults />} />
             <Route path="/search" element={<SearchResults />} />
-            <Route path="/create" element={
-                <div style={{ padding: "40px" }}> 
-                    <Input createText="Create New Item" handleClick={handleCreate} /> 
-                </div>
-            } />
+            <Route path="/create" element={ <div style={{ padding: "40px" }}> <Input createText="Create New Item" handleClick={handleCreate} />  </div> } />
             <Route path="/update/:id" element={<Update />} />
           </Routes>
         </div>
