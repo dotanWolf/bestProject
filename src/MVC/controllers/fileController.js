@@ -51,22 +51,16 @@ const getTrashEntries = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
-const getStarredEntries = async (req, res) => {
+const getStarredEntries = (req, res) => {
   const userId = req.user.userId;
 
-  if (!userId) {
-    return res.status(400).json({ error: "User ID required" });
-  }
+  if (!userId) return res.status(400).json({ error: "user id required" });
 
   try {
-    // Call the service method we fixed earlier
-    // This fetches ALL files (root + subfolders) that are starred
     const files = FileService.getEntriesForStarred(userId, true);
-
     return res.status(200).json(files);
   } catch (error) {
-    console.error("Error in getStarredEntries:", error);
-    return res.status(500).json({ error: error.message });
+    return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 const getRecentEntries = async (req, res) => {
@@ -193,25 +187,26 @@ const createPermissions = (req, res) => {
 const updatePermisssion = (req, res) => {
   const fileId = req.params.id;
   const permId = req.params.pId;
-  const userId = req.headers.userid;
+  
+  const userId = req.headers.userid; 
+
   if (!userId) return res.status(400).json({ error: "user id required" });
-  if (!req.body)
-    return res
-      .status(400)
-      .json({ error: "must provide a json with permission fields" });
+  if (!req.body) return res.status(400).json({ error: "must provide a json with updates" });
+
   try {
-    PermissionsService.updatePermission(fileId, permId, req.body, userId);
-    return res.status(200).end();
+    const updatedPermission = PermissionsService.updatePermission(fileId, permId, req.body, userId);
+    return res.status(200).json(updatedPermission);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
-
 const deletePermission = (req, res) => {
   const fileId = req.params.id;
   const permId = req.params.pId;
-  const userId = req.headers.userid;
+  const userId = req.headers.userid; 
+
   if (!userId) return res.status(400).json({ error: "user id required" });
+
   try {
     PermissionsService.deletePermission(fileId, permId, userId);
     return res.status(204).end();
@@ -224,7 +219,7 @@ const getFilesWithPermissions = (req, res) => {
   const userId = req.user.userId;
   if (!userId) return res.status(400).json({ error: "user id required" });
   try {
-    const files = PermissionsService.getFilesWithPermissions(userId);
+    const files = FileService.getSharedEntries(userId);
     return res.status(200).json(files);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
