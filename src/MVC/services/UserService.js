@@ -3,6 +3,17 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 class UserService {
+    getUserByEmail(email) {
+        const user = userRepository.findByEmail(email)
+        if (!user) {
+            const error = new Error("user not found")
+            error.statusCode = 404
+            throw error
+        }
+        return user.id
+    }
+
+    
     createUser(userData) {
         // Validate user data
         const validationErrors = User.validate(userData);

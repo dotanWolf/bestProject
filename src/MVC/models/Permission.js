@@ -1,9 +1,10 @@
 class Permission {
-  constructor({ id, fileId, userId, role, createdAt }) {
+  constructor({ id, fileId, userId, role, email }) {
     this.id = id;
     this.fileId = fileId;
     this.userId = userId;
     this.role = role; // 'viewer', 'editor', 'owner', 'none'
+    this.email = email
   }
 
   static validate(permissionData) {
@@ -14,6 +15,9 @@ class Permission {
     }
     if (!permissionData.role || !['viewer', 'editor', 'owner', 'none'].includes(permissionData.role)) {
       errors.push('Role must be "viewer", "editor", "none" or "owner"');
+    }
+    if (!permissionData.email) {
+      errors.push('user emaili required')
     }
     return errors;
   }

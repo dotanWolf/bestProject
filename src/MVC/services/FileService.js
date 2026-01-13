@@ -6,7 +6,8 @@ const fileRepository = require('../repositeries/FileRepositery');
 const permissionRepository = require('../repositeries/PermissionRepositery');
 const client = require('../client');
 const File = require('../models/Entry');
-const PermissionService = require('../services/PermissionsService')
+const PermissionService = require('../services/PermissionsService');
+const UserRepositery = require('../repositeries/UserRepositery');
 
 
 class FileService {
@@ -42,11 +43,13 @@ class FileService {
             ownerId: userId
         });
 
-        // create a permmision for the owner of the file
-        // const ownerPermmision = PermissionService.createPermission(file.id, {
-        //     userId: userId,
-        //     role: "owner"
-        // }, userId)
+        const user = UserRepositery.findById(userId)
+        //create a permmision for the owner of the file
+        const ownerPermmision = PermissionService.createPermission(file.id, {
+            userId: userId,
+            role: "owner",
+            email: user.email
+        }, userId)
 
         // If it's a file (not folder), save to cpp server
         if (file.isFile()) {

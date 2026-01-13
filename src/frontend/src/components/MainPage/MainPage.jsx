@@ -39,6 +39,8 @@ function MainPage() {
       if (response.ok) {
         const data = await response.json();
         setUser(data);
+      } else {
+        navigate("/signup")
       }
     } catch (error) {
       console.error("Failed to fetch user:", error);

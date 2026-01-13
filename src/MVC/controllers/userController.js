@@ -33,7 +33,20 @@ const getUser = (req, res) => {
   res.status(200).json(user);
 };
 
+const getUserByEmail = (req, res) => {
+  const email = req.params.email;
+
+  var userId;
+  try {
+    userId = userService.getUserByEmail(email);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ error: error.message });
+  }
+  return res.status(200).json({ userId });
+};
+
 module.exports = {
   createNewUser,
   getUser,
+  getUserByEmail,
 };

@@ -10,5 +10,7 @@ router.route('/')
 router.route('/:id')
     .get(tokenController.authenticateToken, userController.getUser);// ותנת את הפרטים של המשתמש עם המזהה id:( שם, תמונה וכו׳(
 // - עליכם להבין בעצמכם אילו שדות אמורים להיות ל user
+router.route('/email/:email')
+    .get(userController.getUserByEmail)
     
 module.exports = router

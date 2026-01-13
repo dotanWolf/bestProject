@@ -23,6 +23,7 @@ class PermissionService {
       error.statusCode = 403;
       throw error;
     }
+    console.log(permissionRepository.permissions)
     return permissionRepository.findByFileId(fileId);
   }
 

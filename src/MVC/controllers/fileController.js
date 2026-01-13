@@ -144,7 +144,7 @@ const deleteEntry = async (req, res) => {
 
 const getPermissions = (req, res) => {
     const fileId = req.params.id;
-    const userId = req.headers.userid; 
+    const userId = req.user.userId; 
 
     if (!userId)
         return res.status(400).json({error: "user id required"});
@@ -159,7 +159,7 @@ const getPermissions = (req, res) => {
 
 const createPermissions = (req, res) => {
     const fileId = req.params.id;
-    const userId = req.headers.userid; 
+    const userId = req.user.userId; 
     
     if (!userId)
         return res.status(400).json({error: "user id required"});

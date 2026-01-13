@@ -14,12 +14,12 @@ router.route('/')
 
 router.route('/:id')
     .get(tokenController.authenticateToken, fileController.getEntry) // נותנת את הפרטים של הקובץ/תיקייה שהמזהה שלו זה id
-    .patch(fileController.updateEntry) // עורכת קובץ/תיקייה קיים id
-    .delete(fileController.deleteEntry) // מוחקת קובץ/תיקייה קיים id:
+    .patch(tokenController.authenticateToken, fileController.updateEntry) // עורכת קובץ/תיקייה קיים id
+    .delete(tokenController.authenticateToken, fileController.deleteEntry) // מוחקת קובץ/תיקייה קיים id:
 
 router.route('/:id/permissions')
-    .get(fileController.getPermissions) // נותנת את ההרשאות של הקובץ/תיקייה שהמזהה שלו זה id
-    .post(fileController.createPermissions) // יוצרת הרשאות עבור הקובץ/תיקייה שהמזהה שלו הוא id
+    .get(tokenController.authenticateToken, fileController.getPermissions) // נותנת את ההרשאות של הקובץ/תיקייה שהמזהה שלו זה id
+    .post(tokenController.authenticateToken, fileController.createPermissions) // יוצרת הרשאות עבור הקובץ/תיקייה שהמזהה שלו הוא id
 
 router.route('/:id/permissions/:pId')
     .patch(fileController.updatePermisssion) // מעדכנת את ההרשאות של pId
