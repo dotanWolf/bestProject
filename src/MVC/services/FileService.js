@@ -234,5 +234,9 @@ class FileService {
         const allFiles = fileRepository.findByOwnerId(userId); 
         return allFiles.filter(file => file.isStarred === isStarred && !file.isTrashed);
     }
+    getRecentFiles(userId) {
+    const recentEntries = fileRepository.getRecentEntries(userId);
+    return recentEntries.filter(file => !file.isTrashed);
+}
 }
 module.exports = new FileService();

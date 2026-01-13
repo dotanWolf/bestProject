@@ -79,6 +79,7 @@ function MainPage() {
           content: dataToSend.content || "",
           parentId: currentFolderId,
           isTrashed: false,
+          isStarred: false,
         }),
       });
 
