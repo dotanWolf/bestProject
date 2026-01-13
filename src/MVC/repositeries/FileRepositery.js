@@ -8,8 +8,14 @@ class FileRepository {
 
     create(fileData) {
         const file = new File({
-            id: crypto.randomUUID(),
-            ...fileData
+        id: crypto.randomUUID(),
+            name: fileData.name,
+            type: fileData.type,
+            ownerId: fileData.ownerId,
+            parentId: fileData.parentId,
+            content: fileData.content,
+            isTrashed: fileData.isTrashed || false,
+            isStarred: fileData.isStarred || false,
         });
         this.files.set(file.id, file);
         return file;
@@ -26,6 +32,12 @@ class FileRepository {
     findByOwnerId(ownerId) {
         const files = Array.from(this.files.values());
         return files.filter(file => file.ownerId === ownerId);
+    }
+    getRecentEntries(ownerId) {
+    const files = Array.from(this.files.values());
+        return files .filter(e => e.ownerId === ownerId && !e.isTrashed)
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)) 
+        .slice(0, 10);
     }
 
     findByOwnerAndParent(ownerId, parentId) {
@@ -98,6 +110,7 @@ class FileRepository {
             this.delete(child.id);
         });
     }
+  
 }
 
 // Singleton pattern

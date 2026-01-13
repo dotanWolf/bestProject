@@ -16,7 +16,7 @@ function Create() {
     }
 
     const url = "http://localhost:8080/api/files"; 
-    
+    console.log("Creating item with data:", dataToSend);
     // 2. Uniform Headers: Always send JSON
     const headers = {
       'Authorization': `Bearer ${token}`,
@@ -27,9 +27,10 @@ function Create() {
     const body = JSON.stringify({ 
       ...dataToSend, 
       parentId: null, 
-      isTrashed: false 
+      isTrashed: false,
+      //createdAt: new Date().toISOString(),
+      //updatedAt: new Date().toISOString()
     });
-
     try {
       const response = await fetch(url, {
         method: 'POST',

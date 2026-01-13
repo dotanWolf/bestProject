@@ -1,120 +1,155 @@
-/* Modal Overlay - Centered and dim */
+:root {
+  --modal-bg: #ffffff;
+  --modal-text: #202124;
+  --overlay-color: rgba(0, 0, 0, 0.7);
+  --input-bg: #f1f3f4;
+  --border-color: #dadce0;
+}
+
+[data-theme="dark"] {
+  --modal-bg: #2d2e31;
+  --modal-text: #e8eaed;
+  --overlay-color: rgba(0, 0, 0, 0.85);
+  --input-bg: #1e1e1e;
+  --border-color: #3c4043;
+}
+
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6); /* Slightly darker for better focus */
+  inset: 0;
+  background: var(--overlay-color);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  backdrop-filter: blur(2px); /* Modern frosted glass effect */
+  z-index: 10000;
 }
 
-/* Modal Box - Clean and elevated */
 .modal-content {
-  background-color: var(--bg-card, #ffffff);
-  color: var(--text-primary, #202124);
+  background: var(--modal-bg);
+  color: var(--modal-text);
   padding: 32px;
+  width: 500px; /* רוחב קבוע כדי שלא יימרח */
+  max-width: 90%;
   border-radius: 16px;
-  width: 90%; /* Responsive width */
-  max-width: 500px; /* Fixed max-width */
-  min-height: 400px;
-  max-height: 80vh; /* Don't exceed screen height */
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  overflow: hidden; /* Contains the children */
+  box-shadow: 0 24px 38px 3px rgba(0,0,0,0.4);
+  position: relative;
+  animation: modalPop 0.2s ease-out;
 }
 
-/* Header Styling */
+@keyframes modalPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 .modal-header {
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin-bottom: 20px;
-  align-self: flex-start;
-  width: 100%;
-}
-
-/* Input Section - Styled as a cohesive group */
-.share-input-group {
   display: flex;
-  width: 100%;
-  gap: 10px;
+  justify-content: space-between;
   margin-bottom: 24px;
 }
 
-input.share-input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid var(--border-color, #dadce0);
+.header-close-x {
+  background: transparent;
+  border: none;
+  font-size: 32px;
+  color: var(--modal-text);
+  cursor: pointer;
+  line-height: 0.5;
+}
+
+.input-group-pill {
+  display: flex;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: transparent;
-  color: inherit;
-  font-size: 14px;
-  transition: border-color 0.2s;
-}
-
-input.share-input:focus {
-  outline: none;
-  border-color: #1a73e8; /* Blue focus color */
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
-}
-
-/* Scrollable User List */
-.user-list-label {
-  font-size: 1rem;
-  font-weight: 500;
+  padding: 8px 16px;
   margin-bottom: 12px;
-  align-self: flex-start;
 }
 
-.user-list {
-  flex: 1; /* Takes up remaining space */
-  width: 100%;
-  overflow-y: auto; /* Scroll if list is long */
-  padding-right: 8px;
-  margin-bottom: 20px;
+.modern-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: inherit;
+  outline: none;
+  font-size: 15px;
 }
 
-/* Buttons */
-.btn-done, .btn-close {
-  padding: 10px 24px;
-  border-radius: 20px; /* Pill shape */
+.role-select-minimal {
+  border: none;
+  background: transparent;
+  color: #1a73e8;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-  border: none;
 }
 
-.btn-done {
-  background-color: #1a73e8;
+.btn-primary-google {
+  align-self: flex-end;
+  background: #1a73e8;
   color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 30px;
 }
 
-.btn-done:hover {
-  background-color: #1765cc;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+.access-section h3 {
+  font-size: 14px;
+  margin-bottom: 16px;
+  font-weight: 500;
+  color: var(--modal-text);
 }
 
-.btn-close {
-  background-color: transparent;
-  border: 1px solid var(--border-color, #dadce0);
-  color: var(--text-primary);
-  align-self: flex-end; /* Align to the right */
+.scroll-container {
+  max-height: 250px;
+  overflow-y: auto;
 }
 
-.btn-close:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+.user-row-modern {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
 }
 
-/* Scrollbar Styling for user-list */
-.user-list::-webkit-scrollbar {
-  width: 6px;
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: #7b1fa2;
+  color: white;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
 }
-.user-list::-webkit-scrollbar-thumb {
-  background: #dadce0;
-  border-radius: 10px;
+
+.user-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-email-text { font-size: 14px; font-weight: 500; }
+.user-role-sub { font-size: 12px; opacity: 0.7; text-transform: capitalize; }
+
+.role-dropdown-simple {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.remove-opt { color: #d93025; }
+
+.readonly-banner {
+  background: rgba(128, 128, 128, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 20px;
 }

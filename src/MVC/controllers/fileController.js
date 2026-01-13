@@ -69,6 +69,19 @@ const getStarredEntries = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+const getRecentEntries = async (req, res) => {
+  const userId = req.user.userId;
+  if (!userId) {
+    return res.status(400).json({ error: "User ID required" });
+  }
+  try {
+    const files = FileService.getRecentFiles(userId);
+    return res.status(200).json(files);
+  } catch (error) {
+    console.error("Error in getRecentEntries:", error);
+    return res.status(500).json({ error: error.message });
+  }
+};
 const createEntry = async (req, res) => {
   const userId = req.user.userId;
 
@@ -224,6 +237,7 @@ module.exports = {
   getFolderEntries,
   getTrashEntries,
   getStarredEntries,
+  getRecentEntries,
   createEntry,
   getEntry,
   updateEntry,

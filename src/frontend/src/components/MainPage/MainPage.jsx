@@ -11,11 +11,7 @@ import MyDrive from "../MyDrive/MyDrive.jsx";
 import Update from "../../pages/Update/update.jsx";
 import Starred from "../Starred/Starred.jsx";
 import SharedItems from '../SharedItems/SharedItems.jsx'
-const RecentPlaceholder = () => (
-  <div style={{ padding: "40px", color: "white" }}>
-    <h1 style={{ fontSize: "1.8rem", fontWeight: "500" }}>Recent Files</h1>
-  </div>
-);
+import Recent from "../Recent/Recent.jsx";
 
 function MainPage() {
   const navigate = useNavigate();
@@ -79,6 +75,7 @@ function MainPage() {
           content: dataToSend.content || "",
           parentId: currentFolderId,
           isTrashed: false,
+          isStarred: false,
         }),
       });
 
@@ -148,7 +145,7 @@ function MainPage() {
           <Routes>
             {/* <Route path="/" element={<MyDrive />} /> */}
             <Route path="/my-drive" element={<MyDrive setFolderIdInMainPage = {setFolderIdInMainPage} />} />
-            <Route path="/recent" element={<RecentPlaceholder />} />
+            <Route path="/recent" element={<Recent />} />
             <Route path="/starred" element={<Starred />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="/search/:query" element={<SearchResults />} />

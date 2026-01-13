@@ -1,5 +1,6 @@
 class Entry {
-  constructor({ id, name, type, ownerId, parentId, content, isTrashed = false, isStarred = false }) {
+  constructor({ id, name, type, ownerId, parentId, content, isTrashed = false, isStarred = false, createdAt, updatedAt }) {
+    const currentTime = new Date().toISOString()
     this.id = id;
     this.name = name;
     this.type = type; // 'file' or 'folder'
@@ -8,6 +9,8 @@ class Entry {
     this.content = content || null; //  for files
     this.isTrashed = isTrashed; 
     this.isStarred = isStarred; // <--- Make sure this is in constructor
+    this.createdAt = createdAt || currentTime;
+    this.updatedAt = updatedAt || currentTime;
   }
 
   toJSON() {
@@ -19,7 +22,9 @@ class Entry {
       parentId: this.parentId,
       content: this.content,
       isTrashed: this.isTrashed,
-      isStarred: this.isStarred // <--- Don't forget to return this
+      isStarred: this.isStarred, // <--- Don't forget to return this
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt
     }
   }
 
@@ -60,22 +65,28 @@ class Entry {
   isFolder() {
     return this.type === 'folder';
   }
-
+  _refreshUpdatedAt() {
+    this.updatedAt = new Date().toISOString();
+  }
   // UPDATED: Only overwrite properties if they exist in 'updates'
   updateFile(updates) {
+    let changed = false;
     if (updates.name !== undefined) this.name = updates.name;
     if (updates.content !== undefined) this.content = updates.content;
     if (updates.parentId !== undefined) this.parentId = updates.parentId;
     if (updates.isTrashed !== undefined) this.isTrashed = updates.isTrashed;
     if (updates.isStarred !== undefined) this.isStarred = updates.isStarred;
+    if (changed) this._refreshUpdatedAt();
   }
 
   // UPDATED: Only overwrite properties if they exist in 'updates'
   updateFolder(updates) {
+    let changed = false;
     if (updates.name !== undefined) this.name = updates.name;
     if (updates.parentId !== undefined) this.parentId = updates.parentId;
     if (updates.isTrashed !== undefined) this.isTrashed = updates.isTrashed;
     if (updates.isStarred !== undefined) this.isStarred = updates.isStarred;
+    if (changed) this._refreshUpdatedAt();
   }
 }
 

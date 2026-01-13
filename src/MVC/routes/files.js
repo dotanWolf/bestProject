@@ -9,6 +9,8 @@ router.route('/trash')
     .get(tokenController.authenticateToken, fileController.getTrashEntries);
 router.route('/starred')
     .get(tokenController.authenticateToken, fileController.getStarredEntries);
+router.route('/recent')
+    .get(tokenController.authenticateToken, fileController.getRecentEntries);
 
 router.route('/')
     .get(tokenController.authenticateToken, fileController.getRootEntries) // תחזיר את רשימת כל הקבצים והתיקיות של המשתמש ברמה העליונה ביותר
