@@ -1,28 +1,120 @@
-/* Modal Overlay */
+/* Modal Overlay - Centered and dim */
 .modal-overlay {
-  position: fixed; /* Relative to the browser window */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6); /* Slightly darker for better focus */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* Higher than everything else */
+  z-index: 9999;
+  backdrop-filter: blur(2px); /* Modern frosted glass effect */
 }
 
-/* Modal Box */
+/* Modal Box - Clean and elevated */
 .modal-content {
-  background-color: var(--bg-main);
-  color: var(--text-primary);
-  padding: 24px;
-  border-radius: 12px;
-  width: 50%;
-  height: 50%;
-  max-width: 500;
+  background-color: var(--bg-card, #ffffff);
+  color: var(--text-primary, #202124);
+  padding: 32px;
+  border-radius: 16px;
+  width: 90%; /* Responsive width */
+  max-width: 500px; /* Fixed max-width */
+  min-height: 400px;
+  max-height: 80vh; /* Don't exceed screen height */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden; /* Contains the children */
+}
+
+/* Header Styling */
+.modal-header {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  align-self: flex-start;
+  width: 100%;
+}
+
+/* Input Section - Styled as a cohesive group */
+.share-input-group {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+input.share-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color, #dadce0);
+  border-radius: 8px;
+  background-color: transparent;
+  color: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+input.share-input:focus {
+  outline: none;
+  border-color: #1a73e8; /* Blue focus color */
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+}
+
+/* Scrollable User List */
+.user-list-label {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+
+.user-list {
+  flex: 1; /* Takes up remaining space */
+  width: 100%;
+  overflow-y: auto; /* Scroll if list is long */
+  padding-right: 8px;
+  margin-bottom: 20px;
+}
+
+/* Buttons */
+.btn-done, .btn-close {
+  padding: 10px 24px;
+  border-radius: 20px; /* Pill shape */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-done {
+  background-color: #1a73e8;
+  color: white;
+}
+
+.btn-done:hover {
+  background-color: #1765cc;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.btn-close {
+  background-color: transparent;
+  border: 1px solid var(--border-color, #dadce0);
+  color: var(--text-primary);
+  align-self: flex-end; /* Align to the right */
+}
+
+.btn-close:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Scrollbar Styling for user-list */
+.user-list::-webkit-scrollbar {
+  width: 6px;
+}
+.user-list::-webkit-scrollbar-thumb {
+  background: #dadce0;
+  border-radius: 10px;
 }

@@ -84,16 +84,18 @@ function PermissionPopUp({ file, handleClose }) {
       >
         <h1 className="modal-header">Share "{file.name}"</h1>
         <div className="share-input">
-          <input
-            type="email"
-            className="share-input"
-            placeholder="Add people by email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <button onClick={handleAddPermission} className="btn-done">
-            Done
-          </button>
+          <div className="share-input-group">
+            <input
+              type="email"
+              className="share-input"
+              placeholder="Add people by email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <button onClick={handleAddPermission} className="btn-done">
+              Done
+            </button>
+          </div>
         </div>
         <h2>People With Access</h2>
 
