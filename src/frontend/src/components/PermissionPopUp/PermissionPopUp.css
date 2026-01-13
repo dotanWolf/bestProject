@@ -1,175 +1,155 @@
-/* ===============================
-   Overlay
-================================ */
+:root {
+  --modal-bg: #ffffff;
+  --modal-text: #202124;
+  --overlay-color: rgba(0, 0, 0, 0.7);
+  --input-bg: #f1f3f4;
+  --border-color: #dadce0;
+}
+
+[data-theme="dark"] {
+  --modal-bg: #2d2e31;
+  --modal-text: #e8eaed;
+  --overlay-color: rgba(0, 0, 0, 0.85);
+  --input-bg: #1e1e1e;
+  --border-color: #3c4043;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
+  background: var(--overlay-color);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 10000;
 }
 
-/* ===============================
-   Modal Container
-================================ */
 .modal-content {
-  background: #121212;
-  color: #f1f3f4;
-  padding: 28px 28px 22px;
-  width: 480px;
-  max-height: 85vh;
-  border-radius: 14px;
+  background: var(--modal-bg);
+  color: var(--modal-text);
+  padding: 32px;
+  width: 500px; /* רוחב קבוע כדי שלא יימרח */
+  max-width: 90%;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
-  font-family: "Inter", system-ui, sans-serif;
+  box-shadow: 0 24px 38px 3px rgba(0,0,0,0.4);
+  position: relative;
+  animation: modalPop 0.2s ease-out;
 }
 
-/* ===============================
-   Header
-================================ */
+@keyframes modalPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 .modal-header {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-
-/* ===============================
-   Share Input Group
-================================ */
-.share-input-group {
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
   margin-bottom: 24px;
 }
 
-.share-input {
-  flex: 1;
-  height: 42px;
-  padding: 0 14px;
-  background: #1e1e1e;
-  border: 1px solid #2d2d2d;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 14px;
-}
-
-.share-input::placeholder {
-  color: #9aa0a6;
-}
-
-.share-input:focus {
-  outline: none;
-  border-color: #1a73e8;
-}
-
-/* ===============================
-   Selects
-================================ */
-.role-select,
-.role-select-inline {
-  height: 42px;
-  padding: 0 12px;
-  border-radius: 8px;
-  background: #1e1e1e;
-  border: 1px solid #2d2d2d;
-  color: #e8eaed;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-/* ===============================
-   Primary Button
-================================ */
-.btn-done {
-  height: 42px;
-  padding: 0 18px;
-  border-radius: 8px;
-  background: #1a73e8;
+.header-close-x {
+  background: transparent;
   border: none;
-  color: #fff;
+  font-size: 32px;
+  color: var(--modal-text);
+  cursor: pointer;
+  line-height: 0.5;
+}
+
+.input-group-pill {
+  display: flex;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.modern-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: inherit;
+  outline: none;
+  font-size: 15px;
+}
+
+.role-select-minimal {
+  border: none;
+  background: transparent;
+  color: #1a73e8;
   font-weight: 500;
   cursor: pointer;
 }
 
-.btn-done:hover {
-  background: #1666cc;
+.btn-primary-google {
+  align-self: flex-end;
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 30px;
 }
 
-/* ===============================
-   Section Title
-================================ */
-.user-list-label {
-  font-size: 13px;
-  color: #9aa0a6;
-  margin-bottom: 6px;
-}
-
-/* ===============================
-   User List
-================================ */
-.user-list {
-  flex: 1;
-  overflow-y: auto;
-  border-top: 1px solid #2a2a2a;
+.access-section h3 {
+  font-size: 14px;
   margin-bottom: 16px;
+  font-weight: 500;
+  color: var(--modal-text);
 }
 
-/* ===============================
-   User Row
-================================ */
-.user-permission-row {
+.scroll-container {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.user-row-modern {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.user-info {
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: #7b1fa2;
+  color: white;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+}
+
+.user-details {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.user-email {
-  font-size: 14px;
-  font-weight: 500;
-  color: #e8eaed;
-}
+.user-email-text { font-size: 14px; font-weight: 500; }
+.user-role-sub { font-size: 12px; opacity: 0.7; text-transform: capitalize; }
 
-.user-role-status {
-  font-size: 12px;
-  color: #9aa0a6;
-  text-transform: capitalize;
-}
-
-/* ===============================
-   Close Button
-================================ */
-.btn-close {
-  align-self: flex-end;
-  padding: 8px 20px;
-  border-radius: 20px;
+.role-dropdown-simple {
   background: transparent;
-  border: 1px solid #2d2d2d;
-  color: #e8eaed;
-  font-size: 13px;
+  border: none;
+  color: inherit;
   cursor: pointer;
 }
 
-.btn-close:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
+.remove-opt { color: #d93025; }
 
-/* ===============================
-   Empty State
-================================ */
-.status-msg {
-  padding: 24px;
-  font-size: 14px;
-  color: #9aa0a6;
-  text-align: center;
+.readonly-banner {
+  background: rgba(128, 128, 128, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 20px;
 }
