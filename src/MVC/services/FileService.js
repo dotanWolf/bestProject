@@ -6,7 +6,8 @@ const fileRepository = require('../repositeries/FileRepositery');
 const permissionRepository = require('../repositeries/PermissionRepositery');
 const client = require('../client');
 const File = require('../models/Entry');
-const PermissionService = require('../services/PermissionsService')
+const PermissionService = require('../services/PermissionsService');
+const UserRepositery = require('../repositeries/UserRepositery');
 
 
 class FileService {
@@ -42,11 +43,13 @@ class FileService {
             ownerId: userId
         });
 
-        // create a permmision for the owner of the file
-        // const ownerPermmision = PermissionService.createPermission(file.id, {
-        //     userId: userId,
-        //     role: "owner"
-        // }, userId)
+        const user = UserRepositery.findById(userId)
+        //create a permmision for the owner of the file
+        const ownerPermmision = PermissionService.createPermission(file.id, {
+            userId: userId,
+            role: "owner",
+            email: user.email
+        }, userId)
 
         // If it's a file (not folder), save to cpp server
         if (file.isFile()) {
@@ -85,18 +88,23 @@ class FileService {
         // Get files at root level (parentId = null) owned by user
         const ownedFiles = fileRepository.findByOwnerAndParent(userId, null);
 
-        // Also get files shared with user at root level
-        const sharedPermissions = permissionRepository.findByUserId(userId);
-        const sharedFileIds = sharedPermissions.map(p => p.fileId);
-        const sharedFiles = sharedFileIds
-            .map(id => fileRepository.findById(id))
-            .filter(file => file && file.parentId === null);
+        // // Also get files shared with user at root level
+        // const sharedPermissions = permissionRepository.findByUserId(userId);
+        // const sharedFileIds = sharedPermissions.map(p => p.fileId);
+        // const sharedFiles = sharedFileIds
+        //     .map(id => fileRepository.findById(id))
+        //     .filter(file => file && file.parentId === null);
 
-        // Combine and remove duplicates
-        const fileMap = new Map();
-        [...ownedFiles, ...sharedFiles].forEach(file => fileMap.set(file.id, file));
+        // // Combine and remove duplicates
+        // const fileMap = new Map();
+        // [...ownedFiles, ...sharedFiles].forEach(file => fileMap.set(file.id, file));
 
-        return Array.from(fileMap.values());
+        return Array.from(ownedFiles.values());
+    }
+
+    getFolderEntries(userId, parentId) {
+        const folderFiles = fileRepository.findByOwnerAndParent(userId, parentId);
+        return folderFiles
     }
 
     async updateFile(fileId, updates, userId) {

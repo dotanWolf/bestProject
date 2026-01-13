@@ -2,51 +2,60 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 
 // Import your components
-import Sidebar from "../Sidebar/Sidebar"; 
-import TopBar from "../Topbar/Topbar"; 
+import Sidebar from "../Sidebar/Sidebar";
+import TopBar from "../Topbar/Topbar";
 import SearchResults from "../../pages/search/SearchResults";
 import Input from "../input/Input";
 import Trash from "../Trash/Trash.jsx";
-import MyDrive from "../MyDrive/MyDrive.jsx"; 
+import MyDrive from "../MyDrive/MyDrive.jsx";
 import Update from "../../pages/Update/update.jsx";
 import Starred from "../Starred/Starred.jsx";
-
+import SharedItems from '../SharedItems/SharedItems.jsx'
 const RecentPlaceholder = () => (
   <div style={{ padding: "40px", color: "white" }}>
-    <h1 style={{ fontSize: '1.8rem', fontWeight: '500' }}>Recent Files</h1>
+    <h1 style={{ fontSize: "1.8rem", fontWeight: "500" }}>Recent Files</h1>
   </div>
 );
-
 
 function MainPage() {
   const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [currentFolderId, setCurrentFolderId] = useState(null)
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
+  const fetchUser = async (token, userId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/users/${userId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`, // Use Capital A and standard Bearer casing
+          },
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+      } else {
+        navigate("/signup")
+      }
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+    } finally {
+      setLoadingUser(false);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId"); 
+    const userId = localStorage.getItem("userId");
 
     if (token && userId) {
-      const fetchUser = async () => {
-        try {
-          const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
-             headers: { 'userid': userId, 'token': token }
-          });
-          if (response.ok) {
-            const data = await response.json();
-            setUser(data); 
-          }
-        } catch (error) {
-          console.error("Failed to fetch user:", error);
-        } finally {
-          setLoadingUser(false);
-        }
-      };
-      fetchUser();
+      fetchUser(token, userId);
     } else {
       setLoadingUser(false);
       navigate("/login");
@@ -59,19 +68,18 @@ function MainPage() {
 
     try {
       const response = await fetch("http://localhost:8080/api/files", {
-        method: 'POST',
-        headers: { 
-          'userid': userId, 
-          'token': token,
-          'Content-Type': 'application/json'
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           name: dataToSend.name,
           type: dataToSend.type,
-          content: dataToSend.content || "", 
-          parentId: null, 
-          isTrashed: false 
-        })
+          content: dataToSend.content || "",
+          parentId: currentFolderId,
+          isTrashed: false,
+        }),
       });
 
       if (response.ok) {
@@ -88,45 +96,82 @@ function MainPage() {
     }
   };
 
+  const setFolderIdInMainPage = (folderId) => {
+    setCurrentFolderId(folderId)
+  }
+
   if (loadingUser) {
-    return <div style={{display:'flex', justifyContent:'center', marginTop:'50px', color:'white'}}>Loading App...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "50px",
+          color: "white",
+        }}
+      >
+        Loading App...
+      </div>
+    );
   }
 
   return (
-    <div 
-      id="app-container" 
+    <div
+      id="app-container"
       className={isDarkMode ? "dark-mode" : "light-mode"}
-      style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100%" }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        width: "100%",
+      }}
     >
-      <TopBar isDarkMode={isDarkMode} toggleTheme={toggleTheme} user={user || {}} />
+      <TopBar
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+        user={user || {}}
+      />
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <Sidebar />
 
-        <div style={{ 
-        flex: 1, 
-        display: "flex", 
-        flexDirection: "column", 
-        backgroundColor: "var(--bg-main)", 
-        overflowY: "auto",
-        transition: "background-color 0.3s ease"
-      }}>
-          
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            backgroundColor: "var(--bg-main)",
+            overflowY: "auto",
+            transition: "background-color 0.3s ease",
+          }}
+        >
           <Routes>
-            <Route path="/" element={<MyDrive />} />
-            <Route path="/my-drive" element={<MyDrive />} />
+            {/* <Route path="/" element={<MyDrive />} /> */}
+            <Route path="/my-drive" element={<MyDrive setFolderIdInMainPage = {setFolderIdInMainPage} />} />
             <Route path="/recent" element={<RecentPlaceholder />} />
             <Route path="/starred" element={<Starred />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="/search/:query" element={<SearchResults />} />
             <Route path="/search" element={<SearchResults />} />
-            <Route path="/create" element={ <div style={{ padding: "40px" }}> <Input createText="Create New Item" handleClick={handleCreate} />  </div> } />
+            <Route path="shared-with-me" element={<SharedItems/>}/>
+            <Route
+              path="/create"
+              element={
+                <div style={{ padding: "40px" }}>
+                  {" "}
+                  <Input
+                    createText="Create New Item"
+                    handleClick={handleCreate}
+                  />{" "}
+                </div>
+              }
+            />
             <Route path="/update/:id" element={<Update />} />
           </Routes>
         </div>
       </div>
     </div>
-  ); 
+  );
 }
 
 export default MainPage;

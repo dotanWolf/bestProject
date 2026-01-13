@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import './Trash.css';
+import React, { useState, useEffect } from "react";
+import "./Trash.css";
 
 const Trash = () => {
   const [trashedFiles, setTrashedFiles] = useState([]);
@@ -13,12 +13,9 @@ const Trash = () => {
     try {
       // FIX: Point to the specific trash endpoint
       const response = await fetch(`http://localhost:8080/api/files/trash`, {
-        method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'userid': userId,
-            'token': token
-        }
+          authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
@@ -42,15 +39,17 @@ const Trash = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(`http://localhost:8080/api/files/${file.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'userid': userId,
-          'token': token
-        },
-        body: JSON.stringify({ isTrashed: false }) 
-      });
+      const response = await fetch(
+        `http://localhost:8080/api/files/${file.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ isTrashed: false }),
+        }
+      );
 
       if (response.ok) {
         fetchTrashedFiles(); // Refresh list
@@ -70,13 +69,15 @@ const Trash = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(`http://localhost:8080/api/files/${file.id}`, {
-        method: 'DELETE',
-        headers: {
-          'userid': userId,
-          'token': token
+      const response = await fetch(
+        `http://localhost:8080/api/files/${file.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       if (response.ok || response.status === 204) {
         fetchTrashedFiles();
@@ -97,41 +98,73 @@ const Trash = () => {
   if (trashedFiles.length === 0) {
     return (
       <div className="trash-page-container">
-        <div className="trash-empty-wrapper"> 
+        <div className="trash-empty-wrapper">
           <div className="trash-empty-state">
             <h2 className="trash-heading">Trash is empty</h2>
-            <p className="trash-subtext">Items moved to the trash will be permanently deleted after 30 days.</p>
+            <p className="trash-subtext">
+              Items moved to the trash will be permanently deleted after 30
+              days.
+            </p>
           </div>
         </div>
       </div>
     );
   }
 
- return (
-    <div className="trash-page-container" style={{ backgroundColor: "var(--bg-main)" }}>
+  return (
+    <div
+      className="trash-page-container"
+      style={{ backgroundColor: "var(--bg-main)" }}
+    >
       <div className="trash-header">
         <h2 className="trash-heading" style={{ color: "var(--text-primary)" }}>
-            Trash ({trashedFiles.length})
+          Trash ({trashedFiles.length})
         </h2>
-        <button className="btn-empty-trash" style={{ borderColor: "var(--border-color)", color: "var(--text-primary)" }}>
-            Empty Trash
+        <button
+          className="btn-empty-trash"
+          style={{
+            borderColor: "var(--border-color)",
+            color: "var(--text-primary)",
+          }}
+        >
+          Empty Trash
         </button>
       </div>
-      
+
       <div className="trash-list">
         {trashedFiles.map((file) => (
-          <div key={file.id} className="trash-item" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
-            <div className="trash-item-info" style={{ color: "var(--text-primary)" }}>
-              <span className="trash-icon">{file.type === 'folder' ? '📁' : '📄'}</span>
+          <div
+            key={file.id}
+            className="trash-item"
+            style={{
+              backgroundColor: "var(--bg-card)",
+              borderColor: "var(--border-color)",
+            }}
+          >
+            <div
+              className="trash-item-info"
+              style={{ color: "var(--text-primary)" }}
+            >
+              <span className="trash-icon">
+                {file.type === "folder" ? "📁" : "📄"}
+              </span>
               <span className="trash-name">{file.name}</span>
             </div>
-            
+
             <div className="trash-actions">
-              <button className="btn-action restore" onClick={() => handleRestore(file)} title="Restore">
-                 ♻️
+              <button
+                className="btn-action restore"
+                onClick={() => handleRestore(file)}
+                title="Restore"
+              >
+                ♻️
               </button>
-              <button className="btn-action delete" onClick={() => handleDeleteForever(file)} title="Delete Forever">
-                 🗑️
+              <button
+                className="btn-action delete"
+                onClick={() => handleDeleteForever(file)}
+                title="Delete Forever"
+              >
+                🗑️
               </button>
             </div>
           </div>

@@ -4,7 +4,7 @@ const Client = require('../client')
 const FileRepository = require('../repositeries/FileRepositery')
 
 const searchFiles = async (req, res) => {
-    const userId = req.headers.id
+    const userId = req.user.userId
     if (!userId) {
         return res.status(400).json({ error: "user id required" })
     }

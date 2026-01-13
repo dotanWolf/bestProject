@@ -22,7 +22,6 @@ function ImageInput(props) {
   };
 
   const handleClick = () => {
-    console.log(previewUrl)
     props.handleClick(previewUrl)
   }
   return (

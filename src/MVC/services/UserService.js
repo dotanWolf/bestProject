@@ -3,6 +3,17 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 class UserService {
+    getUserByEmail(email) {
+        const user = userRepository.findByEmail(email)
+        if (!user) {
+            const error = new Error("user not found")
+            error.statusCode = 404
+            throw error
+        }
+        return user.id
+    }
+
+    
     createUser(userData) {
         // Validate user data
         const validationErrors = User.validate(userData);
@@ -22,19 +33,7 @@ class UserService {
         // Create user
         const newUser = userRepository.create(userData);
 
-        // --- JWT GENERATION USING .ENV ---
-        const token = jwt.sign(
-            { 
-                id: newUser.id, 
-                email: newUser.email,
-                username: newUser.username 
-            }, 
-            process.env.JWT_SECRET, // <--- Reads from .env file
-            { expiresIn: '24h' }
-        );
-
         return {
-            token: token,
             userId: newUser.id,
             username: newUser.username
         };

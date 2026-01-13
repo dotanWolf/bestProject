@@ -8,6 +8,7 @@ const search = require('./routes/search');
 const cors = require('cors');
 
 app.use(cors({
+  allowedHeaders: ['Content-Type', 'authorization'],
   exposedHeaders: ['Location'],
 }));
 app.use(express.json({ limit: '50mb' }));

@@ -13,17 +13,29 @@ function LoginPage() {
       createText: "Enter Your Email",
       type: "email",
       typeLabel: "email address",
-      buttonText: "Next",
+      rightButtonText: "Next",
+      leftButtonText: "Sign Up",
       // LOGIN: Valid only if user EXISTS
       validator: async (input) => {
-        const response = await fetch(`http://localhost:8080/api/users/${input}`);
+        const response = await fetch(
+          `http://localhost:8080/api/tokens/${input}`
+        );
         const result = await response.json();
         return result.exists === true;
       },
     },
-    { createText: "Enter Your Password", type: "password", typeLabel: "password", buttonText: "Login", validator: passwordValidator },
+    {
+      createText: "Enter Your Password",
+      type: "password",
+      typeLabel: "password",
+      rightButtonText: "Login",
+      leftButtonText: "Sign Up",
+      validator: passwordValidator,
+    },
   ];
-
+  const leftButtonClick = () => {
+    navigate("/signup")
+  }
   const handleClick = async (input) => {
     const isValid = await data[step].validator(input);
 
@@ -39,13 +51,16 @@ function LoginPage() {
           const tokenRes = await fetch("http://localhost:8080/api/tokens", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: updatedInput[0], password: updatedInput[1] }),
+            body: JSON.stringify({
+              email: updatedInput[0],
+              password: updatedInput[1],
+            }),
           });
 
           if (tokenRes.ok) {
             const tokenData = await tokenRes.json();
             localStorage.setItem("token", tokenData.token);
-            localStorage.setItem("userId", tokenData.userId || tokenData.id); //
+            localStorage.setItem("userId", tokenData.userId);
             navigate("/my-drive");
             return true;
           }
@@ -61,6 +76,6 @@ function LoginPage() {
   };
 
   const currentItem = data[step];
-  return <InputUser {...currentItem} handleClick={handleClick} />;
+  return <InputUser {...currentItem} handleClick={handleClick} leftButtonClick = {leftButtonClick} />;
 }
 export default LoginPage;
