@@ -75,6 +75,7 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
 
   const handleMove = async (folder) => {
     const token = localStorage.getItem("token");
+    const parentId = folder ? folder.id : null
     try {
       const response = await fetch(
         `http://localhost:8080/api/files/${file.id}`,
@@ -84,7 +85,7 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
             "Content-Type": "application/json",
             authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ parentId: folder.id }),
+          body: JSON.stringify({ parentId: parentId }),
         }
       );
 
@@ -92,7 +93,7 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
         refreshFiles();
       } else {
         const error = response.json();
-        alert(error.error);
+        console.error(error.error);
       }
     } catch (error) {}
   };
