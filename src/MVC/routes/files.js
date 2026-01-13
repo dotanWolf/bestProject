@@ -5,6 +5,8 @@ const tokenController = require('../controllers/tokenController')
 
 router.route('/permissions')
     .get(tokenController.authenticateToken, fileController.getFilesWithPermissions)
+router.route('/permissions/folders/:parentId')
+    .get(tokenController.authenticateToken, fileController.getFilesWithPermissionsbyParentId)
 router.route('/trash')
     .get(tokenController.authenticateToken, fileController.getTrashEntries);
 router.route('/starred')

@@ -231,7 +231,20 @@ const getFilesWithPermissions = (req, res) => {
   }
 };
 
+const getFilesWithPermissionsbyParentId = (req, res) => {
+  const userId = req.user.userId;
+  const parentId = req.params.parentId
+  if (!userId) return res.status(400).json({ error: "user id required" });
+  try {
+    const files = PermissionsService.getFilesWithPermissionsbyParentId(userId, parentId);
+    return res.status(200).json(files);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ error: error.message });
+  }
+};
+
 module.exports = {
+  getFilesWithPermissionsbyParentId,
   getFilesWithPermissions,
   getRootEntries,
   getFolderEntries,

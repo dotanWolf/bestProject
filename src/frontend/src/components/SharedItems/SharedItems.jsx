@@ -18,7 +18,7 @@ const SharedItems = () => {
   const fetchFiles = async () => {
     if (!token) return;
     const url = currentFolderId
-      ? `http://localhost:8080/api/files/folders/${currentFolderId}`
+      ? `http://localhost:8080/api/files/permissions/folders/${currentFolderId}`
       : `http://localhost:8080/api/files/permissions`;
 
     try {
