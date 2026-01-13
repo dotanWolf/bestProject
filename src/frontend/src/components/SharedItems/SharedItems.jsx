@@ -168,7 +168,7 @@ const SharedItems = () => {
         </h1>
       </div>
 
-      <FilesList files = {files} handleDoubleClick={handleDoubleClick} fetchFiles={fetchFiles}/>
+      <FilesList files = {files} handleDoubleClick={handleDoubleClick} fetchFiles={fetchFiles} show={true}/>
     </div>
   );
 };

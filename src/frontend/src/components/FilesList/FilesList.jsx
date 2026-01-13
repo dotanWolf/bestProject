@@ -1,7 +1,6 @@
 import FileActionMenu from "../FileActionMenu/FileActionMenu";
 
-function FilesList({ files, handleDoubleClick, fetchFiles, onNavigate }) {
-
+function FilesList({ files, handleDoubleClick, fetchFiles, onNavigate, show }) {
   return (
     <div
       className="files-list"
@@ -38,8 +37,13 @@ function FilesList({ files, handleDoubleClick, fetchFiles, onNavigate }) {
             <span style={{ fontSize: "1rem" }}>{file.name}</span>
           </div>
 
-          <div onClick={(e) => e.stopPropagation()}>
-            <FileActionMenu file={file} refreshFiles={fetchFiles} onNavigate={onNavigate}/>
+          <div onDoubleClick={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+            <FileActionMenu
+              file={file}
+              refreshFiles={fetchFiles}
+              onNavigate={onNavigate}
+              show={show}
+            />
           </div>
         </div>
       ))}
