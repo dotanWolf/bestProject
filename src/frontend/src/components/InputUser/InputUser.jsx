@@ -1,18 +1,26 @@
 import "./InputUser.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { useState
-
- } from "react";
+import { useState } from "react";
 function InputUser(props) {
-  const { createText, type, typeLabel, buttonText, handleClick } = props;
+  const {
+    createText,
+    type,
+    typeLabel,
+    leftButtonText,
+    rightButtonText,
+    handleClick,
+    leftButtonClick
+  } = props;
 
   const [inputValue, setInputValue] = useState("");
 
   const onButtonClick = async () => {
     const isValid = await handleClick(inputValue);
-    if (isValid) setInputValue("")
+    if (isValid) setInputValue("");
   };
+
+
 
   return (
     <div className="input-container">
@@ -24,15 +32,28 @@ function InputUser(props) {
             className="form-control"
             id="floatingInput"
             placeholder="name@example.com"
-            value = {inputValue}
+            value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
           <label htmlFor="floatingInput">{typeLabel}</label>
         </div>
       </div>
-      <button type="button" className="btn btn-primary" onClick={onButtonClick}>
-        {buttonText}
-      </button>
+      <div className="button-container">
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={leftButtonClick}
+        >
+          {leftButtonText}
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={onButtonClick}
+        >
+          {rightButtonText}
+        </button>
+      </div>
     </div>
   );
 }

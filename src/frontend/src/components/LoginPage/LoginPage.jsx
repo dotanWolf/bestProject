@@ -13,7 +13,8 @@ function LoginPage() {
       createText: "Enter Your Email",
       type: "email",
       typeLabel: "email address",
-      buttonText: "Next",
+      rightButtonText: "Next",
+      leftButtonText: "Sign Up",
       // LOGIN: Valid only if user EXISTS
       validator: async (input) => {
         const response = await fetch(
@@ -27,11 +28,14 @@ function LoginPage() {
       createText: "Enter Your Password",
       type: "password",
       typeLabel: "password",
-      buttonText: "Login",
+      rightButtonText: "Login",
+      leftButtonText: "Sign Up",
       validator: passwordValidator,
     },
   ];
-
+  const leftButtonClick = () => {
+    navigate("/signup")
+  }
   const handleClick = async (input) => {
     const isValid = await data[step].validator(input);
 
@@ -56,7 +60,7 @@ function LoginPage() {
           if (tokenRes.ok) {
             const tokenData = await tokenRes.json();
             localStorage.setItem("token", tokenData.token);
-            localStorage.setItem("userId", tokenData.userId); 
+            localStorage.setItem("userId", tokenData.userId);
             navigate("/my-drive");
             return true;
           }
@@ -72,6 +76,6 @@ function LoginPage() {
   };
 
   const currentItem = data[step];
-  return <InputUser {...currentItem} handleClick={handleClick} />;
+  return <InputUser {...currentItem} handleClick={handleClick} leftButtonClick = {leftButtonClick} />;
 }
 export default LoginPage;

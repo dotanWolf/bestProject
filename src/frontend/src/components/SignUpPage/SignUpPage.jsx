@@ -19,32 +19,39 @@ function SignUpPage() {
       createText: "A UserName",
       type: "text",
       typeLabel: "username",
-      buttonText: "Next",
+      rightButtonText: "Next",
+      leftButtonText: "Login",
       validator: usernameValidator,
     },
     {
       createText: "An Email Address",
       type: "email",
       typeLabel: "email address",
-      buttonText: "Next",
+      rightButtonText: "Next",
+      leftButtonText: "Login",
       validator: emailValidator,
     },
     {
       createText: "A Password",
       type: "password",
       typeLabel: "password",
-      buttonText: "Next",
+      rightButtonText: "Next",
+      leftButtonText: "Login",
       validator: passwordValidator,
     },
     // Step 3: Image Input
     {
       createText: "Profile Picture",
       type: "image",
-      buttonText: "Create Account",
+      rightButtonText: "Create Account",
+      leftButtonText: "Login",
       validator: () => true,
     },
   ];
 
+  const leftButtonClick = () => {
+    navigate("/login");
+  };
   const createUser = async (updatedInput) => {
     const user = {
       username: updatedInput[0],
@@ -132,7 +139,13 @@ function SignUpPage() {
   }
 
   // Otherwise render standard input
-  return <InputUser {...currentItem} handleClick={handleClick} />;
+  return (
+    <InputUser
+      {...currentItem}
+      handleClick={handleClick}
+      leftButtonClick={leftButtonClick}
+    />
+  );
 }
 
 export default SignUpPage;

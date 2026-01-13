@@ -30,3 +30,11 @@ h1 {
   width: 50%; /* Makes the input area take up half the container */
   margin-top: 2rem; /* Adjust this to align vertically with H1 */
 }
+
+.button-container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px;
+}
