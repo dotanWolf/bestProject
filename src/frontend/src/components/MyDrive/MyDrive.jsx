@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom"; 
 import FileActionMenu from "../FileActionMenu/FileActionMenu";
 import FilesList from "../FilesList/FilesList";
 
@@ -8,21 +8,30 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
     name: "root",
     parentId: null,
   };
+  
+  // 2. Read the folder ID from the URL instead of local state
+  const { parentId } = useParams(); 
+  
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentFolderId, setCurrentFolderId] = useState(null); // Track folder depth
   const [folder, setFolder] = useState(rootFolder);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
+  // 3. Update parent component whenever URL changes
+  useEffect(() => {
+    setFolderIdInMainPage(parentId || null);
+  }, [parentId, setFolderIdInMainPage]);
+
   const fetchFiles = async () => {
     if (!token) return;
-    const url = currentFolderId
-      ? `http://localhost:8080/api/files/folders/${currentFolderId}`
+    
+    // Use parentId from URL
+    const url = parentId
+      ? `http://localhost:8080/api/files/folders/${parentId}`
       : `http://localhost:8080/api/files`;
 
-    console.log("get url is ", url);
     try {
       const response = await fetch(url, {
         headers: {
@@ -45,10 +54,11 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
   };
 
   const fetchCurrentFolder = async () => {
-    if (currentFolderId) {
+    // Use parentId from URL
+    if (parentId) {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/files/${currentFolderId}`,
+          `http://localhost:8080/api/files/${parentId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -58,7 +68,6 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
         );
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
           setFolder(data);
         }
       } catch (error) {
@@ -72,55 +81,32 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
   };
 
   useEffect(() => {
+    setLoading(true);
     fetchFiles();
     fetchCurrentFolder();
-  }, [navigate, currentFolderId]); // Re-fetch when folder changes
+  }, [parentId]); // 4. Re-run whenever the URL changes
 
   const handleDoubleClick = (file) => {
     if (file.type === "folder") {
       setLoading(true);
-      setCurrentFolderId(file.id); // Go inside folder
-      setFolderIdInMainPage(file.id);
+      // 5. Navigate to the URL instead of setting local state
+      navigate(`/my-drive/${file.id}`);
     } else {
       navigate(`/update/${file.id}`);
     }
   };
 
-  const handleBackClick = async () => {
-    if (!folder.parentId) {
-      setFolder(rootFolder);
-      setCurrentFolderId(null);
-      setFolderIdInMainPage(null)
+  const handleBackClick = () => {
+    // Navigate to the parent folder or root
+    if (folder.parentId) {
+      navigate(`/my-drive/${folder.parentId}`);
     } else {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/api/files/${folder.parentId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setFolder(data);
-          setCurrentFolderId(data.id);
-          setFolderIdInMainPage(data.id)
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
+      navigate(`/my-drive`);
     }
   };
 
   const onNavigate = (folder) => {
-    alert("navigage")
-    setFolder(folder);
-    setCurrentFolderId(folder.id);
-    setFolderIdInMainPage(folder.id);
+    navigate(`/my-drive/${folder.id}`);
   };
 
   if (loading)
@@ -146,7 +132,7 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
           marginBottom: "30px",
         }}
       >
-        {currentFolderId && (
+        {parentId && (
           <>
             <button
               onClick={handleBackClick}
@@ -172,7 +158,7 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
             margin: 0,
           }}
         >
-          {currentFolderId ? "Folder View" : "My Drive Content"}
+          {parentId ? "" : "My Drive Content"}
         </h1>
       </div>
 
@@ -181,7 +167,7 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
         handleDoubleClick={handleDoubleClick}
         fetchFiles={fetchFiles}
         onNavigate={onNavigate}
-        show ={true}
+        show={true}
       />
     </div>
   );

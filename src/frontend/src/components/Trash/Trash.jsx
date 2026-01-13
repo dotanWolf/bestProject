@@ -11,7 +11,7 @@ const Trash = () => {
     const token = localStorage.getItem("token");
 
     try {
-      // FIX: Point to the specific trash endpoint
+      // Point to the specific trash endpoint
       const response = await fetch(`http://localhost:8080/api/files/trash`, {
         headers: {
           authorization: `Bearer ${token}`,
@@ -21,7 +21,6 @@ const Trash = () => {
       if (response.ok) {
         const trashFiles = await response.json();
         //console.log("Trash Files fetched:", trashFiles);
-        // Backend now handles filtering, so we just set state
         setTrashedFiles(trashFiles);
       } else {
         console.error("Failed to fetch files");
@@ -47,7 +46,7 @@ const Trash = () => {
             "Content-Type": "application/json",
             authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ isTrashed: false }),
+          body: JSON.stringify({ isTrashed: false, parentId: null }),
         }
       );
 
@@ -92,7 +91,31 @@ const Trash = () => {
   useEffect(() => {
     fetchTrashedFiles();
   }, []);
+  const handleEmptyTrash = async () => {
+    if (trashedFiles.length === 0) return;
+    if (!window.confirm("Are you sure you want to permanently delete ALL items in the trash?")) return;
 
+    const token = localStorage.getItem("token");
+
+    try {
+        const deletePromises = trashedFiles.map(file => 
+             fetch(`http://localhost:8080/api/files/${file.id}`, {
+                method: "DELETE",
+                headers: { authorization: `Bearer ${token}` },
+             })
+        );
+        
+        await Promise.all(deletePromises);
+        setTrashedFiles([]); 
+
+    } catch (error) {
+        console.error("Error emptying trash:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrashedFiles();
+  }, []);
   if (isLoading) return <div className="trash-page-container">Loading...</div>;
 
   if (trashedFiles.length === 0) {
@@ -116,6 +139,21 @@ const Trash = () => {
       className="trash-page-container"
       style={{ backgroundColor: "var(--bg-main)" }}
     >
+      <div className="trash-header">
+        <h2 className="trash-heading" style={{ color: "var(--text-primary)" }}>
+          Trash ({trashedFiles.length})
+        </h2>
+        <button
+          className="btn-empty-trash"
+          onClick={handleEmptyTrash}
+          style={{
+            borderColor: "var(--border-color)",
+            color: "var(--text-primary)",
+          }}
+        >
+          Empty Trash
+        </button>
+      </div>
       <div className="trash-header">
         <h2 className="trash-heading" style={{ color: "var(--text-primary)" }}>
           Trash ({trashedFiles.length})

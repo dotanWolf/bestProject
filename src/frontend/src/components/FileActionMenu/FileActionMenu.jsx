@@ -27,28 +27,64 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
     setIsOpen(false);
   };
 
-  const handleDelete = async () => {
-  if (!window.confirm("Delete/Remove access?")) return;
+ const handleDelete = async () => {
+    const actionName = isOwner ? "Move to Trash" : "Remove Access";
+    if (!window.confirm(`Are you sure you want to ${actionName}?`)) return;
 
-  const url = isOwner 
-    ? `http://localhost:8080/api/files/${file.id}` 
-    : `http://localhost:8080/api/files/${file.id}/permissions/${file.permissionId}`; // permission removal
+    const trashFolderRecursively = async (folderId) => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/files/folders/${folderId}`, {
+          headers: { authorization: `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const children = await response.json();
+          
+          for (const child of children) {
+            if (child.type === 'folder') {
+              await trashFolderRecursively(child.id);
+            }
+            
+            await fetch(`http://localhost:8080/api/files/${child.id}`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${token}`,
+                "userid": currentUserId
+              },
+              body: JSON.stringify({ isTrashed: true }) 
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Error cleaning up folder contents:", err);
+      }
+    };
 
-  try {
-    await fetch(url, {
-      method: isOwner ? "PATCH" : "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "authorization": `Bearer ${token}`,
-        "userid": currentUserId 
-      },
-      body: isOwner ? JSON.stringify({ isTrashed: true }) : null
-    });
-    refreshFiles();
-  } catch (err) {
-    console.error(err);
-  }
-};
+    try {
+      if (file.type === 'folder' && isOwner) {
+         await trashFolderRecursively(file.id);
+      }
+
+      const url = isOwner 
+        ? `http://localhost:8080/api/files/${file.id}` 
+        : `http://localhost:8080/api/files/${file.id}/permissions/${file.permissionId}`;
+
+      await fetch(url, {
+        method: isOwner ? "PATCH" : "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`,
+          "userid": currentUserId 
+        },
+        body: isOwner ? JSON.stringify({ isTrashed: true }) : null
+      });
+
+      refreshFiles(); 
+    } catch (err) {
+      console.error(err);
+    }
+  };
 const handleStarred = async () => {
   const isOwnerAction = file.ownerId === currentUserId;
   

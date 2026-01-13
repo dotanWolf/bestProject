@@ -1,19 +1,18 @@
 import "./Sidebar.css";
 import { Link, useLocation } from "react-router-dom";
-import { FaPlus, FaClock, FaStar, FaTrash, FaCloud } from "react-icons/fa";
+// Added FaHome to imports
+import { FaPlus, FaClock, FaStar, FaTrash, FaHome } from "react-icons/fa"; 
 import { IoMdPeople } from "react-icons/io";
 import { MdDevices } from "react-icons/md";
 
 const Sidebar = () => {
   const location = useLocation(); 
   
-  // Helper to check active route
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
   return (
     <div className="sidebar-container">
       
-      {/* New Button -> Navigates to Create Page */}
       <div className="new-button-container">
         <Link to="/create" style={{ textDecoration: 'none' }}>
           <button className="new-button">
@@ -23,10 +22,16 @@ const Sidebar = () => {
         </Link>
       </div>
 
-      {/* Menu Items */}
       <div className="sidebar-menu">
+        <Link to="/home" style={{ textDecoration: 'none' }}>
+          <div className={`menu-item ${isActive('/home') || isActive('/')}`}>
+            <span className="icon"><FaHome /></span>
+            <span>Home</span>
+          </div>
+        </Link>
+
         <Link to="/my-drive" style={{ textDecoration: 'none' }}>
-          <div className={`menu-item ${isActive('/my-drive') || isActive('/')}`}>
+          <div className={`menu-item ${isActive('/my-drive')}`}>
             <span className="icon"><MdDevices /></span>
             <span>My Drive</span>
           </div>
