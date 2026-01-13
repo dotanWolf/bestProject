@@ -22,6 +22,7 @@ function MainPage() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [currentFolderId, setCurrentFolderId] = useState(null)
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
@@ -76,7 +77,7 @@ function MainPage() {
           name: dataToSend.name,
           type: dataToSend.type,
           content: dataToSend.content || "",
-          parentId: null,
+          parentId: currentFolderId,
           isTrashed: false,
         }),
       });
@@ -94,6 +95,10 @@ function MainPage() {
       return false;
     }
   };
+
+  const setFolderIdInMainPage = (folderId) => {
+    setCurrentFolderId(folderId)
+  }
 
   if (loadingUser) {
     return (
@@ -142,7 +147,7 @@ function MainPage() {
         >
           <Routes>
             {/* <Route path="/" element={<MyDrive />} /> */}
-            <Route path="/my-drive" element={<MyDrive />} />
+            <Route path="/my-drive" element={<MyDrive setFolderIdInMainPage = {setFolderIdInMainPage} />} />
             <Route path="/recent" element={<RecentPlaceholder />} />
             <Route path="/starred" element={<Starred />} />
             <Route path="/trash" element={<Trash />} />

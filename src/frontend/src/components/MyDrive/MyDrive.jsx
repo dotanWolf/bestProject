@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import FileActionMenu from "../FileActionMenu/FileActionMenu";
 import FilesList from "../FilesList/FilesList";
 
-const MyDrive = () => {
+const MyDrive = ({setFolderIdInMainPage}) => {
   const rootFolder = {
     name: "root",
     parentId: null,
@@ -81,6 +81,7 @@ const MyDrive = () => {
     if (file.type === "folder") {
       setLoading(true);
       setCurrentFolderId(file.id); // Go inside folder
+      setFolderIdInMainPage(file.id)
     } else {
       navigate(`/update/${file.id}`);
     }

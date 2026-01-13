@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import './SearchResults.css';
+import "./SearchResults.css";
 import { useDelete } from "../../hooks/useDelete.jsx";
 
 function SearchResults() {
@@ -9,26 +9,40 @@ function SearchResults() {
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const token = localStorage.getItem("token")
   const fetchResults = async () => {
-    const term = query?.trim() || " "; 
+    const term = query?.trim() || " ";
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/search/${encodeURIComponent(term)}`, {
-        method: 'GET',
-        headers: { 'id': localStorage.getItem("userId"), 'Content-Type': 'application/json' }
-      });
-      if (!response.ok) { setResults([]); return; }
+      const response = await fetch(
+        `http://localhost:8080/api/search/${encodeURIComponent(term)}`,
+        {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${token}`, // Use Capital A and standard Bearer casing
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        setResults([]);
+        return;
+      }
       const data = await response.json();
-      setResults(Array.isArray(data) ? data : []); 
+      setResults(Array.isArray(data) ? data : []);
     } catch (error) {
-      setResults([]); 
-    } finally { setIsLoading(false); }
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const { deleteItem } = useDelete(fetchResults)
-  useEffect(() => { fetchResults(); }, [query]);
+  const { deleteItem } = useDelete(fetchResults);
+  useEffect(() => {
+    fetchResults();
+  }, [query]);
 
- return (
+  return (
     <div className="search-container">
       {isLoading && <p className="status-msg">Searching...</p>}
       {!isLoading && results.length === 0 && (
@@ -38,12 +52,17 @@ function SearchResults() {
         <div className="results-list">
           {results.map((item) => (
             <div key={item.id} className="result-item">
-              <span className="icon">{item.type === 'folder' ? '📁' : '📄'}</span>
+              <span className="icon">
+                {item.type === "folder" ? "📁" : "📄"}
+              </span>
               <span className="file-name">{item.name}</span>
-              
+
               <div className="button-group">
-                {item.type !== 'folder' && (
-                  <button className="edit-btn" onClick={() => navigate(`/update/${item.id}`)}>
+                {item.type !== "folder" && (
+                  <button
+                    className="edit-btn"
+                    onClick={() => navigate(`/update/${item.id}`)}
+                  >
                     ✏️ Edit
                   </button>
                 )}
