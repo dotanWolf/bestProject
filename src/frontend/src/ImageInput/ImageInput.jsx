@@ -1,29 +1,40 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import defaultPicture from "./default.png";
+
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 function ImageInput(props) {
   const [isDefault, setIsDefault] = useState(true);
   const [previewUrl, setPreviewUrl] = useState(defaultPicture);
   const [picture, setPicture] = useState(null);
+  const [base64Image, setBase64Image] = useState(defaultPicture); // Store the actual data
   const handleDefaultClick = () => {
-    setIsDefault(true);
     setPreviewUrl(defaultPicture);
+    setBase64Image(defaultPicture);
   };
 
-  const handleUploadClick = (fileSelected) => {
+  const handleUploadClick = async (fileSelected) => {
     if (!fileSelected) return;
 
-    setIsDefault(false);
-    setPicture(fileSelected); // Save the actual file for the server later
+    // 1. Create preview (fast)
+    setPreviewUrl(URL.createObjectURL(fileSelected));
 
-    // Create a temporary local URL for the preview
-    const objectUrl = URL.createObjectURL(fileSelected);
-    setPreviewUrl(objectUrl);
+    // 2. Convert to permanent Base64 string
+    const base64 = await fileToBase64(fileSelected);
+    setBase64Image(base64);
   };
 
   const handleClick = () => {
-    props.handleClick(previewUrl)
-  }
+    props.handleClick(base64Image);
+  };
   return (
     <div className="input-container">
       <div className="top-container">
