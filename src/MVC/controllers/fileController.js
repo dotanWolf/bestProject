@@ -203,8 +203,21 @@ const deletePermission = (req, res) => {
     }
 }
 
+const getFilesWithPermissions = (req, res) => {
+    const userId = req.user.userId
+    if (!userId)
+        return res.status(400).json({error: "user id required"});
+    try {
+        const files = PermissionsService.getFilesWithPermissions(userId);
+        return res.status(200).json(files);
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({error: error.message});
+    }
+}
+
 
 module.exports = {
+    getFilesWithPermissions,
     getRootEntries,
     getFolderEntries,
     getTrashEntries,

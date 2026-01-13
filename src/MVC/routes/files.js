@@ -3,6 +3,8 @@ var router = express.Router()
 const fileController = require('../controllers/fileController')
 const tokenController = require('../controllers/tokenController')
 
+router.route('/permissions')
+    .get(tokenController.authenticateToken, fileController.getFilesWithPermissions)
 router.route('/trash')
     .get(fileController.getTrashEntries);
 router.route('/starred')
@@ -27,4 +29,6 @@ router.route('/:id/permissions/:pId')
 
 router.route('/folders/:parentId')
     .get(tokenController.authenticateToken, fileController.getFolderEntries)
+
+
 module.exports = router

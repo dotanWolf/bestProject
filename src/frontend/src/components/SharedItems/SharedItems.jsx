@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import FileActionMenu from "../FileActionMenu/FileActionMenu";
 import FilesList from "../FilesList/FilesList";
 
-const MyDrive = () => {
+const SharedItems = () => {
   const rootFolder = {
     name: "root",
     parentId: null,
@@ -20,9 +19,8 @@ const MyDrive = () => {
     if (!token) return;
     const url = currentFolderId
       ? `http://localhost:8080/api/files/folders/${currentFolderId}`
-      : `http://localhost:8080/api/files`;
+      : `http://localhost:8080/api/files/permissions`;
 
-    console.log("get url is ", url);
     try {
       const response = await fetch(url, {
         headers: {
@@ -37,6 +35,9 @@ const MyDrive = () => {
           ? data.filter((f) => !f.isTrashed)
           : [];
         setFiles(activeFiles);
+      } else {
+        const error = await response.json()
+        alert(error.error)
       }
     } catch (error) {
       console.error(error);
@@ -172,4 +173,4 @@ const MyDrive = () => {
   );
 };
 
-export default MyDrive;
+export default SharedItems;
