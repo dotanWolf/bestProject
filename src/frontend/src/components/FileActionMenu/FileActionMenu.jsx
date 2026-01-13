@@ -32,8 +32,7 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          userid: userId,
-          token: token,
+          authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ isTrashed: true }),
       });
@@ -53,8 +52,7 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          userid: userId,
-          token: token,
+          authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ isStarred: true }),
       });
@@ -65,9 +63,9 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
   };
 
   const handleOpenPermissions = () => {
-    setIsOpen(false)
-    setIsPermissionsOpen(true)
-  }
+    setIsOpen(false);
+    setIsPermissionsOpen(true);
+  };
 
   return (
     <div className="menu-container">
@@ -97,7 +95,12 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
       )}
 
       {isPermissionsOpen &&
-        createPortal(<PermissionPopUp file= {file} handleClose = {() => setIsPermissionsOpen(false)}/>,document.body
+        createPortal(
+          <PermissionPopUp
+            file={file}
+            handleClose={() => setIsPermissionsOpen(false)}
+          />,
+          document.body
         )}
     </div>
   );

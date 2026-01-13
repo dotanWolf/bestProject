@@ -6,9 +6,9 @@ const tokenController = require('../controllers/tokenController')
 router.route('/permissions')
     .get(tokenController.authenticateToken, fileController.getFilesWithPermissions)
 router.route('/trash')
-    .get(fileController.getTrashEntries);
+    .get(tokenController.authenticateToken, fileController.getTrashEntries);
 router.route('/starred')
-    .get(fileController.getStarredEntries);
+    .get(tokenController.authenticateToken, fileController.getStarredEntries);
 
 router.route('/')
     .get(tokenController.authenticateToken, fileController.getRootEntries) // תחזיר את רשימת כל הקבצים והתיקיות של המשתמש ברמה העליונה ביותר

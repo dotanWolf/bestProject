@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 const Starred = () => {
   const [starredFiles, setStarredFiles] = useState([]);
@@ -11,12 +11,9 @@ const Starred = () => {
     try {
       // FIX: Point to the specific starred endpoint
       const response = await fetch(`http://localhost:8080/api/files/starred`, {
-        method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'userid': userId,
-            'token': token
-        }
+          authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
@@ -24,7 +21,6 @@ const Starred = () => {
         //console.log("Starred Files fetched:", starredFiles);
         // Backend now handles filtering, so we just set state
         setStarredFiles(starredFiles);
-        
       } else {
         console.error("Failed to fetch files");
       }
@@ -70,7 +66,7 @@ const Starred = () => {
   if (starredFiles.length === 0) {
     return (
       <div className="trash-page-container">
-        <div className="trash-empty-wrapper"> 
+        <div className="trash-empty-wrapper">
           <div className="trash-empty-state">
             <h2 className="trash-heading">Starred is empty</h2>
             <p className="trash-subtext"> No starred files yet.⭐</p>
@@ -80,19 +76,34 @@ const Starred = () => {
     );
   }
 
- return (
-    <div className="trash-page-container" style={{ backgroundColor: "var(--bg-main)" }}>
+  return (
+    <div
+      className="trash-page-container"
+      style={{ backgroundColor: "var(--bg-main)" }}
+    >
       <div className="trash-header">
         <h2 className="trash-heading" style={{ color: "var(--text-primary)" }}>
-            Starred ({starredFiles.length})
+          Starred ({starredFiles.length})
         </h2>
       </div>
-      
+
       <div className="trash-list">
         {starredFiles.map((file) => (
-          <div key={file.id} className="trash-item" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
-            <div className="trash-item-info" style={{ color: "var(--text-primary)" }}>
-              <span className="trash-icon">{file.type === 'folder' ? '📁' : '📄'}</span>
+          <div
+            key={file.id}
+            className="trash-item"
+            style={{
+              backgroundColor: "var(--bg-card)",
+              borderColor: "var(--border-color)",
+            }}
+          >
+            <div
+              className="trash-item-info"
+              style={{ color: "var(--text-primary)" }}
+            >
+              <span className="trash-icon">
+                {file.type === "folder" ? "📁" : "📄"}
+              </span>
               <span className="trash-name">{file.name}</span>
             </div>
           </div>
