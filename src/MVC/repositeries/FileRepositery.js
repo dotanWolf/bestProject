@@ -33,6 +33,12 @@ class FileRepository {
         const files = Array.from(this.files.values());
         return files.filter(file => file.ownerId === ownerId);
     }
+    getRecentEntries(ownerId) {
+    const files = Array.from(this.files.values());
+        return files .filter(e => e.ownerId === ownerId && !e.isTrashed)
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)) 
+        .slice(0, 10);
+    }
 
     findByOwnerAndParent(ownerId, parentId) {
         const files = Array.from(this.files.values());
@@ -104,12 +110,7 @@ class FileRepository {
             this.delete(child.id);
         });
     }
-    getRecentEntries(ownerId) {
-    return Array.from(this.files.values())
-        .filter(e => e.ownerId === ownerId && !e.isTrashed)
-        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)) 
-        .slice(0, 10);
-    }
+  
 }
 
 // Singleton pattern

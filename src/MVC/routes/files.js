@@ -9,15 +9,9 @@ router.route('/trash')
     .get(tokenController.authenticateToken, fileController.getTrashEntries);
 router.route('/starred')
     .get(tokenController.authenticateToken, fileController.getStarredEntries);
-router.get('/recent', tokenController.authenticateToken, async (req, res) => {
-    try {
-        const userId = req.user.id; 
-        const recentFiles = fileService.getRecentFiles(userId);
-        res.json(recentFiles);
-    } catch (error) {
-        res.status(500).json({ error: "Failed to fetch recent files" });
-    }
-});
+router.route('/recent')
+    .get(tokenController.authenticateToken, fileController.getRecentEntries);
+
 router.route('/')
     .get(tokenController.authenticateToken, fileController.getRootEntries) // תחזיר את רשימת כל הקבצים והתיקיות של המשתמש ברמה העליונה ביותר
     .post(tokenController.authenticateToken, fileController.createEntry) // תיצור קובץ/תיקייה חדש/ה
