@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import FileActionMenu from "../FileActionMenu/FileActionMenu";
 import FilesList from "../FilesList/FilesList";
 
-const MyDrive = ({setFolderIdInMainPage}) => {
+const MyDrive = ({ setFolderIdInMainPage }) => {
   const rootFolder = {
     name: "root",
     parentId: null,
@@ -81,7 +81,7 @@ const MyDrive = ({setFolderIdInMainPage}) => {
     if (file.type === "folder") {
       setLoading(true);
       setCurrentFolderId(file.id); // Go inside folder
-      setFolderIdInMainPage(file.id)
+      setFolderIdInMainPage(file.id);
     } else {
       navigate(`/update/${file.id}`);
     }
@@ -89,8 +89,9 @@ const MyDrive = ({setFolderIdInMainPage}) => {
 
   const handleBackClick = async () => {
     if (!folder.parentId) {
-      setFolder(rootFolder)
-      setCurrentFolderId(null)
+      setFolder(rootFolder);
+      setCurrentFolderId(null);
+      setFolderIdInMainPage(null)
     } else {
       try {
         const response = await fetch(
@@ -106,6 +107,7 @@ const MyDrive = ({setFolderIdInMainPage}) => {
           const data = await response.json();
           setFolder(data);
           setCurrentFolderId(data.id);
+          setFolderIdInMainPage(data.id)
         }
       } catch (error) {
         console.error(error);
@@ -113,6 +115,13 @@ const MyDrive = ({setFolderIdInMainPage}) => {
         setLoading(false);
       }
     }
+  };
+
+  const onNavigate = (folder) => {
+    alert("navigage")
+    setFolder(folder);
+    setCurrentFolderId(folder.id);
+    setFolderIdInMainPage(folder.id);
   };
 
   if (loading)
@@ -168,7 +177,12 @@ const MyDrive = ({setFolderIdInMainPage}) => {
         </h1>
       </div>
 
-      <FilesList files = {files} handleDoubleClick={handleDoubleClick} fetchFiles={fetchFiles}/>
+      <FilesList
+        files={files}
+        handleDoubleClick={handleDoubleClick}
+        fetchFiles={fetchFiles}
+        onNavigate={onNavigate}
+      />
     </div>
   );
 };

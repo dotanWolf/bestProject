@@ -1,6 +1,6 @@
 import FileActionMenu from "../FileActionMenu/FileActionMenu";
 
-function FilesList({ files, handleDoubleClick, fetchFiles }) {
+function FilesList({ files, handleDoubleClick, fetchFiles, onNavigate }) {
 
   return (
     <div
@@ -39,7 +39,7 @@ function FilesList({ files, handleDoubleClick, fetchFiles }) {
           </div>
 
           <div onClick={(e) => e.stopPropagation()}>
-            <FileActionMenu file={file} refreshFiles={fetchFiles} />
+            <FileActionMenu file={file} refreshFiles={fetchFiles} onNavigate={onNavigate}/>
           </div>
         </div>
       ))}
