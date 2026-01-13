@@ -24,7 +24,6 @@ class PermissionService {
       error.statusCode = 403;
       throw error;
     }
-    console.log(permissionRepository.permissions);
     return permissionRepository.findByFileId(fileId);
   }
 
@@ -162,11 +161,28 @@ class PermissionService {
           file.parentId,
           userId
         );
-        if (parentPerm.canRead()) {
-          return false
+        if (parentPerm && parentPerm.canRead()) {
+          return false;
         }
-        return true
+        return true;
       });
+  }
+
+  getFilesWithPermissionsbyParentId(userId, parentId) {
+    // 1. Get ALL files that live inside this parent folder
+    const filesInFolder = fileRepository.findByParentId(parentId) || [];
+
+    // 2. Filter them based on whether the user is allowed to see them
+    return filesInFolder.filter((file) => {
+      // Check if user has direct permission on this file
+      const directPerm = permissionRepository.findByFileAndUser(
+        file.id,
+        userId
+      );
+      if (directPerm && directPerm.canRead()) return true;
+
+      return false;
+    });
   }
 }
 

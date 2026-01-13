@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom"; // Import this at the top
 import "./FileActionMenu.css";
 import PermissionPopUp from "../PermissionPopUp/PermissionPopUp";
-
-const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
+import FoldersPopUp from "../FoldersPopUp/FoldersPopUp";
+const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPermissionsOpen, setIsPermissionsOpen] = useState(false);
+  const [isFoldersOpen, setIsFoldersOpen] = useState(false);
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -67,6 +68,37 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
     setIsPermissionsOpen(true);
   };
 
+  const handleOpenFolders = () => {
+    setIsOpen(false);
+    setIsFoldersOpen(true);
+  };
+
+  const handleMove = async (folder) => {
+    const token = localStorage.getItem("token");
+    const parentId = folder ? folder.id : null
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/files/${file.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ parentId: parentId }),
+        }
+      );
+
+      if (response.ok) {
+        refreshFiles();
+      } else {
+        const error = response.json();
+        console.error(error.error);
+      }
+    } catch (error) {}
+  };
+
+  if (!show) return;
   return (
     <div className="menu-container">
       <button onClick={toggleMenu} className="menu-trigger">
@@ -84,6 +116,9 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
           <button onClick={handleOpenPermissions} className="menu-item-action">
             👥 Permissions
           </button>
+          <button onClick={handleOpenFolders} className="menu-item-action">
+            Move
+          </button>
           <button
             onClick={handleDelete}
             className="menu-item-action"
@@ -99,6 +134,15 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate }) => {
           <PermissionPopUp
             file={file}
             handleClose={() => setIsPermissionsOpen(false)}
+          />,
+          document.body
+        )}
+
+      {isFoldersOpen &&
+        createPortal(
+          <FoldersPopUp
+            handleDoubleClick={handleMove}
+            handleClose={() => setIsFoldersOpen(false)}
           />,
           document.body
         )}

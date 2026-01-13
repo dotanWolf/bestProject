@@ -32,7 +32,6 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
         const activeFiles = Array.isArray(data)
           ? data.filter((f) => !f.isTrashed)
           : [];
@@ -182,6 +181,7 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
         handleDoubleClick={handleDoubleClick}
         fetchFiles={fetchFiles}
         onNavigate={onNavigate}
+        show ={true}
       />
     </div>
   );

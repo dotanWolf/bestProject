@@ -81,6 +81,7 @@ function MainPage() {
 
       if (response.ok) {
         // Redirect to drive to see the new file
+        setCurrentFolderId(null)
         navigate("/my-drive");
         return true;
       } else {
