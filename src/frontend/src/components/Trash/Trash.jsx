@@ -154,7 +154,7 @@ const Trash = () => {
           Empty Trash
         </button>
       </div>
-      <div className="trash-header">
+      {/* {<div className="trash-header">
         <h2 className="trash-heading" style={{ color: "var(--text-primary)" }}>
           Trash ({trashedFiles.length})
         </h2>
@@ -167,7 +167,7 @@ const Trash = () => {
         >
           Empty Trash
         </button>
-      </div>
+      </div>} */}
 
       <div className="trash-list">
         {trashedFiles.map((file) => (

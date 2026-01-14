@@ -1,50 +1,58 @@
 # bestProject
+
 https://github.com/dotanWolf/bestProject.git
 
 about the project-
-This project is a Google Drive-style web server built with a Node.js MVC structure that connects to a C++ backend to save files permanently. We developed a RESTful API to serve as the main infrastructure, allowing future clients to easily register, log in, and manage their files.
-
-Users:  
-when creating a user you must provide a json with the fields: username, password, email, profileImage  
-when checking if a user is registered in the system you must provide a json with the fields: username and email
-
-Files and Folders:  
-when creating a new file you must provide a json with the fields: name, type (must be 'file' or 'folder), content, and parentId (optional if you dont want the location to be the default '/'). also in the header you must provide a field id with a valid user id in the system.  
-when creating a folder you must provide a json with the same fields as a file except the content  
-when updating a file you must provide a json with the fields: name, and content and an id in the header  
-when updating a folder you must provide a json with the field: name and an id in the header  
-
-Permissions:  
-there are three types of permissions: owner editor and viewer.  
-when creating a permission you must provide a json with the fields: role, and userId (must be a valid user id in the system), also an id in the header
-when updating a permission you must provide a json with the field: role and an id in the header
+This project is a full-stack Web application developed using React, Bootstrap, and Node.js, designed to replicate the core functionality and user interface of Google Drive. The application features a dynamic React frontend that communicates with a RESTful server to manage real-time data, including user authentication via JWT, file and folder organization, search functionality, and a toggleable dark/light theme.
 
 instruction to run the code:  
-use the following commands in the terminal:
-
-for running the cpp server-  
+use the following commands in the terminal:  
 go to the root directory (bestProject)  
-then run: docker build -t best-project .  
-![project build](image-1.png)
+then run: docker-compose up --build  
+![project build](images/1.png)
+![project build](images/2.png)
 
-now for the cpp server-  
-run: docker run --init --rm -it -p 9120:9120 -v files:/app/data best-project ./build/MyProject 9120  
-![cpp server run](image-2.png)
+this will setup the cpp server then the webserver and finally the react project  
+then go over to http://localhost:5173/ to see the app
+there you will be met with this page
+![landing page](images/3.png)  
+ we will choose to sign up  
+ ![signup-username](images/4.png)  //
+ ![signup-email](images/4.png)  
+ ![signup-password](images/5.png)
+![signup-image](images/6.png)
+after that we are redirected to the main page
+![main page](images/18.png)
+there we can add folders or files
+![create folder](images/7.png)
+we can go inside and create subfolders or add new files
+![create file](images/11.png)
+![file created](images/12.png)
+and if we have the right permission we can open the file and even change its content
+![open file](images/13.png)
 
-For web server (in a new terminal)  
-run: docker run --init --rm -it -p 8080:8080 best-project  
-![web server run](image-3.png)
+![folder in main page](images/8.png)
+we can click the 3 dots on the right to open all the actions we can preform on this specific entry  
+![file action menu](images/9.png)
+we can share it to our friends  
+![share menu](images/10.png)
+we can delete it and it will move to the trash page along with its content
+![trash page](images/14.png)
+we can star it and unstar it
+![trash page](images/16.png)
+![trash page](images/15.png)
+the top ten recently opened files or folders will appear on the recents page
+![recents page](images/17.png)
 
-Now in a new terminal you can run any curl command  
-![Example of running curl-1](image-4.png)
-![Example of running curl-2](image-5.png)
-![Example of running curl-3](image-6.png)
-![Example of running curl-4](image-7.png)
-![Example of running curl-5](image-8.png)
-![Example of running curl-6](image-9.png)
-![Example of running curl-7](image-10.png)
-![Example of running curl-8](image-11.png)
-![Example of running curl-9](image-12.png)
+we can enter another users email and give him viewer or editor permissions
+![add permission](images/19.png)
+and when he logs in he can see the shared file in his shared with me page
+![shared with me page](images/20.png)
+
+
+
+
+
 
 
 
