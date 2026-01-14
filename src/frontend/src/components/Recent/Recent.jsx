@@ -31,32 +31,6 @@ const Recents = () => {
     }
   };
 
-  // 2. Unstar File Logic
-  /*const unStarred = async (file) => {
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
-
-    try {
-      const response = await fetch(`http://localhost:8080/api/files/${file.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'userid': userId,
-          'token': token
-        },
-        body: JSON.stringify({ isTrashed: false }) 
-      });
-
-      if (response.ok) {
-        fetchTrashedFiles(); // Refresh list
-      } else {
-        alert("Failed to restore file");
-      }
-    } catch (error) {
-      console.error("Error restoring file:", error);
-    }
-  };*/
-
   useEffect(() => {
     fetchRecentsFiles();
   }, []);

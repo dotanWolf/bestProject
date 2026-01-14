@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
+import FileActionMenu from "../FileActionMenu/FileActionMenu";
 const Starred = () => {
   const [starredFiles, setStarredFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  // 1. Fetch Starred Files
+  const navigate = useNavigate();
   const fetchStarredFiles = async () => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
@@ -60,6 +61,11 @@ const Starred = () => {
   useEffect(() => {
     fetchStarredFiles();
   }, []);
+  const handleNavigate = (file) => {
+    if (file.type === "folder") {
+      navigate(`/folder/${file.id}`); // Navigates to the folder view
+    }
+  };
 
   if (isLoading) return <div className="trash-page-container">Loading...</div>;
 
@@ -76,11 +82,8 @@ const Starred = () => {
     );
   }
 
-  return (
-    <div
-      className="trash-page-container"
-      style={{ backgroundColor: "var(--bg-main)" }}
-    >
+ return (
+    <div className="trash-page-container" style={{ backgroundColor: "var(--bg-main)" }}>
       <div className="trash-header">
         <h2 className="trash-heading" style={{ color: "var(--text-primary)" }}>
           Starred ({starredFiles.length})
@@ -89,23 +92,23 @@ const Starred = () => {
 
       <div className="trash-list">
         {starredFiles.map((file) => (
-          <div
-            key={file.id}
-            className="trash-item"
-            style={{
-              backgroundColor: "var(--bg-card)",
-              borderColor: "var(--border-color)",
-            }}
-          >
-            <div
-              className="trash-item-info"
-              style={{ color: "var(--text-primary)" }}
+          <div key={file.id} className="trash-item" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
+            <div 
+              className="trash-item-info" 
+              style={{ color: "var(--text-primary)", cursor: "pointer" }}
+              onClick={() => handleNavigate(file)}
             >
-              <span className="trash-icon">
-                {file.type === "folder" ? "📁" : "📄"}
-              </span>
+              <span className="trash-icon">{file.type === "folder" ? "📁" : "📄"}</span>
               <span className="trash-name">{file.name}</span>
             </div>
+
+            {/* Added the Action Menu for Unstar/Open/Rename */}
+            <FileActionMenu 
+              file={file} 
+              refreshFiles={fetchStarredFiles} 
+              onNavigate={handleNavigate}
+              show={true}
+            />
           </div>
         ))}
       </div>

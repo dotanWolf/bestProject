@@ -102,7 +102,12 @@ class FileService {
     // const fileMap = new Map();
     // [...ownedFiles, ...sharedFiles].forEach(file => fileMap.set(file.id, file));
 
-    return Array.from(ownedFiles.values());
+    return ownedFiles.map(file => {return {
+        ...file,
+        role: "owner", 
+        isStarred: file.isStarred 
+      };
+    });
   }
 
   getFolderEntries(userId, parentId) {
@@ -249,19 +254,89 @@ class FileService {
     const permission = permissionRepository.findByFileAndUser(file.id, userId);
     return permission && permission.canEdit();
   }
+  getSharedEntries(userId) {
+  // 1. Get all permission records for this user
+  const sharedPermissions = permissionRepository.findByUserId(userId) || [];
+
+  // 2. Map permissions to file objects and inject metadata
+  return sharedPermissions
+    .map(p => {
+      const file = fileRepository.findById(p.fileId);
+      // Only include if file exists, user is not the owner, and not trashed
+      if (file && file.ownerId !== userId && !file.isTrashed) {
+        return { 
+          ...file, 
+          role: p.role,           // Unlocks Rename for Editors
+          isStarred: p.isStarred, // Individualized star status
+          permissionId: p.id      // Used to target the correct PATCH/DELETE route
+        };
+      }
+      return null;
+    })
+    .filter(f => f !== null);
+}
   getEntriesByStatus(userId, isTrashed) {
     const allFiles = fileRepository.findByOwnerId(userId);
     return allFiles.filter((file) => file.isTrashed === isTrashed);
   }
-  getEntriesForStarred(userId, isStarred) {
-    const allFiles = fileRepository.findByOwnerId(userId);
-    return allFiles.filter(
-      (file) => file.isStarred === isStarred && !file.isTrashed
-    );
-  }
+ getEntriesForStarred(userId, isStarred) {
+  const ownedFiles = fileRepository.findByOwnerId(userId) || [];
+  const processedOwned = ownedFiles
+    .filter(f => f.isStarred === isStarred && !f.isTrashed)
+    .map(f => ({ ...f, role: 'owner' })); 
+
+  const sharedPermissions = permissionRepository.findByUserId(userId) || [];
+  const processedShared = sharedPermissions
+    .filter(p => p.isStarred === isStarred) 
+    .map(p => {
+      const file = fileRepository.findById(p.fileId);
+      if (file && !file.isTrashed) {
+        return { 
+          ...file, 
+          role: p.role,           
+          isStarred: p.isStarred, 
+          permissionId: p.id      
+        };
+      }
+      return null;
+    })
+    .filter(f => f !== null);
+  return [...processedOwned, ...processedShared];
+} 
+
   getRecentFiles(userId) {
-    const recentEntries = fileRepository.getRecentEntries(userId);
-    return recentEntries.filter((file) => !file.isTrashed);
+   const recentOwned = fileRepository.getRecentEntries(userId) || [];
+    const processedOwned = recentOwned
+      .filter((file) => !file.isTrashed)
+      .map((file) => ({ 
+          ...file, 
+          role: "owner",           
+          isStarred: file.isStarred 
+      }));
+    const sharedPermissions = permissionRepository.findByUserId(userId) || [];
+    const processedShared = sharedPermissions.map((p) => {
+        const file = fileRepository.findById(p.fileId);
+   if (file && file.ownerId !== userId && !file.isTrashed) {
+          return {
+            ...file,
+            role: p.role,          
+            isStarred: p.isStarred, 
+            permissionId: p.id      
+          };
+        }
+        return null;
+      })
+      .filter((f) => f !== null);
+
+    const allRecent = [...processedOwned, ...processedShared];
+
+    allRecent.sort((a, b) => {
+        const dateA = new Date(a.updatedAt || a.createdAt || 0);
+        const dateB = new Date(b.updatedAt || b.createdAt || 0);
+        return dateB - dateA;
+    });
+
+    return allRecent;
   }
 }
 module.exports = new FileService();

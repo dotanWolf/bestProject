@@ -2,7 +2,7 @@ import FilesList from "../FilesList/FilesList";
 import "./FoldersPopUp.css";
 import { useState, useEffect } from "react";
 
-function FoldersPopUp({ handleClose, handleDoubleClick }) {
+function FoldersPopUp({ handleClose, handleDoubleClick, fileToMove }) {
   const [folders, setFolders] = useState([]);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
 
@@ -20,7 +20,7 @@ function FoldersPopUp({ handleClose, handleDoubleClick }) {
       if (response.ok) {
         const data = await response.json();
         const activeFiles = Array.isArray(data)
-          ? data.filter((f) => !f.isTrashed)
+          ? data.filter((f) => !f.isTrashed && f.id !== fileToMove?.id)
           : [];
         setFolders(activeFiles);
       }

@@ -12,6 +12,7 @@ import Update from "../../pages/Update/update.jsx";
 import Starred from "../Starred/Starred.jsx";
 import SharedItems from '../SharedItems/SharedItems.jsx'
 import Recent from "../Recent/Recent.jsx";
+import HomePage from "../HomePage/HomePage.jsx";
 
 function MainPage() {
   const navigate = useNavigate();
@@ -145,13 +146,17 @@ function MainPage() {
         >
           <Routes>
             {/* <Route path="/" element={<MyDrive />} /> */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
             <Route path="/my-drive" element={<MyDrive setFolderIdInMainPage = {setFolderIdInMainPage} />} />
+            <Route path="/my-drive/:parentId" element={<MyDrive setFolderIdInMainPage={setFolderIdInMainPage} />} />
             <Route path="/recent" element={<Recent />} />
             <Route path="/starred" element={<Starred />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="/search/:query" element={<SearchResults />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="shared-with-me" element={<SharedItems/>}/>
+            <Route path="shared-with-me/:parentId" element={<SharedItems />} />
             <Route
               path="/create"
               element={

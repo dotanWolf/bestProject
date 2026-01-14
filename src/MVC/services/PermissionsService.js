@@ -76,97 +76,85 @@ class PermissionService {
     });
   }
 
-  updatePermission(fileId, permissionId, updates, userId) {
+ updatePermission(fileId, permissionId, updates, userId) {
     const file = fileRepository.findById(fileId);
-
-    if (!updates.role) {
-      const error = new Error("must provide role");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    if (!file) {
-      const error = new Error("File not found");
-      error.statusCode = 404;
-      throw error;
-    }
-
-    // Only owner can update permissions
-    if (file.ownerId !== userId) {
-      const error = new Error("Access denied");
-      error.statusCode = 403;
-      throw error;
-    }
-
     const permission = permissionRepository.findById(permissionId);
-
+    // 1. Basic Validation
+    if (!file) throw Object.assign(new Error("File not found"), { statusCode: 404 });
     if (!permission || permission.fileId !== fileId) {
-      const error = new Error("Permission not found");
-      error.statusCode = 404;
-      throw error;
+        throw Object.assign(new Error("Permission not found"), { statusCode: 404 });
     }
-
-    // Validate role if provided
-    if (updates.role && !["viewer", "editor", "owner"].includes(updates.role)) {
-      const error = new Error("Invalid role");
-      error.statusCode = 400;
-      throw error;
+    // 2. Authorization Logic
+    const isOwner = file.ownerId === userId;
+    const isSelfUpdate = permission.userId === userId;
+    if (!isOwner && !isSelfUpdate) {
+        throw Object.assign(new Error("Access denied"), { statusCode: 403 });
     }
-
-    return permissionRepository.update(permissionId, updates);
-  }
+    // 3. Selective Update Logic
+    let finalUpdates = {};
+    if (isOwner) {
+        // Owners can change roles or star status for others
+        if (updates.role) {
+            if (!["viewer", "editor", "owner"].includes(updates.role)) {
+                throw Object.assign(new Error("Invalid role"), { statusCode: 400 });
+            }
+            finalUpdates.role = updates.role;
+        }
+        if (updates.hasOwnProperty('isStarred')) finalUpdates.isStarred = updates.isStarred;
+    } else {
+        if (updates.hasOwnProperty('isStarred')) {
+            finalUpdates.isStarred = updates.isStarred;
+        } else {
+            throw Object.assign(new Error("Forbidden: You can only update your star status"), { statusCode: 403 });
+        }
+    }
+    return permissionRepository.update(permissionId, finalUpdates);
+}
 
   deletePermission(fileId, permissionId, userId) {
     const file = fileRepository.findById(fileId);
-
-    if (!file) {
-      const error = new Error("File not found");
-      error.statusCode = 404;
-      throw error;
-    }
-
-    // Only owner can delete permissions
-    if (file.ownerId !== userId) {
-      const error = new Error("Access denied");
-      error.statusCode = 403;
-      throw error;
-    }
-
     const permission = permissionRepository.findById(permissionId);
 
+    // 1. Basic Validation
+    if (!file) throw Object.assign(new Error("File not found"), { statusCode: 404 });
     if (!permission || permission.fileId !== fileId) {
-      const error = new Error("Permission not found");
-      error.statusCode = 404;
-      throw error;
+        throw Object.assign(new Error("Permission not found"), { statusCode: 404 });
     }
 
+    const isOwner = file.ownerId === userId;
+    const isSelfDelete = permission.userId === userId;
+
+    // 2. Logic Change: Allow Owner OR the user themselves to delete the permission
+    if (!isOwner && !isSelfDelete) {
+      throw Object.assign(new Error("Access denied: Only owner or self can remove access"), { statusCode: 403 });
+    }
+
+    // 3. Perform Delete
     return permissionRepository.delete(permissionId);
   }
 
   getFilesWithPermissions(userId) {
-    const sharedPermissions = permissionRepository.findByUserId(userId) || [];
-    const sharedFileIds = sharedPermissions.map((p) => p.fileId);
+  const sharedPermissions = permissionRepository.findByUserId(userId) || [];
+  
+  return sharedPermissions
+    .map((p) => {
+      const file = fileRepository.findById(p.fileId);
+      if (!file) return null;
 
-    return sharedFileIds
-      .map((id) => fileRepository.findById(id))
-      .filter((file) => {
-        // 1. If file doesn't exist, skip it
-        if (!file) return false;
+      return { 
+        ...file, 
+        role: p.role, 
+        isStarred: p.isStarred || false // כוכב אישי לכל משתמש
+      };
+    })
+    .filter((file) => {
+      if (!file) return false;
+      if (file.parentId == null) return true;
 
-        // 2. If it's a root-level shared file, include it
-        if (file.parentId == null) return true;
-
-        // 3. If it's in a folder, check if user has access to that folder
-        const parentPerm = permissionRepository.findByFileAndUser(
-          file.parentId,
-          userId
-        );
-        if (parentPerm && parentPerm.canRead()) {
-          return false;
-        }
-        return true;
-      });
-  }
+      const parentPerm = permissionRepository.findByFileAndUser(file.parentId, userId);
+      return !(parentPerm && parentPerm.canRead());
+    });
+}
 
   getFilesWithPermissionsbyParentId(userId, parentId) {
     // 1. Get ALL files that live inside this parent folder

@@ -1,9 +1,40 @@
+
+.dark-mode .update-canvas,
+.dark-mode .update-container-wrapper {
+  --editor-bg: #1a1a1a;
+  --header-bg: #2a2a2a;
+  --header-border: #333;
+  --text-primary: #e0e0e0;
+  --text-secondary: #888;
+  --btn-border: #444;
+  --btn-text: #ccc;
+  --btn-hover-border: #666;
+  --preview-bg: #101010;
+}
+
+/* LIGHT MODE */
+.light-mode .update-canvas,
+.light-mode .update-container-wrapper {
+  --editor-bg: #ffffff;
+  --header-bg: #f8f9fa; /* Google Drive Light Gray */
+  --header-border: #dadce0;
+  --text-primary: #202124;
+  --text-secondary: #5f6368;
+  --btn-border: #dadce0;
+  --btn-text: #3c4043;
+  --btn-hover-border: #202124;
+  --preview-bg: #f1f3f4;
+}
+
+/* --- LAYOUT & STYLING --- */
+
 .update-canvas {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #1a1a1a;
+  background: var(--editor-bg); /* Use Variable */
+  transition: background 0.3s, color 0.3s;
 }
 
 .update-header {
@@ -11,9 +42,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 30px;
-  background: #2a2a2a;
-  border-bottom: 1px solid #333;
+  background: var(--header-bg); /* Use Variable */
+  border-bottom: 1px solid var(--header-border); /* Use Variable */
   flex-shrink: 0;
+  transition: background 0.3s;
 }
 
 .file-info-pill {
@@ -26,7 +58,7 @@
   margin: 0;
   font-size: 20px;
   font-weight: 400;
-  color: #4285f4;
+  color: #4285f4; /* Keep blue for both modes */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -46,16 +78,18 @@
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.2s;
 }
 
 .cancel-btn {
   background: transparent;
-  border: 1px solid #444;
-  color: #ccc;
+  border: 1px solid var(--btn-border); /* Use Variable */
+  color: var(--btn-text); /* Use Variable */
 }
 
 .cancel-btn:hover {
-  border-color: #666;
+  border-color: var(--btn-hover-border);
+  background-color: rgba(128, 128, 128, 0.1);
 }
 
 .save-btn {
@@ -65,10 +99,11 @@
 
 .save-btn:hover:not(:disabled) {
   background: #5a95f5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .save-btn:disabled {
-  background: #555;
+  background: #9aa0a6; /* Neutral gray for disabled */
   cursor: not-allowed;
 }
 
@@ -83,15 +118,15 @@
   font-size: 16px;
   font-family: 'Consolas', 'Monaco', monospace;
   line-height: 1.6;
-  background: #1a1a1a;
-  color: #e0e0e0;
+  background: var(--editor-bg); /* Use Variable */
+  color: var(--text-primary);   /* Use Variable */
   border: none;
   outline: none;
   resize: none;
 }
 
 .editor::placeholder {
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .loading {
@@ -100,14 +135,16 @@
   justify-content: center;
   height: 100%;
   font-size: 18px;
-  color: #888;
+  color: var(--text-secondary);
+  background-color: var(--editor-bg);
 }
+
 .preview-container {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #101010;
+  background: var(--preview-bg); /* Use Variable */
   overflow: hidden;
   padding: 20px;
 }
@@ -116,17 +153,18 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  /* Add slight shadow to separate image from bg in light mode */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
 }
 
 .preview-frame {
   width: 100%;
   height: 100%;
   border: none;
-  background: #fff; /* PDFs usually need white bg */
+  background: #fff; /* PDFs usually need white bg regardless of theme */
 }
 
 .no-preview {
-  color: #666;
+  color: var(--text-secondary); /* Use Variable */
   text-align: center;
 }

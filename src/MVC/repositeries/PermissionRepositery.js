@@ -62,10 +62,23 @@ class PermissionRepository {
       return null;
     }
 
-    permission.role = updates.role
+    Object.keys(updates).forEach(key => {
+    permission[key] = updates[key];
+    });
     return permission;
   }
+  updateSelfPermission(fileId, userId, updates) {
+  // Find the permission record for THIS specific user and file
+  const permission = permissionRepository.findByFileAndUser(fileId, userId);
+  
+  if (!permission) {
+    const error = new Error("Permission not found");
+    error.statusCode = 404;
+    throw error;
+  }
 
+  return permissionRepository.update(permission.id, updates);
+}
   /**
    * Delete permission
    */
