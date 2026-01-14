@@ -3,7 +3,7 @@
 https://github.com/dotanWolf/bestProject.git
 
 about the project-
-This project is a full-stack Web application developed using React, Bootstrap, and Node.js, designed to replicate the core functionality and user interface of Google Drive. The application features a dynamic React frontend that communicates with a RESTful server to manage real-time data, including user authentication via JWT, file and folder organization, search functionality, and a toggleable dark/light theme.
+This project is a fullStack Web application developed using React, Bootstrap, and Node.js, designed to replicate the core functionality and user interface of Google Drive. The application features a dynamic React frontend that communicates with a RESTful server to manage real time data, including user authentication via JWT, file and folder organization, search functionality, and a toggleable dark/light theme.
 
 instruction to run the code:  
 use the following commands in the terminal:  
@@ -17,7 +17,7 @@ then go over to http://localhost:5173/ to see the app
 there you will be met with this page
 ![landing page](images/3.png)  
  we will choose to sign up  
- ![signup-username](images/4.png)  //
+ ![signup-username](images/21.png)  
  ![signup-email](images/4.png)  
  ![signup-password](images/5.png)
 ![signup-image](images/6.png)
@@ -25,6 +25,8 @@ after that we are redirected to the main page
 ![main page](images/18.png)
 there we can add folders or files
 ![create folder](images/7.png)
+![create folder](images/8.png)
+
 we can go inside and create subfolders or add new files
 ![create file](images/11.png)
 ![file created](images/12.png)
