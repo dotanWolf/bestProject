@@ -90,7 +90,7 @@ class FileService {
   getRootFiles(userId) {
     // Get files at root level (parentId = null) owned by user
     const ownedFiles = fileRepository.findByOwnerAndParent(userId, null);
-
+    console.log(fileRepository.files)
     // // Also get files shared with user at root level
     // const sharedPermissions = permissionRepository.findByUserId(userId);
     // const sharedFileIds = sharedPermissions.map(p => p.fileId);
