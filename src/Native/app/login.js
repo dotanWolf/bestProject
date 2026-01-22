@@ -11,7 +11,7 @@ export default function Login() {
   const [userInput, setUserInput] = useState([]);
   const [step, setStep] = useState(0);
   const router = useRouter();
-  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const IP = process.env.EXPO_PUBLIC_IP;
   const data = [
     {
       header: "Email",
@@ -43,7 +43,7 @@ export default function Login() {
         setInput("");
       } else {
         try {
-          const tokenRes = await fetch(`${API_URL}/api/tokens`, {
+          const tokenRes = await fetch(`http://${IP}:8080/api/tokens`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -53,6 +53,7 @@ export default function Login() {
           });
 
           if (tokenRes.ok) {
+            console.log("communicate correctly")
             const tokenData = await tokenRes.json();
             // localStorage.setItem("token", tokenData.token);
             // localStorage.setItem("userId", tokenData.userId);
@@ -60,7 +61,7 @@ export default function Login() {
           }
           alert("Invalid credentials.");
         } catch (error) {
-          alert("nigga2");
+          // alert("communicate baddly");
         }
       }
     } else {

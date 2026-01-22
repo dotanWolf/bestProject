@@ -5,12 +5,15 @@ import Input from "../components/Input";
 import { use, useState } from "react";
 import { Link } from "expo-router";
 import { useRouter } from "expo-router";
+import { saveToken, getToken, removeToken, saveUserId } from "../tokenUtil";
 
 export default function Login() {
   const [input, setInput] = useState("");
   const [userInput, setUserInput] = useState([]);
   const [step, setStep] = useState(0);
   const router = useRouter();
+  const IP = process.env.EXPO_PUBLIC_IP;
+
   const data = [
     {
       header: "username",
@@ -53,11 +56,12 @@ export default function Login() {
           username: updatedInput[0],
           email: updatedInput[1],
           password: updatedInput[2],
-          profileImage: updatedInput[3],
+          // profileImage: updatedInput[3],
+          profileImage: "placeholder",
         };
 
         try {
-          const userRes = await fetch(`${API_URL}/api/users`, {
+          const userRes = await fetch(`http://${IP}:8080/api/users`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(user),
@@ -65,7 +69,7 @@ export default function Login() {
 
           if (userRes.ok) {
             try {
-              const tokenRes = await fetch(`${API_URL}/api/tokens`, {
+              const tokenRes = await fetch(`http://${IP}:8080/api/tokens`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -78,6 +82,8 @@ export default function Login() {
                 const tokenData = await tokenRes.json();
                 // localStorage.setItem("token", tokenData.token);
                 // localStorage.setItem("userId", tokenData.userId);
+                await saveToken(tokenData.token);
+                await saveUserId(tokenData.userId);
                 router.replace("/");
               }
             } catch (error) {

@@ -20,6 +20,9 @@ app.use('/api/users', users)
 app.use('/api/tokens', tokens)
 app.use('/api/search', search)
 
-app.listen(8080)
+const PORT = 8080
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+})
 
 
