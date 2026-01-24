@@ -1,13 +1,20 @@
-import { Text, TouchableOpacity, View } from "react-native";
-import { styles } from "../styles/EntryList.styles";
+import { ScrollView, View, Text, StyleSheet } from "react-native";
 import Entry from "./Entry"
 
-export default function EntryList({ entries, handlePress }) {
+export default function EntryList({ entries, handlePress, handleDelete, handleRename, handleStar, handleDetails }) {
   return (
-    <View style={styles.container}>
+    <ScrollView>
       {entries.map((entry) => (
-        <Entry handlePress={handlePress} key={entry.id} entry={entry}></Entry>
+        <Entry 
+           key={entry.id} 
+           entry={entry} 
+           handlePress={handlePress}
+           handleDelete={handleDelete}
+           handleRename={handleRename}
+           handleStar={handleStar}
+           handleDetails={handleDetails}
+        />
       ))}
-    </View>
+    </ScrollView>
   );
 }

@@ -1,46 +1,44 @@
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
-const TOKEN_KEY = 'token';
-const ID_KEY = 'userId'
+const isWeb = Platform.OS === 'web';
 
 export const saveToken = async (token) => {
-  try {
-    await SecureStore.setItemAsync(TOKEN_KEY, token);
-  } catch (error) {
-    console.error("Error saving token:", error);
+  if (isWeb) {
+    localStorage.setItem('token', token);
+  } else {
+    await SecureStore.setItemAsync('token', token);
   }
 };
 
 export const getToken = async () => {
-  try {
-    return await SecureStore.getItemAsync(TOKEN_KEY);
-  } catch (error) {
-    console.error("Error fetching token:", error);
-    return null;
+  if (isWeb) {
+    return localStorage.getItem('token');
+  } else {
+    return await SecureStore.getItemAsync('token');
   }
 };
 
 export const removeToken = async () => {
-  try {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
-  } catch (error) {
-    console.error("Error removing token:", error);
+  if (isWeb) {
+    localStorage.removeItem('token');
+  } else {
+    await SecureStore.deleteItemAsync('token');
   }
 };
 
-export const saveUserId = async (userId) => {
-  try {
-    await SecureStore.setItemAsync(ID_KEY, userId);
-  } catch (error) {
-    console.error("Error saving token:", error);
+export const saveUserId = async (id) => {
+  if (isWeb) {
+    localStorage.setItem('userId', id);
+  } else {
+    await SecureStore.setItemAsync('userId', id);
   }
 };
 
 export const getUserId = async () => {
-  try {
-    return await SecureStore.getItemAsync(ID_KEY);
-  } catch (error) {
-    console.error("Error fetching token:", error);
-    return null;
+  if (isWeb) {
+    return localStorage.getItem('userId');
+  } else {
+    return await SecureStore.getItemAsync('userId');
   }
 };
