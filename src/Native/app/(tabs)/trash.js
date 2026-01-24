@@ -186,7 +186,6 @@ export default function Trash() {
         </View>
       ) : (
         <>
-          {/* 4. חיבור ה-ref לרכיב ה-ScrollView */}
           <ScrollView ref={scrollViewRef}>
             {entries.map((entry) => (
               <TrashEntry

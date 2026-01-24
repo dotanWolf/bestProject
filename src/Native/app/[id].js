@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { View, ActivityIndicator, Alert } from "react-native";
+import { View, ActivityIndicator, Alert, Text } from "react-native";
+import { useFocusEffect } from '@react-navigation/native'; // 👇 חשוב לרענון בחזרה למסך
 
 import { styles } from "../styles/index.styles";
 import TopBar from "../components/TopBar";
@@ -12,12 +13,23 @@ import { useFolderView } from "../hooks/useFolderView";
 import { useFiles } from "../contexts/FilesContext";
 
 export default function FolderView() {
-  const { id } = useLocalSearchParams();
+  const params = useLocalSearchParams();
   const router = useRouter();
 
+  const folderId = useMemo(() => {
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
+    return id;
+  }, [params.id]);
+
+  // בדיקה בלוג - תראה את זה בטרמינל
+  useEffect(() => {
+    console.log("📂 Active Folder ID:", folderId);
+  }, [folderId]);
+
+  // שימוש ב-Hook עם ה-ID המתוקן
   const {
     entries,
-    loading,
+    loading: hookLoading,
     isAddOpen,
     setIsAddOpen,
     showPermissions,
@@ -29,20 +41,19 @@ export default function FolderView() {
     handleFileUpload,
     handleCreateFolder,
     handleOpenPermissions,
-  } = useFolderView(id); // ✅ Pass folder id
+  } = useFolderView(folderId);
 
-  const { allFiles, refreshFiles, initialize } = useFiles();
+  const { refreshFiles, token } = useFiles();
 
-  useEffect(() => {
-    const init = async () => {
-      await initialize();
-      
-      if (allFiles.length === 0) {
+  // 2. רענון אוטומטי בכניסה לתיקייה (גם אם כבר יש קבצים)
+  useFocusEffect(
+    React.useCallback(() => {
+      if (token) {
+        // console.log("🔄 Folder focused - refreshing...");
         refreshFiles();
       }
-    };
-    init();
-  }, []);
+    }, [token, folderId])
+  );
 
   const handleBack = () => {
     if (router.canGoBack()) {
@@ -54,6 +65,7 @@ export default function FolderView() {
 
   const handlePress = (file) => {
     if (file.type === "folder") {
+      // ניווט לתיקייה בתוך תיקייה (רקורסיה)
       router.push({
         pathname: "/[id]",
         params: { id: file.id },
@@ -63,7 +75,7 @@ export default function FolderView() {
     }
   };
 
-  if (loading && allFiles.length === 0) {
+  if (hookLoading && entries.length === 0) {
     return (
       <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
         <ActivityIndicator size="large" color="#0000ff"/>
@@ -75,14 +87,22 @@ export default function FolderView() {
     <View style={styles.container}>
       <TopBar handleMenuOpen={handleBack} text="← Back" />
 
-      <EntryList 
-        entries={entries} 
-        handlePress={handlePress} 
-        handleRename={handleRename}
-        handleDelete={handleDelete}
-        handleDetails={handleOpenPermissions}
-        handleStar={handleStar}
-      />
+      {/* בדיקה ויזואלית אם הרשימה ריקה */}
+      {entries.length === 0 ? (
+         <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+            <Text style={{color: 'gray'}}>This folder is empty</Text>
+            <Text style={{fontSize: 10, color: '#ccc'}}>ID: {folderId}</Text>
+         </View>
+      ) : (
+        <EntryList 
+          entries={entries} 
+          handlePress={handlePress} 
+          handleRename={handleRename}
+          handleDelete={handleDelete}
+          handleDetails={handleOpenPermissions}
+          handleStar={handleStar}
+        />
+      )}
 
       <Button
         title="+"

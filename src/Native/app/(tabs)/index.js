@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react"; // 1. חובה לייבא useCallback
 import { useRouter } from "expo-router";
-import { View, ActivityIndicator, Alert } from "react-native";
+import { View, ActivityIndicator, Alert, Text } from "react-native";
+import { useFocusEffect } from '@react-navigation/native'; // 2. חובה לייבא useFocusEffect
 
 import { styles } from "../../styles/index.styles";
 import TopBar from "../../components/TopBar";
@@ -16,10 +17,10 @@ export default function Main() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
-  // ✅ קבל הכל מה-hook!
+  // שימוש ב-Hook שלנו עבור תיקיית השורש (null)
   const {
     entries,
-    loading,
+    loading: hookLoading, // שיניתי את השם כדי למנוע התנגשות
     isAddOpen,
     setIsAddOpen,
     showPermissions,
@@ -31,21 +32,24 @@ export default function Main() {
     handleFileUpload,
     handleCreateFolder,
     handleOpenPermissions,
-  } = useFolderView(null); // null = root
+  } = useFolderView(null); 
 
-  const { allFiles, refreshFiles, initialize } = useFiles();
+  const { refreshFiles, token, initialize } = useFiles();
 
+  // אתחול ראשוני (Login check)
   useEffect(() => {
-    const init = async () => {
-      await initialize();
-      
-      // Fetch only if no data
-      if (allFiles.length === 0) {
-        refreshFiles();
-      }
-    };
-    init();
+    initialize();
   }, []);
+
+  // 👇 התיקון הקריטי: רענון בכל פעם שנכנסים למסך הבית
+  useFocusEffect(
+    useCallback(() => {
+      if (token) {
+        console.log("🏠 Home Screen focused - Refreshing list...");
+        refreshFiles(); // זה מה שיביא את הקובץ ששוחזר!
+      }
+    }, [token]) // ירוץ כשיש טוקן וחוזרים למסך
+  );
 
   const handlePress = (file) => {
     if (file.type === "folder") {
@@ -58,7 +62,10 @@ export default function Main() {
     }
   };
 
-  if (loading && allFiles.length === 0) {
+  const handleMenuOpen = () => setIsMenuOpen(true);
+
+  // מציגים טעינה רק אם אין שום קבצים עדיין
+  if (hookLoading && entries.length === 0) {
     return (
       <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
         <ActivityIndicator size="large" color="#0000ff"/>
@@ -69,16 +76,22 @@ export default function Main() {
   return (
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-      <TopBar handleMenuOpen={() => setIsMenuOpen(true)} />
+      <TopBar handleMenuOpen={handleMenuOpen} />
       
-      <EntryList 
-        entries={entries} 
-        handlePress={handlePress}
-        handleDelete={handleDelete}
-        handleRename={handleRename}
-        handleStar={handleStar}
-        handleDetails={handleOpenPermissions} 
-      />
+      {entries.length === 0 ? (
+         <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+            <Text style={{color: 'gray'}}>No files found</Text>
+         </View>
+      ) : (
+        <EntryList 
+          entries={entries} 
+          handlePress={handlePress}
+          handleDelete={handleDelete}
+          handleRename={handleRename}
+          handleStar={handleStar}
+          handleDetails={handleOpenPermissions} 
+        />
+      )}
       
       <Button
         title="+"
