@@ -1,150 +1,136 @@
+import React from "react"; // ✅ הוסף
 import { useRouter } from "expo-router";
-import { View } from "react-native";
-import {
-  saveToken,
-  getToken,
-  removeToken,
-  saveUserId,
-  getUserId,
-} from "../../tokenUtil";
+import { View, ActivityIndicator, Alert } from "react-native";
+import { getToken, getUserId } from "../../tokenUtil";
 import { useEffect, useState } from "react";
+import { useFocusEffect } from '@react-navigation/native'; // ✅ הוסף
 import { styles } from "../../styles/index.styles";
 import TopBar from "../../components/TopBar";
 import EntryList from "../../components/EntryList";
-import Input from "../../components/Input";
-import Button from "../../components/Button";
-import AddMenu from "../../components/addMenu";
+import SideMenu from "../../components/SideMenu";
+import PermissionsModal from "../../components/PermissionsModal";
+import { useFileActions } from "../../hooks/useFileActions"; // ✅ הוסף
+
 export default function Starred() {
   const router = useRouter();
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [user, setUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(true);
-  const [currentFolderId, setCurrentFolderId] = useState(null);
-  const [token, setToken] = useState(null);
-  const [userId, setUserId] = useState(null);
   const [entries, setEntries] = useState([]);
-  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showPermissions, setShowPermissions] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const IP = process.env.EXPO_PUBLIC_IP;
 
-  const handleLogOut = async () => {
-    await removeToken();
-  };
+  const fetchStarredFiles = async () => {
+    if (!token) return;
 
-  const fetchUser = async (token, userId) => {
+    console.log("⭐ Fetching starred files...");
+    
     try {
-      const response = await fetch(`http://${IP}:8080/api/users/${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`, // Use Capital A and standard Bearer casing
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data);
-      } else {
-        router.replace("/signup");
-      }
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
-    } finally {
-      setLoadingUser(false);
-    }
-  };
-
-  const fetchFiles = async (token) => {
-    try {
-      // FIX: Point to the specific starred endpoint
       const response = await fetch(`http://${IP}:8080/api/files/starred`, {
         headers: {
-          authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         const starredFiles = await response.json();
-        //console.log("Starred Files fetched:", starredFiles);
-        // Backend now handles filtering, so we just set state
+        console.log("✅ Starred files loaded:", starredFiles.length);
         setEntries(starredFiles);
-      } else {
-        console.error("Failed to fetch files");
       }
     } catch (error) {
-      console.error("Network error:", error);
+      console.error("Error fetching starred files:", error);
     } finally {
+      setLoading(false);
     }
   };
+
+  // ✅ Use the hook
+  const { handleDelete, handleRename, handleStar } = useFileActions(
+    token,
+    currentUserId,
+    fetchStarredFiles,
+    IP
+  );
 
   useEffect(() => {
-    const checkAuthAndFetch = async () => {
-      try {
-        const token = await getToken();
-        const userId = await getUserId();
-
-        if (token && userId) {
-          setToken(token);
-          setUserId(userId);
-          await fetchUser(token, userId);
-          await fetchFiles(token);
-        } else {
-          router.replace("/login");
-        }
-      } catch (error) {
-        router.replace("/login");
-      } finally {
-        setLoadingUser(false);
+    const init = async () => {
+      const userToken = await getToken();
+      const userId = await getUserId();
+      
+      if (userToken) {
+        setToken(userToken);
+        setCurrentUserId(userId);
+      } else {
+        router.replace("/(auth)/login");
+        setLoading(false);
       }
     };
-
-    checkAuthAndFetch();
+    init();
   }, []);
 
-  const handleCreateFolder = async (name) => {
-    try {
-      const response = await fetch(`http://${IP}:8080/api/files`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: name,
-          type: "folder",
-          content: "",
-          parentId: currentFolderId,
-          isTrashed: false,
-          isStarred: false,
-        }),
-      });
+  useEffect(() => {
+    if (token) {
+      fetchStarredFiles();
+    }
+  }, [token]);
 
-      if (response.ok) {
-        fetchFiles(token);
-      } else {
-        alert("Creation failed");
+  // ✅ רענון כשחוזרים ל-Starred tab
+  useFocusEffect(
+    React.useCallback(() => {
+      if (token) {
+        console.log("⭐ Starred tab focused - refreshing...");
+        fetchStarredFiles();
       }
-    } catch (error) {
-      console.error(error);
+    }, [token])
+  );
+
+  const handleOpenPermissions = (file) => {
+    setSelectedFile(file);
+    setShowPermissions(true);
+  };
+
+  const handleMenuOpen = () => setIsMenuOpen(true);
+
+  const handlePress = (file) => {
+    if (file.type === "folder") {
+      router.push({
+        pathname: "/[id]",
+        params: { id: file.id },
+      });
+    } else {
+      Alert.alert("File", `Opening: ${file.name}`);
     }
   };
 
-  const handleFileUpload = async () => {
-    console.log("Upload logic goes here");
-    // You will need expo-document-picker for this later!
-  };
+  if (loading) {
+    return (
+      <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+        <ActivityIndicator size="large" color="#0000ff"/>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <TopBar></TopBar>
-      <EntryList entries={entries}></EntryList>
-      <Button
-        title="+"
-        style={styles.addbutton}
-        onPress={() => setIsAddOpen(true)}
-      ></Button>
-      <AddMenu
-        visible={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
-        onCreateFolder={handleCreateFolder}
-        onUploadFile={handleFileUpload}
+      <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <TopBar handleMenuOpen={handleMenuOpen} />
+      
+      <EntryList 
+        entries={entries} 
+        handlePress={handlePress}
+        handleDelete={handleDelete}
+        handleRename={handleRename}
+        handleStar={handleStar}
+        handleDetails={handleOpenPermissions} 
+      />
+
+      <PermissionsModal 
+        visible={showPermissions}
+        file={selectedFile}
+        onClose={() => setShowPermissions(false)}
       />
     </View>
   );
