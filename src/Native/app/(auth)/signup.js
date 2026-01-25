@@ -1,15 +1,28 @@
-import { View, Text, Alert } from "react-native";
-import { styles } from "../../styles/login.styles";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  Alert,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import { useRouter } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
+import { saveToken, saveUserId } from "../../tokenUtil";
+import { styles } from "../../styles/login.styles"; // Assumes your existing styles
 import Button from "../../components/Button";
 import Input from "../../components/Input";
-import { useState } from "react";
-import { useRouter } from "expo-router";
-import { saveToken, saveUserId, getToken } from "../../tokenUtil";
 
 export default function Signup() {
   const [input, setInput] = useState("");
   const [userInput, setUserInput] = useState([]);
   const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const [base64Image, setBase64Image] = useState(null);
+
   const router = useRouter();
   const IP = process.env.EXPO_PUBLIC_IP;
 
@@ -32,114 +45,255 @@ export default function Signup() {
       validator: (input) => input.length >= 8,
       invalidMessage: "Password must be at least 8 characters",
     },
+    {
+      header: "Profile Picture",
+      placeholder: "",
+      validator: () => true, // Optional step
+      invalidMessage: "",
+    },
   ];
 
   const currentData = data[step];
 
-  const handleClick = async () => {
+  const pickImage = async (useCamera = false) => {
+    const permissionMethod = useCamera
+      ? ImagePicker.requestCameraPermissionsAsync
+      : ImagePicker.requestMediaLibraryPermissionsAsync;
+
+    const { status } = await permissionMethod();
+
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        "We need access to your device to set a profile picture.",
+      );
+      return;
+    }
+
+    const result = await (
+      useCamera
+        ? ImagePicker.launchCameraAsync
+        : ImagePicker.launchImageLibraryAsync
+    )({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.4, // Compressed for server stability
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+      setBase64Image(result.assets[0].base64);
+    }
+  };
+
+  const handleNext = async () => {
+    // If it's the final step (Image), submit the form
+    if (step === 3) {
+      submitSignup();
+      return;
+    }
+
+    // Validation for text steps
     const isValid = currentData.validator(input);
-    
+
     if (isValid) {
       const updatedInput = [...userInput, input];
       setUserInput(updatedInput);
-      
-      if (step < data.length - 1) {
-        setStep(step + 1);
-        setInput("");
-      } else {
-        // Final step - signup
-        const user = {
-          username: updatedInput[0],
-          email: updatedInput[1],
-          password: updatedInput[2],
-          profileImage: "placeholder",
-        };
-
-        try {
-          console.log("📝 Attempting signup...");
-          
-          const userRes = await fetch(`http://${IP}:8080/api/users`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(user),
-          });
-
-          if (userRes.ok) {
-            console.log("✅ User created!");
-            
-            // Now login to get token
-            const tokenRes = await fetch(`http://${IP}:8080/api/tokens`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                email: user.email,
-                password: user.password,
-              }),
-            });
-
-            if (tokenRes.ok) {
-              const tokenData = await tokenRes.json();
-              
-              console.log("✅ Login successful!");
-              console.log("Token:", tokenData.token);
-              console.log("UserId:", tokenData.userId);
-              
-              await saveToken(tokenData.token);
-              await saveUserId(tokenData.userId);
-              
-              // Verify
-              const savedToken = await getToken();
-              console.log("✅ Token saved successfully:", !!savedToken);
-              
-              router.replace("/(tabs)");
-            } else {
-              Alert.alert("Error", "Account created but login failed");
-            }
-          } else {
-            const err = await userRes.json();
-            Alert.alert("Error", err.error || "Signup failed");
-          }
-        } catch (error) {
-          console.error("❌ Signup error:", error);
-          Alert.alert("Error", "Could not connect to server");
-        }
-      }
+      setStep(step + 1);
+      setInput("");
     } else {
       Alert.alert("Invalid Input", currentData.invalidMessage);
     }
   };
 
-  const handleChangeText = (text) => {
-    setInput(text);
+  const submitSignup = async () => {
+    setLoading(true);
+    const user = {
+      username: userInput[0],
+      email: userInput[1],
+      password: userInput[2],
+      profileImage: base64Image || "placeholder",
+    };
+
+    try {
+      // 1. Create User
+      const userRes = await fetch(`http://${IP}:8080/api/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user),
+      });
+
+      if (userRes.ok) {
+        // 2. Login to get token
+        const tokenRes = await fetch(`http://${IP}:8080/api/tokens`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: user.email,
+            password: user.password,
+          }),
+        });
+
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json();
+          await saveToken(tokenData.token);
+          await saveUserId(tokenData.userId);
+          router.replace("/(tabs)");
+        } else {
+          Alert.alert("Success", "Account created! Please log in.");
+          router.replace("/login");
+        }
+      } else {
+        const err = await userRes.json();
+        Alert.alert("Error", err.error || "Signup failed");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      Alert.alert("Error", "Server connection failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBack = () => {
     if (step >= 1) {
       setStep(step - 1);
-      setInput(userInput[step - 1] || "");
+      const prevValue = userInput[step - 1];
+      setInput(prevValue || "");
       setUserInput(userInput.slice(0, -1));
+    } else {
+      router.back();
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.top}>
-        <Button title="Back" onPress={handleBack} />
+        <View style={localStyles.headerRow}>
+          <TouchableOpacity onPress={handleBack}>
+            <Text style={{ color: "#007AFF", fontSize: 16 }}>Back</Text>
+          </TouchableOpacity>
+          <Text style={localStyles.stepText}>Step {step + 1} of 4</Text>
+        </View>
+
         <Text style={styles.header}>{currentData.header}</Text>
-        <Input
-          text={currentData.placeholder}
-          value={input}
-          onChangeText={handleChangeText}
-          secureTextEntry={currentData.header === "Password"}
-        />
+
+        {step < 3 ? (
+          <Input
+            text={currentData.placeholder}
+            value={input}
+            onChangeText={setInput}
+            secureTextEntry={currentData.header === "Password"}
+          />
+        ) : (
+          <View style={localStyles.imageStepContainer}>
+            <TouchableOpacity
+              onPress={() => pickImage(false)}
+              style={localStyles.avatarFrame}
+            >
+              {profileImage ? (
+                <Image
+                  source={{ uri: profileImage }}
+                  style={localStyles.avatarImage}
+                />
+              ) : (
+                <View style={localStyles.placeholderCircle}>
+                  <Text style={localStyles.placeholderText}>TAP TO SELECT</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <View style={localStyles.imageActionRow}>
+              <TouchableOpacity
+                style={localStyles.smallBtn}
+                onPress={() => pickImage(false)}
+              >
+                <Text>Gallery</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={localStyles.smallBtn}
+                onPress={() => pickImage(true)}
+              >
+                <Text>Camera</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </View>
+
       <View style={styles.bottom}>
-        <Button
-          title="Login"
-          onPress={() => router.push("/(auth)/login")}
-        />
-        <Button title="Next" onPress={handleClick} />
+        {loading ? (
+          <ActivityIndicator size="large" color="#007AFF" />
+        ) : (
+          <>
+            <Button
+              title="Already have an account?"
+              onPress={() => router.push("/(auth)/login")}
+            />
+            <Button
+              title={step === 3 ? "Finish" : "Next"}
+              onPress={handleNext}
+            />
+          </>
+        )}
       </View>
     </View>
   );
 }
+
+const localStyles = StyleSheet.create({
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  stepText: {
+    color: "gray",
+    fontSize: 12,
+  },
+  imageStepContainer: {
+    alignItems: "center",
+    marginTop: 30,
+  },
+  avatarFrame: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#007AFF",
+    borderStyle: "dashed",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  placeholderCircle: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  placeholderText: {
+    fontSize: 12,
+    color: "#007AFF",
+    fontWeight: "bold",
+  },
+  imageActionRow: {
+    flexDirection: "row",
+    gap: 15,
+    marginTop: 25,
+  },
+  smallBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#eef2f3",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+});

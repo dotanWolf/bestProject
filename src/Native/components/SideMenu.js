@@ -13,6 +13,12 @@ export default function SideMenu({ visible, onClose }) {
   const router = useRouter();
   if (!visible) return null;
 
+  const handleDarkModeToggle = () => {
+    // Implement dark mode toggle functionality here
+    console.log("Dark mode toggled!");
+  }
+
+
   return (
     <View style={styles.container}>
       <Pressable style={styles.overlay} onPress={onClose} />
@@ -50,7 +56,7 @@ export default function SideMenu({ visible, onClose }) {
             <Text style={styles.icon}>🗑️</Text>
             <Text style={styles.itemText}>Trash</Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.item}
             onPress={async () => {
               await removeToken();
@@ -60,7 +66,15 @@ export default function SideMenu({ visible, onClose }) {
             }}
           >
             {/* <Text style={styles.icon}>🗑️</Text> */}
-            <Text style={styles.itemText}>Log Out</Text>
+            {/* <Text style={styles.itemText}>Log Out</Text>
+          </TouchableOpacity> */}
+
+          <TouchableOpacity
+            style={styles.item}
+            onPress={handleDarkModeToggle}
+          >
+            <Text style={styles.icon}>🌙</Text>
+            <Text style={styles.itemText}>dark mode</Text>
           </TouchableOpacity>
           <View style={styles.divider} />
         </View>

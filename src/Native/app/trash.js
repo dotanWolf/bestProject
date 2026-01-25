@@ -24,7 +24,7 @@ export default function Trash() {
   const IP = process.env.EXPO_PUBLIC_IP;
 
   const fetchTrashedFiles = async () => {
-    const token = await getToken()
+    const token = await getToken();
     try {
       // Point to the specific trash endpoint
       const response = await fetch(`http://${IP}:8080/api/files/trash`, {
@@ -43,7 +43,7 @@ export default function Trash() {
     } catch (error) {
       console.error("Network error:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -172,11 +172,19 @@ export default function Trash() {
     );
   }
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-      <TopBar handleMenuOpen={handleMenuOpen} />
-
+      <TopBar
+        handleMenuOpen={handleBack}
+        text="← Back"
+        handlePicturePress={() => setIsProfileVisible(true)}
+        isPictureVisible={false}
+      />
       {entries.length === 0 ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}

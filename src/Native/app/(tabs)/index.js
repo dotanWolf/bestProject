@@ -12,7 +12,8 @@ import SideMenu from "../../components/SideMenu";
 import PermissionsModal from "../../components/PermissionsModal";
 import { useFolderView } from "../../hooks/useFolderView";
 import { useFiles } from "../../contexts/FilesContext";
-import { getToken } from "../../tokenUtil";
+import { getToken, getUserId } from "../../tokenUtil";
+import UserProfileModal from "../../components/UserProfileModal";
 
 export default function Main() {
   const rootFolder = {
@@ -28,6 +29,8 @@ export default function Main() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [folder, setFolder] = useState(rootFolder);
   const [currentFolderId, setCurrentFolderId] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isProfileVisible, setIsProfileVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -35,6 +38,25 @@ export default function Main() {
       fetchCurrentFolder();
     }, [currentFolderId]),
   );
+
+  useEffect(() => {
+    const checkAuthAndFetch = async () => {
+      try {
+        const token = await getToken();
+        const userId = await getUserId();
+
+        if (token && userId) {
+          await fetchUser(token, userId);
+        } else {
+          router.replace("/login");
+        }
+      } catch (error) {
+        router.replace("/login");
+      }
+    };
+
+    checkAuthAndFetch();
+  }, []);
 
   const handlePress = (file) => {
     if (file.type === "folder") {
@@ -44,6 +66,26 @@ export default function Main() {
         pathname: "/[id]",
         params: { id: file.id },
       });
+    }
+  };
+
+  const fetchUser = async (token, userId) => {
+    try {
+      const response = await fetch(`http://${IP}:8080/api/users/${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`, // Use Capital A and standard Bearer casing
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+      } else {
+        router.replace("/signup");
+      }
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+    } finally {
     }
   };
 
@@ -224,13 +266,22 @@ export default function Main() {
     );
   }
 
+  console.log("is profile visible:", isProfileVisible);
+
   return (
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       {currentFolderId ? (
-        <TopBar handleMenuOpen={handleBack} text="← Back" />
+        <TopBar
+          handleMenuOpen={handleBack}
+          text="← Back"
+          handlePicturePress={() => setIsProfileVisible(true)}
+        />
       ) : (
-        <TopBar handleMenuOpen={() => setIsMenuOpen(true)} />
+        <TopBar
+          handleMenuOpen={() => setIsMenuOpen(true)}
+          handlePicturePress={() => setIsProfileVisible(true)}
+        />
       )}
       {currentFolderId && (
         <View style={styles.folderHeader}>
@@ -239,6 +290,13 @@ export default function Main() {
           </Text>
         </View>
       )}
+
+      <UserProfileModal
+        user={user}
+        visible={isProfileVisible}
+        onClose={() => setIsProfileVisible(false)}
+      />
+
       {entries.length === 0 ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
