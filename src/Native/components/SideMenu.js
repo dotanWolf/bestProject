@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { styles } from "../styles/SideMenu.styles";
 import { useRouter } from "expo-router";
+import { removeToken, removeUserId } from "../tokenUtil";
 export default function SideMenu({ visible, onClose }) {
   const router = useRouter();
   if (!visible) return null;
@@ -16,23 +17,50 @@ export default function SideMenu({ visible, onClose }) {
     <View style={styles.container}>
       <Pressable style={styles.overlay} onPress={onClose} />
       <View style={styles.panel}>
-        <View style={styles.header}>
-          <Text style={styles.driveText}>Google Drive</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.item}
+          onPress={() => {
+            router.push("/(tabs)");
+            onClose();
+          }}
+        >
+          <View style={styles.header}>
+            <Text style={styles.driveText}>Google Drive</Text>
+          </View>
+        </TouchableOpacity>
+
         <View style={styles.menuItems}>
-          <TouchableOpacity style={styles.item} onPress={() => {
-            router.push("/recents")
-            onClose()
-          }}>
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => {
+              router.push("/recents");
+              onClose();
+            }}
+          >
             <Text style={styles.icon}>📄</Text>
             <Text style={styles.itemText}>Recent</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.item} onPress={() => {
-            router.push("/trash")
-            onClose()
-          }}>
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => {
+              router.push("/trash");
+              onClose();
+            }}
+          >
             <Text style={styles.icon}>🗑️</Text>
             <Text style={styles.itemText}>Trash</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.item}
+            onPress={async () => {
+              await removeToken();
+              await removeUserId();
+              router.push("/signup");
+              onClose();
+            }}
+          >
+            {/* <Text style={styles.icon}>🗑️</Text> */}
+            <Text style={styles.itemText}>Log Out</Text>
           </TouchableOpacity>
           <View style={styles.divider} />
         </View>

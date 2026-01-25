@@ -1,37 +1,54 @@
-import React from "react"; // ✅ הוסף
+import React, { useCallback } from "react";
 import { useRouter } from "expo-router";
-import { View, ActivityIndicator, Alert } from "react-native";
+import { View, ActivityIndicator, Alert, Text } from "react-native";
 import { getToken, getUserId } from "../../tokenUtil";
 import { useEffect, useState } from "react";
-import { useFocusEffect } from '@react-navigation/native'; // ✅ הוסף
-import { styles } from "../../styles/index.styles";
+import { useFocusEffect } from "@react-navigation/native"; // ✅ הוסף
+import { styles } from "../../styles/starred.styles";
 import TopBar from "../../components/TopBar";
 import EntryList from "../../components/EntryList";
 import SideMenu from "../../components/SideMenu";
 import PermissionsModal from "../../components/PermissionsModal";
 import { useFileActions } from "../../hooks/useFileActions"; // ✅ הוסף
+import Button from "../../components/Button";
+import AddMenu from "../../components/addMenu";
+import * as DocumentPicker from "expo-document-picker";
 
 export default function Starred() {
+  const rootFolder = {
+    name: "root",
+    parentId: null,
+  };
   const router = useRouter();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(null);
-  const [currentUserId, setCurrentUserId] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showPermissions, setShowPermissions] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [currentFolderId, setCurrentFolderId] = useState(null);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [folder, setFolder] = useState(rootFolder);
 
   const IP = process.env.EXPO_PUBLIC_IP;
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchStarredFiles();
+      fetchCurrentFolder();
+    }, [currentFolderId]),
+  );
+
   const fetchStarredFiles = async () => {
+    const token = await getToken();
     if (!token) return;
 
     console.log("⭐ Fetching starred files...");
-    
+    const url = currentFolderId
+      ? `http://${IP}:8080/api/files/permissions/folders/${currentFolderId}`
+      : `http://${IP}:8080/api/files/starred`;
     try {
-      const response = await fetch(`http://${IP}:8080/api/files/starred`, {
+      const response = await fetch(url, {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -47,23 +64,156 @@ export default function Starred() {
     }
   };
 
-  // ✅ Use the hook
-  const { handleDelete, handleRename, handleStar } = useFileActions(
-    token,
-    currentUserId,
-    fetchStarredFiles,
-    IP
-  );
+  const handleCreateFolder = async (name) => {
+    const token = await getToken();
+    if (!token) {
+      console.log("token doesnt exist");
+    }
+
+    console.log(`📂 Creating "${name}" inside ROOT}`);
+
+    try {
+      const folder = {
+        name: name,
+        type: "folder",
+        parentId: currentFolderId,
+        isTrashed: false,
+        isStarred: false,
+        content: null,
+      };
+
+      const response = await fetch(`http://${IP}:8080/api/files`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(folder),
+      });
+
+      if (response.ok) {
+        console.log("✅ Folder created!");
+        router.push("/myDrive");
+      } else {
+        const err = await response.json();
+        console.error("❌ Create error:", err);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchCurrentFolder = async () => {
+    const token = await getToken();
+    if (!token) {
+      console.log("token doesnt exist");
+    }
+    // Use parentId from URL
+    if (currentFolderId) {
+      try {
+        const response = await fetch(
+          `http://${IP}:8080/api/files/${currentFolderId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setFolder(data);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setFolder(rootFolder);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "*/*",
+      });
+
+      if (!result.canceled) {
+        const fileAsset = result.assets[0];
+        setLoading(true);
+
+        // 1. Fetch the local URI to get a Blob (standard Web API)
+        const response = await fetch(fileAsset.uri);
+        const blob = await response.blob();
+
+        // 2. Convert to Base64 (to fit your JSON requirement)
+        // We use a Promise with FileReader for the most modern approach
+        const base64Content = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            // reader.result is "data:application/pdf;base64,JVBER..."
+            // We split to get only the base64 part
+            const base64 = reader.result.split(",")[1];
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        const token = await getToken();
+
+        const requestBody = {
+          name: fileAsset.name,
+          type: "file",
+          content: base64Content,
+          parentId: currentFolderId,
+          isTrashed: false,
+          isStarred: false,
+        };
+
+        const uploadResponse = await fetch(`http://${IP}:8080/api/files`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (uploadResponse.ok) {
+          Alert.alert("Success", "File uploaded!");
+          router.push("/myDrive");
+        }
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      Alert.alert("Error", "Upload failed");
+    } finally {
+      setLoading(false);
+      setIsAddOpen(false);
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentFolderId(folder.parentId);
+  };
+
+  // // ✅ Use the hook
+  // const { handleDelete, handleRename, handleStar } = useFileActions(
+  //   token,
+  //   currentUserId,
+  //   fetchStarredFiles,
+  //   IP
+  // );
 
   useEffect(() => {
     const init = async () => {
       const userToken = await getToken();
       const userId = await getUserId();
-      
-      if (userToken) {
-        setToken(userToken);
-        setCurrentUserId(userId);
-      } else {
+
+      if (!userToken || !userId) {
         router.replace("/(auth)/login");
         setLoading(false);
       }
@@ -71,44 +221,21 @@ export default function Starred() {
     init();
   }, []);
 
-  useEffect(() => {
-    if (token) {
-      fetchStarredFiles();
-    }
-  }, [token]);
-
-  // ✅ רענון כשחוזרים ל-Starred tab
-  useFocusEffect(
-    React.useCallback(() => {
-      if (token) {
-        console.log("⭐ Starred tab focused - refreshing...");
-        fetchStarredFiles();
-      }
-    }, [token])
-  );
-
-  const handleOpenPermissions = (file) => {
-    setSelectedFile(file);
-    setShowPermissions(true);
-  };
-
-  const handleMenuOpen = () => setIsMenuOpen(true);
-
   const handlePress = (file) => {
     if (file.type === "folder") {
+      setCurrentFolderId(file.id);
+    } else {
       router.push({
         pathname: "/[id]",
         params: { id: file.id },
       });
-    } else {
-      Alert.alert("File", `Opening: ${file.name}`);
     }
   };
 
   if (loading) {
     return (
-      <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-        <ActivityIndicator size="large" color="#0000ff"/>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
@@ -116,22 +243,58 @@ export default function Starred() {
   return (
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-      <TopBar handleMenuOpen={handleMenuOpen} />
-      
-      <EntryList 
-        entries={entries} 
-        handlePress={handlePress}
-        handleDelete={handleDelete}
-        handleRename={handleRename}
-        handleStar={handleStar}
-        handleDetails={handleOpenPermissions} 
+      {currentFolderId ? (
+        <TopBar handleMenuOpen={handleBack} text="← Back" />
+      ) : (
+        <TopBar handleMenuOpen={() => setIsMenuOpen(true)} />
+      )}
+      {currentFolderId && (
+        <View style={styles.folderHeader}>
+          <Text style={styles.folderTitle} numberOfLines={1}>
+            {folder.name}
+          </Text>
+        </View>
+      )}
+      {entries.length === 0 ? (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text style={{ color: "gray" }}>No files found</Text>
+        </View>
+      ) : (
+        <EntryList
+          entries={entries}
+          handlePress={handlePress}
+          refreshFiles={fetchStarredFiles}
+          setParentIdInTab={(id) => {
+            setCurrentFolderId(id);
+          }}
+          // handleDelete={handleDelete}
+          // handleRename={handleRename}
+          // handleStar={handleStar}
+          // handleDetails={handleOpenPermissions}
+        />
+      )}
+      {!currentFolderId && (
+        <Button
+          title="+"
+          style={styles.addbutton}
+          onPress={() => setIsAddOpen(true)}
+        />
+      )}
+
+      <AddMenu
+        visible={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        onCreateFolder={handleCreateFolder}
+        onUploadFile={handleFileUpload}
       />
 
-      <PermissionsModal 
-        visible={showPermissions}
-        file={selectedFile}
-        onClose={() => setShowPermissions(false)}
-      />
+      {/* <PermissionsModal
+          visible={showPermissions}
+          file={selectedFile}
+          onClose={() => setShowPermissions(false)}
+        /> */}
     </View>
   );
 }

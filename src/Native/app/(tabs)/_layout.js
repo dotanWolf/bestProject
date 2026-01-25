@@ -26,10 +26,10 @@ export default function TabLayout() {
         }} 
       />
       <Tabs.Screen 
-        name="trash" 
+        name="myDrive" 
         options={{ 
-          title: "Trash",
-          tabBarIcon: ({ color }) => <Ionicons name="trash" size={24} color={color} />
+          title: "Files",
+          tabBarIcon: ({ color }) => <Ionicons name="folder-open" size={24} color={color} />
         }} 
       />
     </Tabs>

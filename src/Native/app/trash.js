@@ -1,14 +1,14 @@
 import React, { useRef } from "react"; // 1. ייבוא useRef (חובה)
 import { useRouter } from "expo-router";
 import { View, ActivityIndicator, Alert, ScrollView, Text } from "react-native";
-import { getToken, getUserId } from "../../tokenUtil";
+import { getToken, getUserId } from "../tokenUtil";
 import { useEffect, useState } from "react";
-import { useFocusEffect } from '@react-navigation/native'; 
-import { styles } from "../../styles/index.styles";
-import TopBar from "../../components/TopBar";
-import Button from "../../components/Button";
-import TrashEntry from "../../components/TrashEntry";
-import SideMenu from "../../components/SideMenu";
+import { useFocusEffect } from "@react-navigation/native";
+import { styles } from "../styles/index.styles";
+import TopBar from "../components/TopBar";
+import Button from "../components/Button";
+import TrashEntry from "../components/TrashEntry";
+import SideMenu from "../components/SideMenu";
 
 export default function Trash() {
   const router = useRouter();
@@ -23,25 +23,27 @@ export default function Trash() {
 
   const IP = process.env.EXPO_PUBLIC_IP;
 
-  const fetchTrashedFiles = async (userToken) => {
+  const fetchTrashedFiles = async () => {
+    const token = await getToken()
     try {
-      const url = `http://${IP}:8080/api/files`;
-      const response = await fetch(url, {
+      // Point to the specific trash endpoint
+      const response = await fetch(`http://${IP}:8080/api/files/trash`, {
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${userToken || token}`,
+          authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        const data = await response.json();
-        const trashedFiles = Array.isArray(data) ? data.filter((f) => f.isTrashed) : [];
-        setEntries(trashedFiles);
+        const trashFiles = await response.json();
+        //console.log("Trash Files fetched:", trashFiles);
+        setEntries(trashFiles);
+      } else {
+        console.error("Failed to fetch files");
       }
     } catch (error) {
-      console.error("Error fetching trashed files:", error);
+      console.error("Network error:", error);
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   };
 
@@ -49,7 +51,7 @@ export default function Trash() {
     const init = async () => {
       const userToken = await getToken();
       const userId = await getUserId();
-      
+
       if (userToken) {
         setToken(userToken);
         setCurrentUserId(userId);
@@ -74,7 +76,7 @@ export default function Trash() {
       if (token) {
         fetchTrashedFiles(token);
       }
-    }, [token])
+    }, [token]),
   );
 
   const handleRestore = async (file) => {
@@ -83,12 +85,12 @@ export default function Trash() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "userid": currentUserId,
+          Authorization: `Bearer ${token}`,
+          userid: currentUserId,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           isTrashed: false,
-          parentId: null
+          parentId: null,
         }),
       });
 
@@ -104,73 +106,68 @@ export default function Trash() {
   };
 
   const handlePermanentDelete = (file) => {
-    Alert.alert(
-      "Permanent Delete",
-      `Are you sure?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete Forever", 
-          style: "destructive", 
-          onPress: async () => {
-            try {
-              const response = await fetch(`http://${IP}:8080/api/files/${file.id}`, {
+    Alert.alert("Permanent Delete", `Are you sure?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete Forever",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const response = await fetch(
+              `http://${IP}:8080/api/files/${file.id}`,
+              {
                 method: "DELETE",
                 headers: {
-                  "Authorization": `Bearer ${token}`,
-                  "userid": currentUserId,
+                  Authorization: `Bearer ${token}`,
+                  userid: currentUserId,
                 },
-              });
+              },
+            );
 
-              if (response.ok) {
-                fetchTrashedFiles(token);
-              }
-            } catch (error) {
-              console.error(error);
+            if (response.ok) {
+              fetchTrashedFiles(token);
             }
+          } catch (error) {
+            console.error(error);
           }
-        }
-      ]
-    );
+        },
+      },
+    ]);
   };
 
   const handleEmptyTrash = () => {
     if (entries.length === 0) return;
 
-    Alert.alert(
-      "Empty Trash",
-      `Delete all ${entries.length} items?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Empty Trash", 
-          style: "destructive", 
-          onPress: async () => {
-             // אופטימיזציה: מחיקה במקביל במקום בלולאה איטית
-             const promises = entries.map(file => 
-                fetch(`http://${IP}:8080/api/files/${file.id}`, {
-                  method: "DELETE",
-                  headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "userid": currentUserId,
-                  },
-                })
-             );
-             await Promise.all(promises);
-             Alert.alert("Success", "Trash emptied");
-             fetchTrashedFiles(token);
-          }
-        }
-      ]
-    );
+    Alert.alert("Empty Trash", `Delete all ${entries.length} items?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Empty Trash",
+        style: "destructive",
+        onPress: async () => {
+          // אופטימיזציה: מחיקה במקביל במקום בלולאה איטית
+          const promises = entries.map((file) =>
+            fetch(`http://${IP}:8080/api/files/${file.id}`, {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                userid: currentUserId,
+              },
+            }),
+          );
+          await Promise.all(promises);
+          Alert.alert("Success", "Trash emptied");
+          fetchTrashedFiles(token);
+        },
+      },
+    ]);
   };
 
   const handleMenuOpen = () => setIsMenuOpen(true);
 
   if (loading) {
     return (
-      <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-        <ActivityIndicator size="large" color="#0000ff"/>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
@@ -179,10 +176,12 @@ export default function Trash() {
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       <TopBar handleMenuOpen={handleMenuOpen} />
-      
+
       {entries.length === 0 ? (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Text style={{fontSize: 18, color: '#999'}}>Trash is empty</Text>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text style={{ fontSize: 18, color: "#999" }}>Trash is empty</Text>
         </View>
       ) : (
         <>
@@ -196,11 +195,11 @@ export default function Trash() {
               />
             ))}
           </ScrollView>
-          
+
           {entries.length > 0 && (
             <Button
               title={`Empty Trash (${entries.length})`}
-              style={[styles.addbutton, { backgroundColor: '#ff4444' }]}
+              style={[styles.addbutton, { backgroundColor: "#ff4444" }]}
               onPress={handleEmptyTrash}
             />
           )}
