@@ -42,3 +42,11 @@ export const getUserId = async () => {
     return await SecureStore.getItemAsync('userId');
   }
 };
+
+export const removeUserId = async () => {
+  if (isWeb) {
+    return localStorage.removeItem('userId');
+  } else {
+    return await SecureStore.deleteItemAsync('userId');
+  }
+};

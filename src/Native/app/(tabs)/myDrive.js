@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect } from "react"; // 1. חובה לייבא useCallback
 import { useRouter } from "expo-router";
 import { View, ActivityIndicator, Alert, Text } from "react-native";
-import { useFocusEffect } from "@react-navigation/native"; // 2. חובה לייבא useFocusEffect
 import { useState } from "react";
-import { styles } from "../../styles/index.styles";
+import { styles } from "../../styles/myDrive.styles";
 import TopBar from "../../components/TopBar";
 import EntryList from "../../components/EntryList";
 import Button from "../../components/Button";
@@ -12,25 +11,61 @@ import SideMenu from "../../components/SideMenu";
 import PermissionsModal from "../../components/PermissionsModal";
 import { useFolderView } from "../../hooks/useFolderView";
 import { useFiles } from "../../contexts/FilesContext";
-import { getToken, getUserId } from "../../tokenUtil";
-import UserProfileModal from "../../components/UserProfileModal";
-
+import { getToken } from "../../tokenUtil";
+import { useFocusEffect } from "expo-router";
+import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system";
 export default function Main() {
   const rootFolder = {
     name: "root",
     parentId: null,
   };
-
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [entries, setEntries] = useState([]);
   const IP = process.env.EXPO_PUBLIC_IP;
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [folder, setFolder] = useState(rootFolder);
   const [currentFolderId, setCurrentFolderId] = useState(null);
-  const [user, setUser] = useState(null);
-  const [isProfileVisible, setIsProfileVisible] = useState(false);
+  const [folder, setFolder] = useState(rootFolder);
+
+  // שימוש ב-Hook שלנו עבור תיקיית השורש (null)
+  // const {
+  //   entries,
+  //   loading: hookLoading, // שיניתי את השם כדי למנוע התנגשות
+  //   isAddOpen,
+  //   setIsAddOpen,
+  //   showPermissions,
+  //   setShowPermissions,
+  //   selectedFile,
+  //   handleDelete,
+  //   handleRename,
+  //   handleStar,
+  //   handleFileUpload,
+  //   handleCreateFolder,
+  //   handleOpenPermissions,
+  // } = useFolderView(null);
+
+  // const { refreshFiles, token, initialize } = useFiles();
+
+  // // אתחול ראשוני (Login check)
+  // useEffect(() => {
+  //   initialize();
+  // }, []);
+
+  // // 👇 התיקון הקריטי: רענון בכל פעם שנכנסים למסך הבית
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (token) {
+  //       console.log("🏠 Home Screen focused - Refreshing list...");
+  //       refreshFiles(); // זה מה שיביא את הקובץ ששוחזר!
+  //     }
+  //   }, [token]), // ירוץ כשיש טוקן וחוזרים למסך
+  // );
+
+  //   useEffect(() => {
+  //     fetchFiles();
+  //   }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -38,25 +73,6 @@ export default function Main() {
       fetchCurrentFolder();
     }, [currentFolderId]),
   );
-
-  useEffect(() => {
-    const checkAuthAndFetch = async () => {
-      try {
-        const token = await getToken();
-        const userId = await getUserId();
-
-        if (token && userId) {
-          await fetchUser(token, userId);
-        } else {
-          router.replace("/login");
-        }
-      } catch (error) {
-        router.replace("/login");
-      }
-    };
-
-    checkAuthAndFetch();
-  }, []);
 
   const handlePress = (file) => {
     if (file.type === "folder") {
@@ -69,55 +85,38 @@ export default function Main() {
     }
   };
 
-  const fetchUser = async (token, userId) => {
+  const fetchFiles = async () => {
+    let token = await getToken();
+
+    if (!token) {
+      console.log("token doesnt exist");
+    }
+
+    console.log("🔄 Refreshing all files from server...");
+    setLoading(true);
+
+    const url = currentFolderId
+      ? `http://${IP}:8080/api/files/folders/${currentFolderId}`
+      : `http://${IP}:8080/api/files`;
+
     try {
-      const response = await fetch(`http://${IP}:8080/api/users/${userId}`, {
+      const response = await fetch(url, {
         headers: {
           "Content-Type": "application/json",
-          authorization: `Bearer ${token}`, // Use Capital A and standard Bearer casing
+          authorization: `Bearer ${token}`,
         },
       });
       if (response.ok) {
         const data = await response.json();
-        setUser(data);
-      } else {
-        router.replace("/signup");
+        const activeFiles = Array.isArray(data)
+          ? data.filter((f) => !f.isTrashed)
+          : [];
+        setEntries(activeFiles);
       }
     } catch (error) {
-      console.error("Failed to fetch user:", error);
+      console.error(error);
     } finally {
-    }
-  };
-
-  const fetchFiles = async () => {
-    const token = await getToken();
-    try {
-      const [ownedResponse, sharedResponse] = await Promise.all([
-        fetch(`http://${IP}:8080/api/files`, {
-          headers: { authorization: `Bearer ${token}` },
-        }),
-        fetch(`http://${IP}:8080/api/files/permissions`, {
-          headers: { authorization: `Bearer ${token}` },
-        }),
-      ]);
-
-      if (ownedResponse.ok && sharedResponse.ok) {
-        const ownedData = await ownedResponse.json();
-        const sharedData = await sharedResponse.json();
-
-        const allFiles = [...ownedData, ...sharedData].filter(
-          (f) => !f.isTrashed,
-        );
-
-        allFiles.sort((a, b) => {
-          if (a.type === b.type) return a.name.localeCompare(b.name);
-          return a.type === "folder" ? -1 : 1;
-        });
-
-        setEntries(allFiles);
-      }
-    } catch (error) {
-      console.error("Error fetching home files:", error);
+      setLoading(false);
     }
   };
 
@@ -133,7 +132,7 @@ export default function Main() {
       const folder = {
         name: name,
         type: "folder",
-        parentId: null,
+        parentId: currentFolderId,
         isTrashed: false,
         isStarred: false,
         content: null,
@@ -150,8 +149,7 @@ export default function Main() {
 
       if (response.ok) {
         console.log("✅ Folder created!");
-        // await fetchFiles();
-        router.push("/myDrive");
+        await fetchFiles();
       } else {
         const err = await response.json();
         console.error("❌ Create error:", err);
@@ -242,7 +240,7 @@ export default function Main() {
 
         if (uploadResponse.ok) {
           Alert.alert("Success", "File uploaded!");
-          router.push("/myDrive");
+          await fetchFiles();
         }
       }
     } catch (err) {
@@ -266,23 +264,16 @@ export default function Main() {
     );
   }
 
-  console.log("is profile visible:", isProfileVisible);
-
   return (
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
       {currentFolderId ? (
-        <TopBar
-          handleMenuOpen={handleBack}
-          text="← Back"
-          handlePicturePress={() => setIsProfileVisible(true)}
-        />
+        <TopBar handleMenuOpen={handleBack} text="← Back" />
       ) : (
-        <TopBar
-          handleMenuOpen={() => setIsMenuOpen(true)}
-          handlePicturePress={() => setIsProfileVisible(true)}
-        />
+        <TopBar handleMenuOpen={() => setIsMenuOpen(true)} />
       )}
+
       {currentFolderId && (
         <View style={styles.folderHeader}>
           <Text style={styles.folderTitle} numberOfLines={1}>
@@ -290,12 +281,6 @@ export default function Main() {
           </Text>
         </View>
       )}
-
-      <UserProfileModal
-        user={user}
-        visible={isProfileVisible}
-        onClose={() => setIsProfileVisible(false)}
-      />
 
       {entries.length === 0 ? (
         <View
@@ -311,15 +296,18 @@ export default function Main() {
           setParentIdInTab={(id) => {
             setCurrentFolderId(id);
           }}
+          // handleDelete={handleDelete}
+          // handleRename={handleRename}
+          // handleStar={handleStar}
+          // handleDetails={handleOpenPermissions}
         />
       )}
-      {!currentFolderId && (
-        <Button
-          title="+"
-          style={styles.addbutton}
-          onPress={() => setIsAddOpen(true)}
-        />
-      )}
+
+      <Button
+        title="+"
+        style={styles.addbutton}
+        onPress={() => setIsAddOpen(true)}
+      />
 
       <AddMenu
         visible={isAddOpen}
@@ -327,6 +315,12 @@ export default function Main() {
         onCreateFolder={handleCreateFolder}
         onUploadFile={handleFileUpload}
       />
+
+      {/* <PermissionsModal
+        visible={showPermissions}
+        file={selectedFile}
+        onClose={() => setShowPermissions(false)}
+      /> */}
     </View>
   );
 }

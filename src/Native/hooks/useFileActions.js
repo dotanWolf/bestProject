@@ -1,10 +1,9 @@
 import { Alert, Platform } from "react-native";
 
 export function useFileActions(token, currentUserId, fetchFiles, IP) {
-  
   const handleDelete = (file) => {
     console.log("🎣 handleDelete CALLED!");
-    
+
     if (!token || !currentUserId) {
       Alert.alert("Error", "Not authenticated");
       return;
@@ -18,24 +17,28 @@ export function useFileActions(token, currentUserId, fetchFiles, IP) {
       `Are you sure you want to ${actionName.toLowerCase()} "${file.name}"?`,
       [
         { text: "Cancel", style: "cancel" },
-        { 
-          text: actionName, 
-          style: "destructive", 
+        {
+          text: actionName,
+          style: "destructive",
           onPress: async () => {
             console.log("🚀 Deleting...");
             try {
               if (isOwner) {
                 const url = `http://${IP}:8080/api/files/${file.id}`;
                 console.log("📍 URL:", url);
-                
+
                 const response = await fetch(url, {
                   method: "PATCH",
                   headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                    "userid": currentUserId,
+                    Authorization: `Bearer ${token}`,
+                    userid: currentUserId,
                   },
-                  body: JSON.stringify({ isTrashed: true, isStarred: false,parentId: null }),
+                  body: JSON.stringify({
+                    isTrashed: true,
+                    isStarred: false,
+                    parentId: null,
+                  }),
                 });
 
                 console.log("📥 Status:", response.status);
@@ -46,13 +49,13 @@ export function useFileActions(token, currentUserId, fetchFiles, IP) {
                 }
               } else {
                 const url = `http://${IP}:8080/api/files/${file.id}/permissions/${file.permissionId}`;
-                
+
                 const response = await fetch(url, {
                   method: "DELETE",
                   headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                    "userid": currentUserId,
+                    Authorization: `Bearer ${token}`,
+                    userid: currentUserId,
                   },
                 });
 
@@ -65,9 +68,9 @@ export function useFileActions(token, currentUserId, fetchFiles, IP) {
             } catch (err) {
               console.error("❌ Error:", err);
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     );
   };
 
@@ -77,39 +80,35 @@ export function useFileActions(token, currentUserId, fetchFiles, IP) {
       return;
     }
 
-    if (Platform.OS === 'ios') {
-      Alert.prompt(
-        "Rename",
-        `Enter new name for ${file.name}`,
-        [
-          { text: "Cancel", style: "cancel" },
-          { 
-            text: "Rename", 
-            onPress: async (newName) => {
-              if (!newName || newName === file.name) return;
-              try {
-                await fetch(`http://${IP}:8080/api/files/${file.id}`, {
-                  method: "PATCH",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                    "userid": currentUserId,
-                  },
-                  body: JSON.stringify({ name: newName }),
-                });
-                await fetchFiles();
-              } catch (err) {
-                console.error("Rename failed:", err);
-              }
-            } 
-          }
-        ],
-        "plain-text",
-        file.name
-      );
-    } else {
-      Alert.alert("Notice", "Rename on Android requires a custom modal.");
-    }
+    Alert.prompt(
+      "Rename",
+      `Enter new name for ${file.name}`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Rename",
+          onPress: async (newName) => {
+            if (!newName || newName === file.name) return;
+            try {
+              await fetch(`http://${IP}:8080/api/files/${file.id}`, {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                  userid: currentUserId,
+                },
+                body: JSON.stringify({ name: newName }),
+              });
+              await fetchFiles();
+            } catch (err) {
+              console.error("Rename failed:", err);
+            }
+          },
+        },
+      ],
+      "plain-text",
+      file.name,
+    );
   };
 
   const handleStar = async (file) => {
@@ -120,16 +119,16 @@ export function useFileActions(token, currentUserId, fetchFiles, IP) {
 
     try {
       const isOwner = file.ownerId === currentUserId;
-      const url = isOwner 
-        ? `http://${IP}:8080/api/files/${file.id}` 
+      const url = isOwner
+        ? `http://${IP}:8080/api/files/${file.id}`
         : `http://${IP}:8080/api/files/${file.id}/permissions/${file.permissionId}`;
 
       await fetch(url, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "userid": currentUserId
+          Authorization: `Bearer ${token}`,
+          userid: currentUserId,
         },
         body: JSON.stringify({ isStarred: !file.isStarred }),
       });

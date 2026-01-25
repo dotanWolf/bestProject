@@ -62,12 +62,17 @@ export default function Main() {
     checkAuthAndFetch();
   }, []);
 
-  const handleMenuOpen = () => {
+  const handleBack = () => {
     router.back();
   };
   return (
     <View style={styles.container}>
-      <TopBar handleMenuOpen={handleMenuOpen} text="<--"></TopBar>
+      <TopBar
+        handleMenuOpen={handleBack}
+        text="← Back"
+        handlePicturePress={() => setIsProfileVisible(true)}
+        isPictureVisible={false}
+      />
       <EntryList entries={entries}></EntryList>
     </View>
   );
