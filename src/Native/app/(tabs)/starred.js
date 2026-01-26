@@ -28,7 +28,7 @@ export default function Starred() {
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [folder, setFolder] = useState(rootFolder);
-
+  const [isProfileVisible, setIsProfileVisible] = useState(false);
   const IP = process.env.EXPO_PUBLIC_IP;
 
   useFocusEffect(
@@ -245,11 +245,20 @@ export default function Starred() {
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       {currentFolderId ? (
-        <TopBar user={user} handleMenuOpen={handleBack} text="← Back"  handlePicturePress={() => {}} 
-        isPictureVisible={true}/>
+         <TopBar 
+          user={user} 
+          handleMenuOpen={handleBack} 
+          text="← Back"
+          handlePicturePress={() => setIsProfileVisible(true)}
+          isPictureVisible={true}
+        />
       ) : (
-        <TopBar user={user} handleMenuOpen={() => setIsMenuOpen(true)} handlePicturePress={() => {}} 
-        isPictureVisible={true}/>
+       <TopBar 
+          user={user} 
+          handleMenuOpen={() => setIsMenuOpen(true)}
+          handlePicturePress={() => setIsProfileVisible(true)} 
+          isPictureVisible={true}
+        />
       )}
       {currentFolderId && (
         <View style={styles.folderHeader}>
