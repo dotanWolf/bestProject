@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect } from "react"; // 1. חובה לייבא useCallback
+import React, { useCallback, useEffect, useState } from "react"; // Added useState
 import { useRouter } from "expo-router";
 import { View, ActivityIndicator, Alert, Text } from "react-native";
-import { useState } from "react";
 import { styles } from "../../styles/myDrive.styles";
 import TopBar from "../../components/TopBar";
 import EntryList from "../../components/EntryList";
@@ -15,12 +14,19 @@ import { getToken } from "../../tokenUtil";
 import { useFocusEffect } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
+import UserProfileModal from "../../components/UserProfileModal"; // ✅ Added Import
+import { useUser } from "../../contexts/UserContext"; // ✅ Added Import
+import { useTheme } from "../../contexts/ThemeContext";
+
 export default function Main() {
   const rootFolder = {
     name: "root",
     parentId: null,
   };
   const router = useRouter();
+  
+  const { user } = useUser(); 
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [entries, setEntries] = useState([]);
   const IP = process.env.EXPO_PUBLIC_IP;
@@ -28,62 +34,15 @@ export default function Main() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [folder, setFolder] = useState(rootFolder);
-
-  // שימוש ב-Hook שלנו עבור תיקיית השורש (null)
-  // const {
-  //   entries,
-  //   loading: hookLoading, // שיניתי את השם כדי למנוע התנגשות
-  //   isAddOpen,
-  //   setIsAddOpen,
-  //   showPermissions,
-  //   setShowPermissions,
-  //   selectedFile,
-  //   handleDelete,
-  //   handleRename,
-  //   handleStar,
-  //   handleFileUpload,
-  //   handleCreateFolder,
-  //   handleOpenPermissions,
-  // } = useFolderView(null);
-
-  // const { refreshFiles, token, initialize } = useFiles();
-
-  // // אתחול ראשוני (Login check)
-  // useEffect(() => {
-  //   initialize();
-  // }, []);
-
-  // // 👇 התיקון הקריטי: רענון בכל פעם שנכנסים למסך הבית
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     if (token) {
-  //       console.log("🏠 Home Screen focused - Refreshing list...");
-  //       refreshFiles(); // זה מה שיביא את הקובץ ששוחזר!
-  //     }
-  //   }, [token]), // ירוץ כשיש טוקן וחוזרים למסך
-  // );
-
-  //   useEffect(() => {
-  //     fetchFiles();
-  //   }, []);
+  const { theme, toggleTheme } = useTheme();
+  const [isProfileVisible, setIsProfileVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       fetchFiles();
       fetchCurrentFolder();
-    }, [currentFolderId]),
+    }, [currentFolderId])
   );
-
-  const handlePress = (file) => {
-    if (file.type === "folder") {
-      setCurrentFolderId(file.id);
-    } else {
-      router.push({
-        pathname: "/[id]",
-        params: { id: file.id },
-      });
-    }
-  };
 
   const fetchFiles = async () => {
     let token = await getToken();
@@ -117,6 +76,38 @@ export default function Main() {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+  const fetchCurrentFolder = async () => {
+    const token = await getToken();
+    if (!currentFolderId) {
+      setFolder(rootFolder);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://${IP}:8080/api/files/${currentFolderId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setFolder(data); // This provides the parentId for the Back button
+      }
+    } catch (error) {
+      console.error("Fetch Folder error:", error);
+    }
+  };
+  const handlePress = (file) => {
+    if (file.type === "folder") {
+      setCurrentFolderId(file.id);
+    } else {
+      router.push({
+        pathname: "/[id]",
+        params: { id: file.id },
+      });
     }
   };
 
@@ -156,37 +147,6 @@ export default function Main() {
       }
     } catch (error) {
       console.error(error);
-    }
-  };
-
-  const fetchCurrentFolder = async () => {
-    const token = await getToken();
-    if (!token) {
-      console.log("token doesnt exist");
-    }
-    // Use parentId from URL
-    if (currentFolderId) {
-      try {
-        const response = await fetch(
-          `http://${IP}:8080/api/files/${currentFolderId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setFolder(data);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setFolder(rootFolder);
     }
   };
 
@@ -265,14 +225,33 @@ export default function Main() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
+      {/* Update TopBar to pass User and Handle Press */}
       {currentFolderId ? (
-        <TopBar handleMenuOpen={handleBack} text="← Back" />
+        <TopBar
+          user={user}
+          handleMenuOpen={handleBack}
+          text="← Back"
+          handlePicturePress={() => setIsProfileVisible(true)}
+          isPictureVisible={true}
+        />
       ) : (
-        <TopBar handleMenuOpen={() => setIsMenuOpen(true)} />
+        <TopBar
+          user={user}
+          handleMenuOpen={() => setIsMenuOpen(true)}
+          handlePicturePress={() => setIsProfileVisible(true)}
+          isPictureVisible={true}
+        />
       )}
+      
+      {/* ✅ 4. Add UserProfileModal */}
+      <UserProfileModal
+        user={user}
+        visible={isProfileVisible}
+        onClose={() => setIsProfileVisible(false)}
+      />
 
       {currentFolderId && (
         <View style={styles.folderHeader}>

@@ -9,16 +9,18 @@ import TopBar from "../../components/TopBar";
 import EntryList from "../../components/EntryList";
 import SideMenu from "../../components/SideMenu";
 import PermissionsModal from "../../components/PermissionsModal";
-import { useFileActions } from "../../hooks/useFileActions"; // ✅ הוסף
+import { useUser } from "../../contexts/UserContext"; // <--- 1. Import the Hook
 import Button from "../../components/Button";
-import AddMenu from "../../components/addMenu";
+import UserProfileModal from "../../components/UserProfileModal"; // Added for profile click
 import * as DocumentPicker from "expo-document-picker";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function Starred() {
   const rootFolder = {
     name: "root",
     parentId: null,
   };
+  const { user } = useUser();
   const router = useRouter();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,8 +29,9 @@ export default function Starred() {
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [folder, setFolder] = useState(rootFolder);
-
+  const [isProfileVisible, setIsProfileVisible] = useState(false);
   const IP = process.env.EXPO_PUBLIC_IP;
+  const { theme, toggleTheme } = useTheme();
 
   useFocusEffect(
     useCallback(() => {
@@ -135,65 +138,7 @@ export default function Starred() {
   };
 
   const handleFileUpload = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "*/*",
-      });
-
-      if (!result.canceled) {
-        const fileAsset = result.assets[0];
-        setLoading(true);
-
-        // 1. Fetch the local URI to get a Blob (standard Web API)
-        const response = await fetch(fileAsset.uri);
-        const blob = await response.blob();
-
-        // 2. Convert to Base64 (to fit your JSON requirement)
-        // We use a Promise with FileReader for the most modern approach
-        const base64Content = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            // reader.result is "data:application/pdf;base64,JVBER..."
-            // We split to get only the base64 part
-            const base64 = reader.result.split(",")[1];
-            resolve(base64);
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-
-        const token = await getToken();
-
-        const requestBody = {
-          name: fileAsset.name,
-          type: "file",
-          content: base64Content,
-          parentId: currentFolderId,
-          isTrashed: false,
-          isStarred: false,
-        };
-
-        const uploadResponse = await fetch(`http://${IP}:8080/api/files`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(requestBody),
-        });
-
-        if (uploadResponse.ok) {
-          Alert.alert("Success", "File uploaded!");
-          router.push("/myDrive");
-        }
-      }
-    } catch (err) {
-      console.error("Upload error:", err);
-      Alert.alert("Error", "Upload failed");
-    } finally {
-      setLoading(false);
-      setIsAddOpen(false);
-    }
+    setIsAddOpen(false);
   };
 
   const handleBack = () => {
@@ -241,13 +186,31 @@ export default function Starred() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <View style={{ zIndex: 100, elevation: 10, width: "100%" }}>
       {currentFolderId ? (
-        <TopBar handleMenuOpen={handleBack} text="← Back" />
+         <TopBar 
+          user={user} 
+          handleMenuOpen={handleBack} 
+          text="← Back"
+          handlePicturePress={() => setIsProfileVisible(true)}
+          isPictureVisible={true}
+        />
       ) : (
-        <TopBar handleMenuOpen={() => setIsMenuOpen(true)} />
+       <TopBar 
+          user={user} 
+          handleMenuOpen={() => setIsMenuOpen(true)}
+          handlePicturePress={() => setIsProfileVisible(true)} 
+          isPictureVisible={true}
+        />
       )}
+      </View>
+      <UserProfileModal
+        user={user}
+        visible={isProfileVisible}
+         onClose={() => setIsProfileVisible(false)}
+      />
       {currentFolderId && (
         <View style={styles.folderHeader}>
           <Text style={styles.folderTitle} numberOfLines={1}>
@@ -275,20 +238,20 @@ export default function Starred() {
           // handleDetails={handleOpenPermissions}
         />
       )}
-      {!currentFolderId && (
+     {/* {!currentFolderId && (
         <Button
           title="+"
           style={styles.addbutton}
           onPress={() => setIsAddOpen(true)}
         />
-      )}
+      )}*/}
 
-      <AddMenu
+      {/* <AddMenu
         visible={isAddOpen}
         onClose={() => setIsAddOpen(false)}
         onCreateFolder={handleCreateFolder}
         onUploadFile={handleFileUpload}
-      />
+      /> */}
 
       {/* <PermissionsModal
           visible={showPermissions}

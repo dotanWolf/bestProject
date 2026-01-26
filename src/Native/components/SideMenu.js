@@ -2,27 +2,28 @@ import React from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Pressable,
   TouchableOpacity,
 } from "react-native";
 import { styles } from "../styles/SideMenu.styles";
 import { useRouter } from "expo-router";
-import { removeToken, removeUserId } from "../tokenUtil";
+import { useTheme } from "../contexts/ThemeContext"; // 1. Import Hook
+
 export default function SideMenu({ visible, onClose }) {
   const router = useRouter();
+  
+  // 2. Get theme data
+  const { isDarkMode, toggleTheme, theme } = useTheme();
+
   if (!visible) return null;
-
-  const handleDarkModeToggle = () => {
-    // Implement dark mode toggle functionality here
-    console.log("Dark mode toggled!");
-  }
-
 
   return (
     <View style={styles.container}>
       <Pressable style={styles.overlay} onPress={onClose} />
-      <View style={styles.panel}>
+      
+      {/* 3. Apply dynamic background color */}
+      <View style={[styles.panel, { backgroundColor: theme.background }]}>
+        
         <TouchableOpacity
           style={styles.item}
           onPress={() => {
@@ -31,7 +32,8 @@ export default function SideMenu({ visible, onClose }) {
           }}
         >
           <View style={styles.header}>
-            <Text style={styles.driveText}>Google Drive</Text>
+            {/* 4. Apply dynamic text color */}
+            <Text style={[styles.driveText, { color: theme.textPrimary }]}>Google Drive</Text>
           </View>
         </TouchableOpacity>
 
@@ -44,8 +46,9 @@ export default function SideMenu({ visible, onClose }) {
             }}
           >
             <Text style={styles.icon}>📄</Text>
-            <Text style={styles.itemText}>Recent</Text>
+            <Text style={[styles.itemText, { color: theme.textSecondary }]}>Recent</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
             style={styles.item}
             onPress={() => {
@@ -54,29 +57,24 @@ export default function SideMenu({ visible, onClose }) {
             }}
           >
             <Text style={styles.icon}>🗑️</Text>
-            <Text style={styles.itemText}>Trash</Text>
+            <Text style={[styles.itemText, { color: theme.textSecondary }]}>Trash</Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity
-            style={styles.item}
-            onPress={async () => {
-              await removeToken();
-              await removeUserId();
-              router.push("/signup");
-              onClose();
-            }}
-          >
-            {/* <Text style={styles.icon}>🗑️</Text> */}
-            {/* <Text style={styles.itemText}>Log Out</Text>
-          </TouchableOpacity> */}
 
+          {/* DARK MODE TOGGLE */}
           <TouchableOpacity
             style={styles.item}
-            onPress={handleDarkModeToggle}
+            onPress={() => {
+              console.log("is dark mode:", isDarkMode);
+              toggleTheme();
+            }} // 5. Connect function
           >
-            <Text style={styles.icon}>🌙</Text>
-            <Text style={styles.itemText}>dark mode</Text>
+            <Text style={styles.icon}>{isDarkMode ? "☀️" : "🌙"}</Text>
+            <Text style={[styles.itemText, { color: theme.textSecondary }]}>
+              {isDarkMode ? "Light Mode" : "Dark Mode"}
+            </Text>
           </TouchableOpacity>
-          <View style={styles.divider} />
+          
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
         </View>
       </View>
     </View>

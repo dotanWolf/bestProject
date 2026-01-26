@@ -11,12 +11,17 @@ import { useEffect, useState } from "react";
 import { styles } from "../styles/index.styles";
 import TopBar from "../components/TopBar";
 import EntryList from "../components/EntryList";
+import { useUser } from "../contexts/UserContext";
+import React from "react";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function Main() {
   const router = useRouter();
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [token, setToken] = useState(null);
   const [entries, setEntries] = useState([]);
+  const { user } = useUser();
+  const { theme, toggleTheme } = useTheme();
 
   const IP = process.env.EXPO_PUBLIC_IP;
 
@@ -66,8 +71,9 @@ export default function Main() {
     router.back();
   };
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <TopBar
+        user={user}
         handleMenuOpen={handleBack}
         text="← Back"
         handlePicturePress={() => setIsProfileVisible(true)}

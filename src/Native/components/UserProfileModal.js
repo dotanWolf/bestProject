@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Modal,
   View,
@@ -6,12 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Pressable,
-  Image,
+  Image, 
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { removeToken } from "../tokenUtil";
-
+//current
 export default function UserProfileModal({ user, visible, onClose }) {
   const router = useRouter();
 
@@ -22,6 +21,27 @@ export default function UserProfileModal({ user, visible, onClose }) {
   };
 
   if (!user) return null;
+
+  const renderAvatar = () => {
+    if (user.profileImage && user.profileImage !== "placeholder") {
+      const imageSource = user.profileImage.startsWith("data:")
+        ? user.profileImage
+        : `data:image/png;base64,${user.profileImage}`;
+
+      return (
+        <Image
+          source={{ uri: imageSource }}
+          style={styles.largeAvatarImage}
+        />
+      );
+    }
+
+    return (
+      <Text style={styles.largeAvatarText}>
+        {user.username?.[0].toUpperCase() || "U"}
+      </Text>
+    );
+  };
 
   return (
     <Modal
@@ -40,25 +60,11 @@ export default function UserProfileModal({ user, visible, onClose }) {
           {/* User Info Section */}
           <View style={styles.userInfoSection}>
             <View style={styles.largeAvatar}>
-              <Text style={styles.largeAvatarText}>
-                {user.username?.[0].toUpperCase() || "U"}
-              </Text>
+              {renderAvatar()}
             </View>
             <Text style={styles.userName}>{user.username}</Text>
             <Text style={styles.userEmail}>{user.email}</Text>
           </View>
-
-          {/* Storage Section (Google Drive Style)
-          <View style={styles.storageSection}>
-            <View style={styles.storageHeader}>
-              <Ionicons name="cloud-outline" size={20} color="#5f6368" />
-              <Text style={styles.storageTitle}>Storage</Text>
-            </View>
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: "45%" }]} />
-            </View>
-            <Text style={styles.storageText}>1.2 GB of 15 GB used</Text>
-          </View> */}
 
           <View style={styles.divider} />
 
@@ -70,13 +76,6 @@ export default function UserProfileModal({ user, visible, onClose }) {
             <Ionicons name="log-out-outline" size={20} color="#3c4043" />
             <Text style={styles.signOutText}>Sign out of your account</Text>
           </TouchableOpacity>
-
-          {/* Footer Links */}
-          {/* <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Privacy Policy • Terms of Service
-            </Text>
-          </View> */}
         </View>
       </Pressable>
     </Modal>
@@ -118,6 +117,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
+    overflow: "hidden", // חובה כדי שהתמונה תהיה עגולה
+  },
+  largeAvatarImage: {
+    width: "100%",
+    height: "100%",
   },
   largeAvatarText: {
     fontSize: 32,
@@ -131,39 +135,6 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
-    color: "#5f6368",
-  },
-  storageSection: {
-    width: "100%",
-    padding: 15,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-  storageHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  storageTitle: {
-    marginLeft: 10,
-    fontSize: 14,
-    color: "#3c4043",
-    fontWeight: "500",
-  },
-  progressBarBg: {
-    height: 8,
-    backgroundColor: "#dadce0",
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: "#1a73e8",
-    borderRadius: 4,
-  },
-  storageText: {
-    fontSize: 12,
     color: "#5f6368",
   },
   divider: {
@@ -187,12 +158,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     color: "#3c4043",
-  },
-  footer: {
-    flexDirection: "row",
-  },
-  footerText: {
-    fontSize: 11,
-    color: "#5f6368",
   },
 });

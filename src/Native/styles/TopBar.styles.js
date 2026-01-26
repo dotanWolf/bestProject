@@ -18,6 +18,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: SPACING.md,
     borderRadius: 30, // Pill shape
     height: 50,
+    zIndex: 100,
   },
   iconButton: {
     padding: SPACING.xs,
@@ -40,13 +41,21 @@ export const styles = StyleSheet.create({
   profileButton: {
     marginLeft: SPACING.xs,
   },
+  avatarImage: {
+  width: 32,      // Must match the container width
+  height: 32,     // Must match the container height
+  borderRadius: 16, // Half of width/height to make it round
+  resizeMode: 'cover',
+  },
   avatar: {
+    // Ensure the container allows the image to sit on top
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#34a853", // Brand color
+    backgroundColor: "#f1f3f4", // Light gray background
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden", // Crucial for clipping the image
   },
   avatarText: {
     color: "white",

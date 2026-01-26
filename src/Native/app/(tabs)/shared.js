@@ -1,92 +1,55 @@
-import { useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
 import { View, ActivityIndicator, Alert, Text } from "react-native";
-import React, { useCallback } from "react";
-import {
-  saveToken,
-  getToken,
-  removeToken,
-  saveUserId,
-  getUserId,
-} from "../../tokenUtil";
-import { useEffect, useState } from "react";
-import { useFocusEffect } from "expo-router";
+import * as DocumentPicker from "expo-document-picker";
+
+import { getToken } from "../../tokenUtil";
 import { styles } from "../../styles/index.styles";
 import TopBar from "../../components/TopBar";
 import EntryList from "../../components/EntryList";
-import Input from "../../components/Input";
 import Button from "../../components/Button";
 import AddMenu from "../../components/addMenu";
-import SideMenu
+import SideMenu from "../../components/SideMenu";
+import UserProfileModal from "../../components/UserProfileModal"; // Added for profile click
+import { useUser } from "../../contexts/UserContext"; // ✅ 1. Hook for User Data
+import { useTheme } from "../../contexts/ThemeContext";
 
-from "../../components/SideMenu";
 export default function Shared() {
   const rootFolder = {
-    name: "root",
+    name: "Shared with me",
     parentId: null,
   };
+
+  // ✅ 2. Get user directly from Context
+  const { user } = useUser();
   const router = useRouter();
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [user, setUser] = useState(null);
+  const { theme, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(null);
-  const [userId, setUserId] = useState(null);
   const [entries, setEntries] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileVisible, setIsProfileVisible] = useState(false); // Added for modal
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [folder, setFolder] = useState(rootFolder);
 
   const IP = process.env.EXPO_PUBLIC_IP;
 
+  // 3. Refresh when folder changes or screen comes into focus
   useFocusEffect(
     useCallback(() => {
       fetchFiles();
       fetchCurrentFolder();
-    }, [currentFolderId]),
+    }, [currentFolderId])
   );
-
-  useEffect(() => {
-    const checkAuthAndFetch = async () => {
-      try {
-        const token = await getToken();
-        const userId = await getUserId();
-
-        if (token && userId) {
-          await fetchUser(token, userId);
-        } else {
-          router.replace("/login");
-        }
-      } catch (error) {
-        router.replace("/login");
-      }
-    };
-
-    checkAuthAndFetch();
-  }, []);
-
-  const fetchUser = async (token, userId) => {
-    try {
-      const response = await fetch(`http://${IP}:8080/api/users/${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`, // Use Capital A and standard Bearer casing
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data);
-      } else {
-        router.replace("/signup");
-      }
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
-    } finally {
-    }
-  };
 
   const fetchFiles = async () => {
     const token = await getToken();
-    if (!token) return;
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
+    // Logic: If in root, fetch ALL shared. If in folder, fetch permissions for that folder.
     const url = currentFolderId
       ? `http://${IP}:8080/api/files/permissions/folders/${currentFolderId}`
       : `http://${IP}:8080/api/files/permissions`;
@@ -98,22 +61,47 @@ export default function Shared() {
           authorization: `Bearer ${token}`,
         },
       });
+
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        // Filter out trashed files
         const activeFiles = Array.isArray(data)
           ? data.filter((f) => !f.isTrashed)
           : [];
         setEntries(activeFiles);
-        console.log(activeFiles);
       } else {
-        const error = await response.json();
-        alert(error.error);
+        // If specific folder fails (e.g. access denied), just clear entries
+        setEntries([]);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Fetch shared files error:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCurrentFolder = async () => {
+    const token = await getToken();
+    if (currentFolderId) {
+      try {
+        const response = await fetch(
+          `http://${IP}:8080/api/files/${currentFolderId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setFolder(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      setFolder(rootFolder);
     }
   };
 
@@ -128,72 +116,34 @@ export default function Shared() {
     }
   };
 
-  const fetchCurrentFolder = async () => {
-    const token = await getToken();
-    if (!token) {
-      console.log("token doesnt exist");
-    }
-    // Use parentId from URL
-    if (currentFolderId) {
-      try {
-        const response = await fetch(
-          `http://${IP}:8080/api/files/${currentFolderId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setFolder(data);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setFolder(rootFolder);
-    }
+  const handleBack = () => {
+    setCurrentFolderId(folder.parentId);
   };
 
+  // --- UPLOAD & CREATE LOGIC (Standard) ---
   const handleFileUpload = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "*/*",
-      });
-
+      const result = await DocumentPicker.getDocumentAsync({ type: "*/*" });
       if (!result.canceled) {
         const fileAsset = result.assets[0];
         setLoading(true);
 
-        // 1. Fetch the local URI to get a Blob (standard Web API)
         const response = await fetch(fileAsset.uri);
         const blob = await response.blob();
-
-        // 2. Convert to Base64 (to fit your JSON requirement)
-        // We use a Promise with FileReader for the most modern approach
+        
         const base64Content = await new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = () => {
-            // reader.result is "data:application/pdf;base64,JVBER..."
-            // We split to get only the base64 part
-            const base64 = reader.result.split(",")[1];
-            resolve(base64);
-          };
+          reader.onload = () => resolve(reader.result.split(",")[1]);
           reader.onerror = reject;
           reader.readAsDataURL(blob);
         });
 
         const token = await getToken();
-
         const requestBody = {
           name: fileAsset.name,
           type: "file",
           content: base64Content,
-          parentId: currentFolderId,
+          parentId: currentFolderId, 
           isTrashed: false,
           isStarred: false,
         };
@@ -209,7 +159,8 @@ export default function Shared() {
 
         if (uploadResponse.ok) {
           Alert.alert("Success", "File uploaded!");
-          await fetchFiles();
+          setIsAddOpen(false);
+          fetchFiles();
         }
       }
     } catch (err) {
@@ -217,23 +168,11 @@ export default function Shared() {
       Alert.alert("Error", "Upload failed");
     } finally {
       setLoading(false);
-      setIsAddOpen(false);
     }
   };
 
-  const handleBack = () => {
-    setCurrentFolderId(folder.parentId);
-  };
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
   const handleCreateFolder = async (name) => {
+    const token = await getToken();
     try {
       const response = await fetch(`http://${IP}:8080/api/files`, {
         method: "POST",
@@ -252,26 +191,54 @@ export default function Shared() {
       });
 
       if (response.ok) {
-        // fetchFiles(token);
-        router.push("/myDrive");
+        setIsAddOpen(false);
+        fetchFiles();
       } else {
-        alert("Creation failed");
+        Alert.alert("Error", "Folder creation failed");
       }
     } catch (error) {
       console.error(error);
     }
   };
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
+      {/* Header Logic: Show Back if deep in folder, else Menu */}
       {currentFolderId ? (
-        <TopBar handleMenuOpen={handleBack} text="← Back" />
+        <TopBar
+          user={user} // ✅ Passing User Context
+          handleMenuOpen={handleBack}
+          text="← Back"
+          handlePicturePress={() => setIsProfileVisible(true)}
+          isPictureVisible={true}
+        />
       ) : (
-        <TopBar handleMenuOpen={() => setIsMenuOpen(true)} />
+        <TopBar
+          user={user} // ✅ Passing User Context
+          handleMenuOpen={() => setIsMenuOpen(true)}
+          handlePicturePress={() => setIsProfileVisible(true)}
+          isPictureVisible={true}
+        />
       )}
 
+      {/* Profile Modal */}
+      <UserProfileModal
+        user={user}
+        visible={isProfileVisible}
+        onClose={() => setIsProfileVisible(false)}
+      />
+
+      {/* Folder Name Header */}
       {currentFolderId && (
         <View style={styles.folderHeader}>
           <Text style={styles.folderTitle} numberOfLines={1}>
@@ -280,23 +247,21 @@ export default function Shared() {
         </View>
       )}
 
+      {/* File List */}
       {entries.length === 0 ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text style={{ color: "gray" }}>No files found</Text>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text style={{ color: "gray" }}>No shared files found</Text>
         </View>
       ) : (
         <EntryList
           entries={entries}
           handlePress={handlePress}
           refreshFiles={fetchFiles}
-          setParentIdInTab={(id) => {
-            setCurrentFolderId(id);
-          }}
+          setParentIdInTab={setCurrentFolderId}
         />
       )}
 
+      {/* Add Button & Menu */}
       <Button
         title="+"
         style={styles.addbutton}

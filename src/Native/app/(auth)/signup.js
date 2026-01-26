@@ -14,8 +14,10 @@ import { saveToken, saveUserId } from "../../tokenUtil";
 import { styles } from "../../styles/login.styles"; // Assumes your existing styles
 import Button from "../../components/Button";
 import Input from "../../components/Input";
+import { useUser } from "../../contexts/UserContext";
 
 export default function Signup() {
+  const { refreshUser } = useUser();
   const [input, setInput] = useState("");
   const [userInput, setUserInput] = useState([]);
   const [step, setStep] = useState(0);
@@ -140,6 +142,7 @@ export default function Signup() {
           const tokenData = await tokenRes.json();
           await saveToken(tokenData.token);
           await saveUserId(tokenData.userId);
+          await refreshUser();
           router.replace("/(tabs)");
         } else {
           Alert.alert("Success", "Account created! Please log in.");
