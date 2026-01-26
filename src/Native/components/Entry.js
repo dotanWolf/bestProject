@@ -17,53 +17,7 @@ export default function Entry({
 }) {
   const { theme } = useTheme();
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
-  // const showMenu = (e) => {
-  //   if (e) {
-  //     e.stopPropagation();
-  //   }
 
-  //   const options = [
-  //     {
-  //       text: "Cancel",
-  //       style: "cancel",
-  //     },
-  //     {
-  //       text: entry.isStarred ? "Unstar ★" : "Star ☆",
-  //       onPress: () => {
-  //         console.log("⭐ Star clicked!"); // ✅ הוסף
-  //         handleStar && handleStar(entry);
-  //       },
-  //     },
-  //     {
-  //       text: "Rename",
-  //       onPress: () => {
-  //         console.log("✏️ Rename clicked!"); // ✅ הוסף
-  //         handleRename && handleRename(entry);
-  //       },
-  //     },
-  //     {
-  //       text: "Permissions",
-  //       onPress: () => {
-  //         console.log("👥 Permissions clicked!"); // ✅ הוסף
-  //         handleDetails && handleDetails(entry);
-  //       },
-  //     },
-  //     {
-  //       text: "Delete",
-  //       style: "destructive",
-  //       onPress: () => {
-  //         console.log("🗑️ DELETE CLICKED!"); // ✅ הוסף
-  //         handleDelete && handleDelete(entry);
-  //       },
-  //     },
-  //   ];
-
-  //   Alert.alert(
-  //     entry.name,
-  //     `Choose an action`,
-  //     options
-  //   );
-  // };
 
   return (
     <Pressable
@@ -95,17 +49,6 @@ export default function Entry({
             <Text style={{ marginLeft: 5, fontSize: 16 }}>⭐</Text>
           )}
         </View>
-
-        <TouchableOpacity
-          style={{ padding: 10 }}
-          onPress={(e) => {
-            e.stopPropagation();
-            console.log("🔘 Three dots pressed!");
-            setIsActionMenuOpen(true);
-          }}
-        >
-          <Ionicons name="ellipsis-vertical" size={20} color="gray" />
-        </TouchableOpacity>
 
         <FileActionMenu
           setParentIdInTab={setParentIdInTab}

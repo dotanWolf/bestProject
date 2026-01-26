@@ -8,31 +8,39 @@ import {
   Pressable,
   Alert,
   ActivityIndicator,
-  ScrollView, // Added ScrollView
+  ScrollView,
   Dimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons"; // ✅ Added Icon import
 import { getToken, getUserId } from "../tokenUtil";
 import Input from "./Input";
 import Button from "./Button";
 import PermissionsModal from "./PermissionsModal";
+import MoveFolderModal from "./MoveFolderModal";
+import { useTheme } from "../contexts/ThemeContext";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function FileActionMenu({
-  visible,
-  onClose,
   file,
   refreshFiles,
   setParentIdInTab,
 }) {
+  // ✅ 1. Manage visibility internally
+  const [visible, setVisible] = useState(false); 
+  
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+
   const [isPermissionMenuOpen, setIsPermissionMenuOpen] = useState(false);
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+
   const router = useRouter();
   const IP = process.env.EXPO_PUBLIC_IP;
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -51,6 +59,11 @@ export default function FileActionMenu({
   const canEdit = isOwner || isEditor;
 
   // --- Handlers ---
+  
+  const onClose = () => {
+    setVisible(false);
+    setIsRenaming(false); // Reset states
+  };
 
   const handleOpen = () => {
     onClose();
@@ -82,8 +95,7 @@ export default function FileActionMenu({
 
       if (response.ok) {
         refreshFiles();
-        setIsRenaming(false);
-        onClose();
+        onClose(); // ✅ Closes properly
       } else {
         Alert.alert("Error", "Could not rename file");
       }
@@ -132,42 +144,7 @@ export default function FileActionMenu({
     setLoading(true);
     const token = await getToken();
 
-    const trashFolderRecursively = async (folderId) => {
-      try {
-        const response = await fetch(
-          `http://${IP}:8080/api/files/folders/${folderId}`,
-          {
-            headers: { authorization: `Bearer ${token}` },
-          },
-        );
-
-        if (response.ok) {
-          const children = await response.json();
-          for (const child of children) {
-            if (child.type === "folder") {
-              await trashFolderRecursively(child.id);
-            }
-            await fetch(`http://${IP}:8080/api/files/${child.id}`, {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-                authorization: `Bearer ${token}`,
-                userid: currentUserId,
-              },
-              body: JSON.stringify({ isTrashed: true }),
-            });
-          }
-        }
-      } catch (err) {
-        console.error("Recursion error", err);
-      }
-    };
-
     try {
-      if (file.type === "folder" && isOwner) {
-        await trashFolderRecursively(file.id);
-      }
-
       const url = isOwner
         ? `http://${IP}:8080/api/files/${file.id}`
         : `http://${IP}:8080/api/files/${file.id}/permissions/${file.permissionId}`;
@@ -191,118 +168,137 @@ export default function FileActionMenu({
     }
   };
 
+  // ✅ Fix: Move Success closes everything properly
+  const onMoveSuccess = () => {
+    setIsMoveModalOpen(false); // Close Move Modal
+    setVisible(false);         // Close Menu Modal
+    refreshFiles();            // Refresh list
+  };
+
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            {loading ? (
-              <ActivityIndicator size="large" color="#0000ff" />
-            ) : isRenaming ? (
-              <View style={{ width: "100%" }}>
-                <Text style={styles.modalTitle}>Rename</Text>
-                <Input
-                  text="New Name"
-                  value={newName}
-                  onChangeText={setNewName}
-                />
-                <View style={styles.buttonRow}>
-                  <Button title="Cancel" onPress={() => setIsRenaming(false)} />
-                  <Button title="Save" onPress={handleRename} />
+    <View>
+      {/* ✅ 2. The Trigger Button (Inside the component) */}
+      <TouchableOpacity 
+        onPress={() => setVisible(true)} 
+        style={{ padding: 10 }}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} // Easier to click
+      >
+        <Ionicons name="ellipsis-vertical" size={20} color={theme.icon} />
+      </TouchableOpacity>
+
+      {/* Main Menu Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={visible}
+        onRequestClose={onClose}
+      >
+        <Pressable style={styles.overlay} onPress={onClose}>
+          <View style={styles.centeredView}>
+            <View style={[styles.modalView, { backgroundColor: theme.card }]}>
+              
+              {loading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+              ) : isRenaming ? (
+                <View style={{ width: "100%" }}>
+                  <Text style={[styles.modalTitle, { color: theme.text }]}>Rename</Text>
+                  <Input
+                    text="New Name"
+                    value={newName}
+                    onChangeText={setNewName}
+                  />
+                  <View style={styles.buttonRow}>
+                    <Button title="Cancel" onPress={() => setIsRenaming(false)} />
+                    <Button title="Save" onPress={handleRename} />
+                  </View>
                 </View>
-              </View>
-            ) : (
-              <View style={{ width: "100%" }}>
-                <Text style={styles.modalTitle} numberOfLines={1}>
-                  {file.name}
-                </Text>
+              ) : (
+                <View style={{ width: "100%" }}>
+                  <Text style={[styles.modalTitle, { color: theme.text }]} numberOfLines={1}>
+                    {file.name}
+                  </Text>
 
-                {/* Wrap options in ScrollView for Android visibility */}
-                <ScrollView
-                  style={styles.scrollView}
-                  contentContainerStyle={{ paddingBottom: 10 }}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <TouchableOpacity style={styles.option} onPress={handleOpen}>
-                    <Text style={styles.optionIcon}>
-                      {file.type === "folder" ? "📂" : "✏️"}
-                    </Text>
-                    <Text style={styles.optionText}>
-                      {file.type === "folder"
-                        ? "Open"
-                        : canEdit
-                          ? "View/Edit"
-                          : "View"}
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[styles.option, !canEdit && styles.disabled]}
-                    onPress={() => canEdit && setIsRenaming(true)}
-                    disabled={!canEdit}
+                  <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={{ paddingBottom: 10 }}
+                    showsVerticalScrollIndicator={false}
                   >
-                    <Text style={styles.optionIcon}>📛</Text>
-                    <Text style={styles.optionText}>Rename</Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity style={[styles.option, { borderBottomColor: theme.border }]} onPress={handleOpen}>
+                      <Text style={styles.optionIcon}>{file.type === "folder" ? "📂" : "✏️"}</Text>
+                      <Text style={[styles.optionText, { color: theme.text }]}>
+                        {file.type === "folder" ? "Open" : canEdit ? "View/Edit" : "View"}
+                      </Text>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={styles.option}
-                    onPress={handleStarred}
-                  >
-                    <Text style={styles.optionIcon}>
-                      {file.isStarred ? "❌" : "⭐"}
-                    </Text>
-                    <Text style={styles.optionText}>
-                      {file.isStarred ? "Unstar" : "Star"}
-                    </Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.option, { borderBottomColor: theme.border }, !canEdit && styles.disabled]}
+                      onPress={() => canEdit && setIsRenaming(true)}
+                      disabled={!canEdit}
+                    >
+                      <Text style={styles.optionIcon}>📛</Text>
+                      <Text style={[styles.optionText, { color: theme.text }]}>Rename</Text>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={styles.option}
-                    onPress={() => setIsPermissionMenuOpen(true)}
-                  >
-                    <Text style={styles.optionIcon}>👥</Text>
-                    <Text style={styles.optionText}>Permissions</Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.option, { borderBottomColor: theme.border }]}
+                      onPress={handleStarred}
+                    >
+                      <Text style={styles.optionIcon}>{file.isStarred ? "❌" : "⭐"}</Text>
+                      <Text style={[styles.optionText, { color: theme.text }]}>
+                        {file.isStarred ? "Unstar" : "Star"}
+                      </Text>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={styles.option}
-                    onPress={() =>
-                      Alert.alert("Move", "Navigate to Move Screen")
-                    }
-                  >
-                    <Text style={styles.optionIcon}>➡️</Text>
-                    <Text style={styles.optionText}>Move</Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.option, { borderBottomColor: theme.border }]}
+                      onPress={() => setIsPermissionMenuOpen(true)}
+                    >
+                      <Text style={styles.optionIcon}>👥</Text>
+                      <Text style={[styles.optionText, { color: theme.text }]}>Permissions</Text>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={styles.option}
-                    onPress={handleDelete}
-                  >
-                    <Text style={styles.optionIcon}>
-                      {isOwner ? "🗑️" : "🚫"}
-                    </Text>
-                    <Text style={[styles.optionText, { color: "red" }]}>
-                      {isOwner ? "Trash" : "Remove Access"}
-                    </Text>
-                  </TouchableOpacity>
-                </ScrollView>
-              </View>
-            )}
+                    {/* ✅ Move Button */}
+                    <TouchableOpacity
+                      style={[styles.option, { borderBottomColor: theme.border }]}
+                      onPress={() => setIsMoveModalOpen(true)}
+                    >
+                      <Text style={styles.optionIcon}>➡️</Text>
+                      <Text style={[styles.optionText, { color: theme.text }]}>Move</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.option, { borderBottomColor: "transparent" }]}
+                      onPress={handleDelete}
+                    >
+                      <Text style={styles.optionIcon}>{isOwner ? "🗑️" : "🚫"}</Text>
+                      <Text style={[styles.optionText, { color: "red" }]}>
+                        {isOwner ? "Trash" : "Remove Access"}
+                      </Text>
+                    </TouchableOpacity>
+                  </ScrollView>
+                </View>
+              )}
+            </View>
           </View>
-        </View>
-      </Pressable>
-      <PermissionsModal
-        file={file}
-        onClose={() => setIsPermissionMenuOpen(false)}
-        visible={isPermissionMenuOpen}
-      ></PermissionsModal>
-    </Modal>
+        </Pressable>
+
+        {/* --- Nested Modals --- */}
+        <PermissionsModal
+          file={file}
+          onClose={() => setIsPermissionMenuOpen(false)}
+          visible={isPermissionMenuOpen}
+        />
+        
+        {/* ✅ Move Modal is rendered inside here */}
+        <MoveFolderModal
+          visible={isMoveModalOpen}
+          file={file}
+          onClose={() => setIsMoveModalOpen(false)}
+          onMoveSuccess={onMoveSuccess}
+        />
+
+      </Modal>
+    </View>
   );
 }
 
@@ -320,8 +316,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     width: "85%",
-    maxHeight: SCREEN_HEIGHT * 0.7, // Ensure it doesn't exceed 70% of screen height
-    backgroundColor: "white",
+    maxHeight: SCREEN_HEIGHT * 0.7,
     borderRadius: 20,
     padding: 20,
     elevation: 5,
@@ -342,9 +337,8 @@ const styles = StyleSheet.create({
   option: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 15, // Slightly larger touch targets
+    paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
     width: "100%",
   },
   optionIcon: {
