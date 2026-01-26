@@ -12,6 +12,7 @@ import AddMenu from "../../components/addMenu";
 import SideMenu from "../../components/SideMenu";
 import UserProfileModal from "../../components/UserProfileModal";
 import { getToken, getUserId } from "../../tokenUtil";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function Main() {
   const rootFolder = {
@@ -19,6 +20,7 @@ export default function Main() {
     parentId: null,
   };
 
+  const { theme } = useTheme();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [entries, setEntries] = useState([]);
@@ -245,10 +247,10 @@ export default function Main() {
       </View>
     );
   }
-    console.log("is profile visible:", isProfileVisible);
+    //console.log("is profile visible:", isProfileVisible);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       
       {currentFolderId ? (
