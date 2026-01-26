@@ -11,7 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { removeToken } from "../tokenUtil";
-
+//current
 export default function UserProfileModal({ user, visible, onClose }) {
   const router = useRouter();
 
