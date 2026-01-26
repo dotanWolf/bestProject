@@ -1,10 +1,9 @@
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View, Image } from "react-native"; // 1. Add Image here
 import { styles } from "../styles/TopBar.styles";
 import { useState } from "react";
-import Button from "./Button";
-import Input from "./Input";
-import { Ionicons } from "@expo/vector-icons"; // Added Icons
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+
 export default function TopBar({
   handleMenuOpen,
   text,
@@ -13,27 +12,22 @@ export default function TopBar({
   user,
 }) {
   const router = useRouter();
-
   const [searchInput, setSearchInput] = useState("");
 
-  const handleChangeInput = (input) => {
-    setSearchInput(input);
-  };
-
-  // Logic to determine the image source
   const renderAvatar = () => {
-    // if (user?.profileImage && user.profileImage !== "placeholder") {
-    //   return (
-    //     <Image
-    //       source={{
-    //         uri: user.profileImage.startsWith("data:")
-    //           ? user.profileImage
-    //           : `data:image/png;base64,${user.profileImage}`,
-    //       }}
-    //       style={styles.avatarImage}
-    //     />
-    //   );
-    // }
+    // 2. Uncomment this block logic
+    if (user?.profileImage && user.profileImage !== "placeholder") {
+      return (
+        <Image
+          source={{
+            uri: user.profileImage.startsWith("data:")
+              ? user.profileImage
+              : `data:image/png;base64,${user.profileImage}`,
+          }}
+          style={styles.avatarImage} // Ensure this style exists in your styles file
+        />
+      );
+    }
 
     // Fallback to Initials
     return (
@@ -52,7 +46,7 @@ export default function TopBar({
           color="#5f6368"
         />
       </TouchableOpacity>
-      {/* Styled Search Bar */}
+      
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"
@@ -68,6 +62,7 @@ export default function TopBar({
           placeholderTextColor="#5f6368"
         />
       </View>
+      
       {isPictureVisible && (
         <TouchableOpacity
           style={styles.profileButton}

@@ -245,6 +245,7 @@ export default function Main() {
       </View>
     );
   }
+    console.log("is profile visible:", isProfileVisible);
 
   return (
     <View style={styles.container}>
@@ -252,12 +253,14 @@ export default function Main() {
       
       {currentFolderId ? (
         <TopBar
+          user={user}
           handleMenuOpen={handleBack}
           text="← Back"
           handlePicturePress={() => setIsProfileVisible(true)}
         />
       ) : (
         <TopBar
+          user={user}
           handleMenuOpen={() => setIsMenuOpen(true)}
           handlePicturePress={() => setIsProfileVisible(true)}
         />

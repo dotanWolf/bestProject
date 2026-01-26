@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect } from "react"; // 1. חובה לייבא useCallback
+import React, { useCallback, useEffect, useState } from "react"; // Added useState
 import { useRouter } from "expo-router";
 import { View, ActivityIndicator, Alert, Text } from "react-native";
-import { useState } from "react";
 import { styles } from "../../styles/myDrive.styles";
 import TopBar from "../../components/TopBar";
 import EntryList from "../../components/EntryList";
@@ -15,12 +14,18 @@ import { getToken } from "../../tokenUtil";
 import { useFocusEffect } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
+import UserProfileModal from "../../components/UserProfileModal"; // ✅ Added Import
+import { useUser } from "../../contexts/UserContext"; // ✅ Added Import
+
 export default function Main() {
   const rootFolder = {
     name: "root",
     parentId: null,
   };
   const router = useRouter();
+  
+  const { user } = useUser(); 
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [entries, setEntries] = useState([]);
   const IP = process.env.EXPO_PUBLIC_IP;
@@ -28,13 +33,15 @@ export default function Main() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [folder, setFolder] = useState(rootFolder);
+  
+  const [isProfileVisible, setIsProfileVisible] = useState(false);
 
-useFocusEffect(
+  useFocusEffect(
     useCallback(() => {
       fetchFiles();
       fetchCurrentFolder();
-    }, [currentFolderId]) 
-  )
+    }, [currentFolderId])
+  );
 
   const fetchFiles = async () => {
     let token = await getToken();
@@ -92,7 +99,7 @@ useFocusEffect(
       console.error("Fetch Folder error:", error);
     }
   };
-   const handlePress = (file) => {
+  const handlePress = (file) => {
     if (file.type === "folder") {
       setCurrentFolderId(file.id);
     } else {
@@ -141,8 +148,6 @@ useFocusEffect(
       console.error(error);
     }
   };
-
-  
 
   const handleFileUpload = async () => {
     try {
@@ -222,11 +227,30 @@ useFocusEffect(
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
+      {/* Update TopBar to pass User and Handle Press */}
       {currentFolderId ? (
-        <TopBar handleMenuOpen={handleBack} text="← Back" />
+        <TopBar
+          user={user}
+          handleMenuOpen={handleBack}
+          text="← Back"
+          handlePicturePress={() => setIsProfileVisible(true)}
+          isPictureVisible={true}
+        />
       ) : (
-        <TopBar handleMenuOpen={() => setIsMenuOpen(true)} />
+        <TopBar
+          user={user}
+          handleMenuOpen={() => setIsMenuOpen(true)}
+          handlePicturePress={() => setIsProfileVisible(true)}
+          isPictureVisible={true}
+        />
       )}
+      
+      {/* ✅ 4. Add UserProfileModal */}
+      <UserProfileModal
+        user={user}
+        visible={isProfileVisible}
+        onClose={() => setIsProfileVisible(false)}
+      />
 
       {currentFolderId && (
         <View style={styles.folderHeader}>

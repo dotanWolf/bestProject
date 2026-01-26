@@ -9,7 +9,7 @@ import TopBar from "../../components/TopBar";
 import EntryList from "../../components/EntryList";
 import SideMenu from "../../components/SideMenu";
 import PermissionsModal from "../../components/PermissionsModal";
-import { useFileActions } from "../../hooks/useFileActions"; // ✅ הוסף
+import { useUser } from "../../contexts/UserContext"; // <--- 1. Import the Hook
 import Button from "../../components/Button";
 import AddMenu from "../../components/addMenu";
 import * as DocumentPicker from "expo-document-picker";
@@ -19,6 +19,7 @@ export default function Starred() {
     name: "root",
     parentId: null,
   };
+  const { user } = useUser();
   const router = useRouter();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -244,9 +245,11 @@ export default function Starred() {
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       {currentFolderId ? (
-        <TopBar handleMenuOpen={handleBack} text="← Back" />
+        <TopBar user={user} handleMenuOpen={handleBack} text="← Back"  handlePicturePress={() => {}} 
+        isPictureVisible={true}/>
       ) : (
-        <TopBar handleMenuOpen={() => setIsMenuOpen(true)} />
+        <TopBar user={user} handleMenuOpen={() => setIsMenuOpen(true)} handlePicturePress={() => {}} 
+        isPictureVisible={true}/>
       )}
       {currentFolderId && (
         <View style={styles.folderHeader}>

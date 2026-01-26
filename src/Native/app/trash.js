@@ -9,6 +9,7 @@ import TopBar from "../components/TopBar";
 import Button from "../components/Button";
 import TrashEntry from "../components/TrashEntry";
 import SideMenu from "../components/SideMenu";
+import {useUser} from "../contexts/UserContext";
 
 export default function Trash() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function Trash() {
   const [token, setToken] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const { user } = useUser();
   // 2. יצירת רפרנס לרכיב הגלילה
   const scrollViewRef = useRef(null);
 
@@ -180,6 +181,7 @@ export default function Trash() {
     <View style={styles.container}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       <TopBar
+        user={user}
         handleMenuOpen={handleBack}
         text="← Back"
         handlePicturePress={() => setIsProfileVisible(true)}

@@ -15,6 +15,7 @@ import {
 import { WebView } from "react-native-webview";
 import { getToken } from "../tokenUtil";
 import TopBar from "../components/TopBar";
+import { useUser } from "../contexts/UserContext";
 
 export default function FileView() {
   const params = useLocalSearchParams();
@@ -31,7 +32,7 @@ export default function FileView() {
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
+  const { user } = useUser();
   // Helper: Decode Base64 to Text (Simple check)
   const decodeIfNeeded = (str) => {
     // If it's empty or looks like normal text, return it
@@ -222,6 +223,7 @@ export default function FileView() {
   return (
     <View style={localStyles.container}>
       <TopBar
+        user={user}
         handleMenuOpen={() => router.back()}
         text={fileType === "text" ? "Cancel" : "Back"}
       />
