@@ -9,7 +9,6 @@ export default function RootLayout() {
       <FilesProvider>
         <ThemeProvider> {/* <--- Wrap it here */}
           <Stack screenOptions={{ headerShown: false }}>
-             {/* ... your screens ... */}
              <Stack.Screen name="(tabs)" />
              <Stack.Screen name="index" />
              <Stack.Screen name="(auth)" />

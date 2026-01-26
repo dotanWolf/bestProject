@@ -12,6 +12,7 @@ import AddMenu from "../../components/addMenu";
 import SideMenu from "../../components/SideMenu";
 import UserProfileModal from "../../components/UserProfileModal"; // Added for profile click
 import { useUser } from "../../contexts/UserContext"; // ✅ 1. Hook for User Data
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function Shared() {
   const rootFolder = {
@@ -22,7 +23,7 @@ export default function Shared() {
   // ✅ 2. Get user directly from Context
   const { user } = useUser();
   const router = useRouter();
-
+  const { theme, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -209,7 +210,7 @@ export default function Shared() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       {/* Header Logic: Show Back if deep in folder, else Menu */}

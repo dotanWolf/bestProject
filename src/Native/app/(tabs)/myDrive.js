@@ -16,6 +16,7 @@ import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import UserProfileModal from "../../components/UserProfileModal"; // ✅ Added Import
 import { useUser } from "../../contexts/UserContext"; // ✅ Added Import
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function Main() {
   const rootFolder = {
@@ -33,7 +34,7 @@ export default function Main() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [folder, setFolder] = useState(rootFolder);
-  
+  const { theme, toggleTheme } = useTheme();
   const [isProfileVisible, setIsProfileVisible] = useState(false);
 
   useFocusEffect(
@@ -224,7 +225,7 @@ export default function Main() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       {/* Update TopBar to pass User and Handle Press */}

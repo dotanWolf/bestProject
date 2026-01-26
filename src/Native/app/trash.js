@@ -10,6 +10,7 @@ import Button from "../components/Button";
 import TrashEntry from "../components/TrashEntry";
 import SideMenu from "../components/SideMenu";
 import {useUser} from "../contexts/UserContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function Trash() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function Trash() {
   const { user } = useUser();
   // 2. יצירת רפרנס לרכיב הגלילה
   const scrollViewRef = useRef(null);
-
+  const { theme } = useTheme();
   const IP = process.env.EXPO_PUBLIC_IP;
 
   const fetchTrashedFiles = async () => {
@@ -65,7 +66,6 @@ export default function Trash() {
     init();
   }, []);
 
-  // 3. שימוש ב-useRef: גלילה לראש העמוד כשהרשימה מתעדכנת
   useEffect(() => {
     if (scrollViewRef.current && entries.length > 0) {
       scrollViewRef.current.scrollTo({ y: 0, animated: true });
@@ -91,6 +91,7 @@ export default function Trash() {
         },
         body: JSON.stringify({
           isTrashed: false,
+          isStarred: false,
           parentId: null,
         }),
       });
@@ -178,7 +179,7 @@ export default function Trash() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <SideMenu visible={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       <TopBar
         user={user}

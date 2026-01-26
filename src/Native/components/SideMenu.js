@@ -33,7 +33,7 @@ export default function SideMenu({ visible, onClose }) {
         >
           <View style={styles.header}>
             {/* 4. Apply dynamic text color */}
-            <Text style={[styles.driveText, { color: theme.text }]}>Google Drive</Text>
+            <Text style={[styles.driveText, { color: theme.textPrimary }]}>Google Drive</Text>
           </View>
         </TouchableOpacity>
 
@@ -46,7 +46,7 @@ export default function SideMenu({ visible, onClose }) {
             }}
           >
             <Text style={styles.icon}>📄</Text>
-            <Text style={[styles.itemText, { color: theme.text }]}>Recent</Text>
+            <Text style={[styles.itemText, { color: theme.textSecondary }]}>Recent</Text>
           </TouchableOpacity>
           
           <TouchableOpacity
@@ -57,7 +57,7 @@ export default function SideMenu({ visible, onClose }) {
             }}
           >
             <Text style={styles.icon}>🗑️</Text>
-            <Text style={[styles.itemText, { color: theme.text }]}>Trash</Text>
+            <Text style={[styles.itemText, { color: theme.textSecondary }]}>Trash</Text>
           </TouchableOpacity>
 
           {/* DARK MODE TOGGLE */}
@@ -69,7 +69,7 @@ export default function SideMenu({ visible, onClose }) {
             }} // 5. Connect function
           >
             <Text style={styles.icon}>{isDarkMode ? "☀️" : "🌙"}</Text>
-            <Text style={[styles.itemText, { color: theme.text }]}>
+            <Text style={[styles.itemText, { color: theme.textSecondary }]}>
               {isDarkMode ? "Light Mode" : "Dark Mode"}
             </Text>
           </TouchableOpacity>

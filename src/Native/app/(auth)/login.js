@@ -5,11 +5,13 @@ import Input from "../../components/Input";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { saveToken, saveUserId, getToken } from "../../tokenUtil";
+import { useUser } from "../../contexts/UserContext";
 
 export default function Login() {
   const [input, setInput] = useState("");
   const [userInput, setUserInput] = useState([]);
   const [step, setStep] = useState(0);
+  const { refreshUser } = useUser();
   const router = useRouter();
   const IP = process.env.EXPO_PUBLIC_IP;
 
@@ -64,7 +66,7 @@ export default function Login() {
             // Save token and userId
             await saveToken(tokenData.token);
             await saveUserId(tokenData.userId);
-            
+            await refreshUser();
             // Verify token was saved
             const savedToken = await getToken();
             console.log("✅ Token saved successfully:", !!savedToken);

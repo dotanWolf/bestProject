@@ -3,6 +3,7 @@ import { Text, View, Pressable, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { styles } from "../styles/Entry.styles";
 import FileActionMenu from "./FileActionMenu";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function Entry({
   entry,
@@ -14,6 +15,7 @@ export default function Entry({
   refreshFiles,
   setParentIdInTab
 }) {
+  const { theme } = useTheme();
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   // const showMenu = (e) => {
   //   if (e) {
@@ -65,13 +67,14 @@ export default function Entry({
 
   return (
     <Pressable
-      style={styles.container}
-      onPress={() => {
-        console.log("Entry pressed:", entry.name, "Type:", entry.type);
-        if (handlePress) {
-          handlePress(entry);
-        }
-      }}
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.surface,
+          borderBottomColor: theme.divider,
+        },
+      ]}
+      onPress={() => handlePress?.(entry)}
       onLongPress={() => setIsActionMenuOpen(true)}
       delayLongPress={400}
     >
@@ -87,7 +90,7 @@ export default function Entry({
           <Text style={{ fontSize: 24 }}>
             {entry.type === "folder" ? "📁" : "📄"}
           </Text>
-          <Text style={{ marginLeft: 10, fontSize: 16 }}>{entry.name}</Text>
+          <Text style={{ color: theme.textSecondary ,marginLeft: 10, fontSize: 16 }}>{entry.name}</Text>
           {entry.isStarred && (
             <Text style={{ marginLeft: 5, fontSize: 16 }}>⭐</Text>
           )}
@@ -97,7 +100,7 @@ export default function Entry({
           style={{ padding: 10 }}
           onPress={(e) => {
             e.stopPropagation();
-            console.log("🔘 Three dots pressed!"); // ✅ הוסף
+            console.log("🔘 Three dots pressed!");
             setIsActionMenuOpen(true);
           }}
         >
