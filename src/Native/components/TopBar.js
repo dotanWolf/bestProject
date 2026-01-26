@@ -28,15 +28,20 @@ export default function TopBar({
         />
       );
     }
-
     // Fallback to Initials
     return (
       <Text style={styles.avatarText}>
         {user?.username ? user.username[0].toUpperCase() : "U"}
       </Text>
     );
+   };
+    const handleSearch = () => {
+      if (searchInput.trim().length > 0) {
+        // Navigate to the dynamic search route
+        router.push(`/search/${encodeURIComponent(searchInput)}`);
+        setSearchInput(""); // Optional: Clear bar after search
+      }
   };
-
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={handleMenuOpen} style={styles.iconButton}>
@@ -60,6 +65,8 @@ export default function TopBar({
           onChangeText={setSearchInput}
           style={styles.searchInput}
           placeholderTextColor="#5f6368"
+          returnKeyType="search"
+          onSubmitEditing={handleSearch}
         />
       </View>
       
