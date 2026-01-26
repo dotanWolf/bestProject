@@ -29,61 +29,12 @@ export default function Main() {
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [folder, setFolder] = useState(rootFolder);
 
-  // שימוש ב-Hook שלנו עבור תיקיית השורש (null)
-  // const {
-  //   entries,
-  //   loading: hookLoading, // שיניתי את השם כדי למנוע התנגשות
-  //   isAddOpen,
-  //   setIsAddOpen,
-  //   showPermissions,
-  //   setShowPermissions,
-  //   selectedFile,
-  //   handleDelete,
-  //   handleRename,
-  //   handleStar,
-  //   handleFileUpload,
-  //   handleCreateFolder,
-  //   handleOpenPermissions,
-  // } = useFolderView(null);
-
-  // const { refreshFiles, token, initialize } = useFiles();
-
-  // // אתחול ראשוני (Login check)
-  // useEffect(() => {
-  //   initialize();
-  // }, []);
-
-  // // 👇 התיקון הקריטי: רענון בכל פעם שנכנסים למסך הבית
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     if (token) {
-  //       console.log("🏠 Home Screen focused - Refreshing list...");
-  //       refreshFiles(); // זה מה שיביא את הקובץ ששוחזר!
-  //     }
-  //   }, [token]), // ירוץ כשיש טוקן וחוזרים למסך
-  // );
-
-  //   useEffect(() => {
-  //     fetchFiles();
-  //   }, []);
-
-  useFocusEffect(
+useFocusEffect(
     useCallback(() => {
       fetchFiles();
       fetchCurrentFolder();
-    }, [currentFolderId]),
-  );
-
-  const handlePress = (file) => {
-    if (file.type === "folder") {
-      setCurrentFolderId(file.id);
-    } else {
-      router.push({
-        pathname: "/[id]",
-        params: { id: file.id },
-      });
-    }
-  };
+    }, [currentFolderId]) 
+  )
 
   const fetchFiles = async () => {
     let token = await getToken();
@@ -117,6 +68,38 @@ export default function Main() {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+  const fetchCurrentFolder = async () => {
+    const token = await getToken();
+    if (!currentFolderId) {
+      setFolder(rootFolder);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://${IP}:8080/api/files/${currentFolderId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setFolder(data); // This provides the parentId for the Back button
+      }
+    } catch (error) {
+      console.error("Fetch Folder error:", error);
+    }
+  };
+   const handlePress = (file) => {
+    if (file.type === "folder") {
+      setCurrentFolderId(file.id);
+    } else {
+      router.push({
+        pathname: "/[id]",
+        params: { id: file.id },
+      });
     }
   };
 
@@ -159,36 +142,7 @@ export default function Main() {
     }
   };
 
-  const fetchCurrentFolder = async () => {
-    const token = await getToken();
-    if (!token) {
-      console.log("token doesnt exist");
-    }
-    // Use parentId from URL
-    if (currentFolderId) {
-      try {
-        const response = await fetch(
-          `http://${IP}:8080/api/files/${currentFolderId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setFolder(data);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setFolder(rootFolder);
-    }
-  };
+  
 
   const handleFileUpload = async () => {
     try {
