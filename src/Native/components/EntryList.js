@@ -1,4 +1,4 @@
-import { ScrollView } from "react-native";
+import { ScrollView, View, Text, StyleSheet } from "react-native";
 import Entry from "./Entry";
 
 export default function EntryList({
@@ -10,7 +10,6 @@ export default function EntryList({
   handleDetails,
   refreshFiles,
   setParentIdInTab,
-  enableActions = true, // 👈 1. Add default prop here
 }) {
   return (
     <ScrollView>
@@ -25,7 +24,6 @@ export default function EntryList({
           handleDetails={handleDetails}
           refreshFiles={refreshFiles}
           setParentIdInTab={setParentIdInTab}
-          enableActions={enableActions} // 👈 2. Pass it down to Entry
         />
       ))}
     </ScrollView>

@@ -81,9 +81,9 @@ const SharedItems = () => {
   const handleDoubleClick = (file) => {
     if (file.type === "folder") {
       setLoading(true);
-      setCurrentFolderId(file._id); // Go inside folder
+      setCurrentFolderId(file.id); // Go inside folder
     } else {
-      navigate(`/update/${file._id}`);
+      navigate(`/update/${file.id}`);
     }
   };
 

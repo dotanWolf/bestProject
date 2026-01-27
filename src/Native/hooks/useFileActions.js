@@ -24,7 +24,7 @@ export function useFileActions(token, currentUserId, fetchFiles, IP) {
             console.log("🚀 Deleting...");
             try {
               if (isOwner) {
-                const url = `http://${IP}:8080/api/files/${file._id}`;
+                const url = `http://${IP}:8080/api/files/${file.id}`;
                 console.log("📍 URL:", url);
 
                 const response = await fetch(url, {
@@ -48,7 +48,7 @@ export function useFileActions(token, currentUserId, fetchFiles, IP) {
                 } else {
                 }
               } else {
-                const url = `http://${IP}:8080/api/files/${file._id}/permissions/${file.permissionId}`;
+                const url = `http://${IP}:8080/api/files/${file.id}/permissions/${file.permissionId}`;
 
                 const response = await fetch(url, {
                   method: "DELETE",
@@ -90,7 +90,7 @@ export function useFileActions(token, currentUserId, fetchFiles, IP) {
           onPress: async (newName) => {
             if (!newName || newName === file.name) return;
             try {
-              await fetch(`http://${IP}:8080/api/files/${file._id}`, {
+              await fetch(`http://${IP}:8080/api/files/${file.id}`, {
                 method: "PATCH",
                 headers: {
                   "Content-Type": "application/json",
@@ -120,8 +120,8 @@ export function useFileActions(token, currentUserId, fetchFiles, IP) {
     try {
       const isOwner = file.ownerId === currentUserId;
       const url = isOwner
-        ? `http://${IP}:8080/api/files/${file._id}`
-        : `http://${IP}:8080/api/files/${file._id}/permissions/${file.permissionId}`;
+        ? `http://${IP}:8080/api/files/${file.id}`
+        : `http://${IP}:8080/api/files/${file.id}/permissions/${file.permissionId}`;
 
       await fetch(url, {
         method: "PATCH",

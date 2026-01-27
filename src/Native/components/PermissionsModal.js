@@ -113,7 +113,7 @@ export default function PermissionsModal({ visible, file, onClose }) {
     try {
       const token = await getToken();
       await fetch(
-        `http://${IP}:8080/api/files/${file._id}/permissions/${permId}`,
+        `http://${IP}:8080/api/files/${file.id}/permissions/${permId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}`, userid: currentUserId },

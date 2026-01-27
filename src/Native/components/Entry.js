@@ -11,7 +11,7 @@ export default function Entry({
   handleDelete,
   handleRename,
   handleStar,
-  enableActions = true,
+  handleDetails,
   refreshFiles,
   setParentIdInTab
 }) {
@@ -29,7 +29,7 @@ export default function Entry({
         },
       ]}
       onPress={() => handlePress?.(entry)}
-      onLongPress={enableActions ? () => setIsActionMenuOpen(true) : null}
+      onLongPress={() => setIsActionMenuOpen(true)}
       delayLongPress={400}
     >
       <View
@@ -49,15 +49,16 @@ export default function Entry({
             <Text style={{ marginLeft: 5, fontSize: 16 }}>⭐</Text>
           )}
         </View>
-        {enableActions && (
-          <FileActionMenu
-            setParentIdInTab={setParentIdInTab}
-            visible={isActionMenuOpen}
-            onClose={() => setIsActionMenuOpen(false)}
-            file={entry}
-            refreshFiles={refreshFiles}
-          />
-        )}
+
+        <FileActionMenu
+          setParentIdInTab={setParentIdInTab}
+          visible={isActionMenuOpen}
+          onClose={() => {
+            setIsActionMenuOpen(false);
+          }}
+          file={entry}
+          refreshFiles={refreshFiles}
+        ></FileActionMenu>
       </View>
     </Pressable>
   );
