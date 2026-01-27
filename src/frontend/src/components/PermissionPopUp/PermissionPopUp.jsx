@@ -13,7 +13,7 @@ function PermissionPopUp({ file, handleClose }) {
   const fetchPermissions = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/files/${file.id}/permissions`,
+        `http://localhost:8080/api/files/${file._id}/permissions`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -35,7 +35,7 @@ function PermissionPopUp({ file, handleClose }) {
 
   useEffect(() => {
     fetchPermissions();
-  }, [file.id]);
+  }, [file._id]);
 
   const isOwner = currentUserRole === "owner" || file.ownerId === currentUserId;
 
@@ -55,7 +55,7 @@ function PermissionPopUp({ file, handleClose }) {
       const userData = await emailRes.json();
 
       const response = await fetch(
-        `http://localhost:8080/api/files/${file.id}/permissions`,
+        `http://localhost:8080/api/files/${file._id}/permissions`,
         {
           method: "POST",
           headers: {
@@ -87,7 +87,7 @@ function PermissionPopUp({ file, handleClose }) {
 
     const isRemove = newRole === "remove";
     const method = isRemove ? "DELETE" : "PATCH";
-    const url = `http://localhost:8080/api/files/${file.id}/permissions/${permId}`;
+    const url = `http://localhost:8080/api/files/${file._id}/permissions/${permId}`;
 
     try {
       const response = await fetch(url, {

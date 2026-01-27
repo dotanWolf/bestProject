@@ -44,16 +44,16 @@ const HomePage = () => {
   const handleNavigate = (file) => {
     
     if (file.type !== 'folder') {
-      navigate(`/update/${file.id}`);
+      navigate(`/update/${file._id}`);
       return;
     }
 
     const isOwner = file.ownerId === currentUserId || file.role === "owner";
 
     if (isOwner) {
-      navigate(`/my-drive/${file.id}`);
+      navigate(`/my-drive/${file._id}`);
     } else {
-      navigate(`/shared-with-me/${file.id}`);
+      navigate(`/shared-with-me/${file._id}`);
     }
   };
 

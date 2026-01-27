@@ -8,7 +8,7 @@ function FilesList({ files, handleDoubleClick, fetchFiles, onNavigate, show }) {
     >
       {files.map((file) => (
         <div
-          key={file.id}
+          key={file._id} // ✅ Correct: Uses MongoDB _id
           onDoubleClick={() => handleDoubleClick(file)}
           style={{
             padding: "12px 20px",

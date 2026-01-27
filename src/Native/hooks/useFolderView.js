@@ -215,7 +215,7 @@ export function useFolderView(currentFolderId = null) {
           text: "Rename",
           onPress: async (n) => {
             if (!n) return;
-            await fetch(`http://${IP}:8080/api/files/${file.id}`, {
+            await fetch(`http://${IP}:8080/api/files/${file._id}`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -245,8 +245,8 @@ export function useFolderView(currentFolderId = null) {
         style: "destructive",
         onPress: async () => {
           const url = isOwner
-            ? `http://${IP}:8080/api/files/${file.id}`
-            : `http://${IP}:8080/api/files/${file.id}/permissions/${file.permissionId}`;
+            ? `http://${IP}:8080/api/files/${file._id}`
+            : `http://${IP}:8080/api/files/${file._id}/permissions/${file.permissionId}`;
 
           const method = isOwner ? "PATCH" : "DELETE";
 
@@ -276,8 +276,8 @@ export function useFolderView(currentFolderId = null) {
   const handleStar = async (file) => {
     const isOwner = file.ownerId === currentUserId;
     const url = isOwner
-      ? `http://${IP}:8080/api/files/${file.id}`
-      : `http://${IP}:8080/api/files/${file.id}/permissions/${file.permissionId}`;
+      ? `http://${IP}:8080/api/files/${file._id}`
+      : `http://${IP}:8080/api/files/${file._id}/permissions/${file.permissionId}`;
     await fetch(url, {
       method: "PATCH",
       headers: {

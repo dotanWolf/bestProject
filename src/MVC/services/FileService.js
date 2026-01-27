@@ -329,7 +329,7 @@ class FileService {
     const processedShared = sharedPermissions
       .map(async (p) => {
         const file = await fileRepository.findById(p.fileId);
-        if (file && !file.ownerId.equals(userId) && !file.isTrashed) {
+        if (file && file.ownerId.toString() !== userId.toString() && !file.isTrashed) {
           return {
             ...file,
             role: p.role,

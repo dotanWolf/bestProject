@@ -38,7 +38,7 @@ const Starred = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(`http://localhost:8080/api/files/${file.id}`, {
+      const response = await fetch(`http://localhost:8080/api/files/${file._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ const Starred = () => {
   }, []);
   const handleNavigate = (file) => {
     if (file.type === "folder") {
-      navigate(`/folder/${file.id}`); // Navigates to the folder view
+      navigate(`/folder/${file._id}`); // Navigates to the folder view
     }
   };
 
@@ -92,7 +92,7 @@ const Starred = () => {
 
       <div className="trash-list">
         {starredFiles.map((file) => (
-          <div key={file.id} className="trash-item" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
+          <div key={file._id} className="trash-item" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-color)" }}>
             <div 
               className="trash-item-info" 
               style={{ color: "var(--text-primary)", cursor: "pointer" }}

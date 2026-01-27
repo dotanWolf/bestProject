@@ -39,7 +39,7 @@ const Trash = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/files/${file.id}`,
+        `http://localhost:8080/api/files/${file._id}`,
         {
           method: "PATCH",
           headers: {
@@ -69,7 +69,7 @@ const Trash = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/files/${file.id}`,
+        `http://localhost:8080/api/files/${file._id}`,
         {
           method: "DELETE",
           headers: {
@@ -99,7 +99,7 @@ const Trash = () => {
 
     try {
         const deletePromises = trashedFiles.map(file => 
-             fetch(`http://localhost:8080/api/files/${file.id}`, {
+             fetch(`http://localhost:8080/api/files/${file._id}`, {
                 method: "DELETE",
                 headers: { authorization: `Bearer ${token}` },
              })
@@ -172,7 +172,7 @@ const Trash = () => {
       <div className="trash-list">
         {trashedFiles.map((file) => (
           <div
-            key={file.id}
+            key={file._id}
             className="trash-item"
             style={{
               backgroundColor: "var(--bg-card)",

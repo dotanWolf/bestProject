@@ -19,8 +19,9 @@ function FoldersPopUp({ handleClose, handleDoubleClick, fileToMove }) {
       });
       if (response.ok) {
         const data = await response.json();
+        // CHANGE: f.id -> f._id and fileToMove.id -> fileToMove._id
         const activeFiles = Array.isArray(data)
-          ? data.filter((f) => !f.isTrashed && f.id !== fileToMove?.id)
+          ? data.filter((f) => !f.isTrashed && f._id !== fileToMove?._id)
           : [];
         setFolders(activeFiles);
       }

@@ -90,9 +90,9 @@ const MyDrive = ({ setFolderIdInMainPage }) => {
     if (file.type === "folder") {
       setLoading(true);
       // 5. Navigate to the URL instead of setting local state
-      navigate(`/my-drive/${file.id}`);
+      navigate(`/my-drive/${file._id}`);
     } else {
-      navigate(`/update/${file.id}`);
+      navigate(`/update/${file._id}`);
     }
   };
 
