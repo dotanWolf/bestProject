@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   cpp-server:
@@ -11,35 +11,25 @@ services:
     volumes:
       - files:/app/data
 
-  mongo:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db # Persists your database data
-
   api:
     build: ./src/MVC
     ports:
       - "8080:8080"
-    environment:
-      - NODE_ENV=development
-      # 🚨 ADD THIS: Override the env file string to point to the docker service
-      - CONNECTION_STRING=mongodb://mongo:27017/myDrive
-    env_file:
-      - ./src/MVC/config/.env.development
+    # This ensures the API waits for the C++ server to be ready
     depends_on:
       - cpp-server
-      - mongo # 🚨 ADD THIS: Ensure DB starts before API
 
   frontend:
+    # Use 'build' for local code, not 'image'
     build: ./src/frontend
     ports:
       - "5173:5173"
+    # Optional: adds hot-reload so changes you make in VS Code show up instantly
     volumes:
       - ./src/frontend:/app
       - /app/node_modules
 
+# You MUST declare the named volume here or the build will fail
 volumes:
   files:
   mongo-data: # 🚨 ADDED: This declaration is mandatory

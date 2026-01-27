@@ -107,11 +107,11 @@ export default function Shared() {
 
   const handlePress = (file) => {
     if (file.type === "folder") {
-      setCurrentFolderId(file._id);
+      setCurrentFolderId(file.id);
     } else {
       router.push({
         pathname: "/[id]",
-        params: { id: file._id },
+        params: { id: file.id },
       });
     }
   };

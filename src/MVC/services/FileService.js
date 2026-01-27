@@ -11,9 +11,18 @@ const UserRepositery = require("../repositeries/UserRepositery");
 
 class FileService {
   async createFile(fileData, userId) {
-    if (fileData.parentId) {
+    // Validate file data
+    const validationErrors = File.validate(fileData);
+    if (validationErrors.length > 0) {
+      const error = new Error(validationErrors.join(", "));
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const parentId = fileData.parentId;
+    if (parentId) {
       // user set a custom parent id, we must check its a folder and userId can edit it
-      const folder = await fileRepository.findById(fileData.parentId);
+      const folder = fileRepository.findById(parentId);
       if (!folder) {
         const error = new Error("folder doesnt exist");
         error.statusCode = 404;
@@ -28,29 +37,29 @@ class FileService {
       }
     }
     // Create file in repository
-    const file = await fileRepository.create({
+    const file = fileRepository.create({
       ...fileData,
       ownerId: userId,
     });
 
-    const user = await UserRepositery.findById(userId);
+    const user = UserRepositery.findById(userId);
     //create a permmision for the owner of the file
-    const ownerPermmision = await PermissionService.createPermission(
-      file._id,
+    const ownerPermmision = PermissionService.createPermission(
+      file.id,
       {
         userId: userId,
         role: "owner",
         email: user.email,
       },
-      userId,
+      userId
     );
 
     // If it's a file (not folder), save to cpp server
-    if (file.type == "file") {
-      const result = await client.saveFile(file._id, file.content);
+    if (file.isFile()) {
+      const result = await client.saveFile(file.id, file.content);
       if (!result.success) {
         // couldnt save, delete from repository
-        await fileRepository.delete(file._id);
+        fileRepository.delete(file.id);
         const error = new Error("Failed to save file to storage server");
         error.statusCode = 500;
         throw error;
@@ -59,8 +68,8 @@ class FileService {
     return file;
   }
 
-  async getFileById(fileId, userId) {
-    const file = await fileRepository.findById(fileId);
+  getFileById(fileId, userId) {
+    const file = fileRepository.findById(fileId);
 
     if (!file) {
       const error = new Error("File not found");
@@ -78,57 +87,56 @@ class FileService {
     return file;
   }
 
-  async getRootFiles(userId) {
-    console.log("Fetching root files for user:", userId);
+  getRootFiles(userId) {
     // Get files at root level (parentId = null) owned by user
-    const ownedFiles = await fileRepository.findByOwnerAndParent(userId, null);
+    const ownedFiles = fileRepository.findByOwnerAndParent(userId, null);
+    console.log(fileRepository.files)
+    // // Also get files shared with user at root level
+    // const sharedPermissions = permissionRepository.findByUserId(userId);
+    // const sharedFileIds = sharedPermissions.map(p => p.fileId);
+    // const sharedFiles = sharedFileIds
+    //     .map(id => fileRepository.findById(id))
+    //     .filter(file => file && file.parentId === null);
 
-    return ownedFiles.map((file) => {
-      return {
+    // // Combine and remove duplicates
+    // const fileMap = new Map();
+    // [...ownedFiles, ...sharedFiles].forEach(file => fileMap.set(file.id, file));
+
+    return ownedFiles.map(file => {return {
         ...file,
-        role: "owner",
-        isStarred: file.isStarred,
+        role: "owner", 
+        isStarred: file.isStarred 
       };
     });
   }
 
-  async getFolderEntries(userId, parentId) {
-    const folderFiles = await fileRepository.findByOwnerAndParent(
-      userId,
-      parentId,
-    );
-    console.log("Fetched folder entries:", folderFiles);
+  getFolderEntries(userId, parentId) {
+    const folderFiles = fileRepository.findByOwnerAndParent(userId, parentId);
     return folderFiles;
   }
 
-  async getFolders(userId) {
+  getFolders(userId) {
     // 1. Get all folders owned by the user
-    const ownedEntries = (await fileRepository.findByOwnerId(userId)) || [];
-    const ownedFolders = ownedEntries.filter(
-      (entry) => entry.type === "folder",
-    );
+    const ownedEntries = fileRepository.findByOwnerId(userId) || [];
+    const ownedFolders = ownedEntries.filter((entry) => entry.isFolder());
 
     // 2. Get all permissions for this user with the role 'editor'
-    const sharedPermissions =
-      (await permissionRepository.findByUserId(userId)) || [];
+    const sharedPermissions = permissionRepository.findByUserId(userId) || [];
 
     // 3. Convert those permissions into actual folder objects
-    const sharedEditorFoldersPromises = sharedPermissions
+    const sharedEditorFolders = sharedPermissions
       .filter((perm) => perm.role === "editor") // Only editors
-      .map(async (perm) => await fileRepository.findById(perm.fileId)); // Get the file/folder object
+      .map((perm) => fileRepository.findById(perm.fileId)) // Get the file/folder object
+      .filter(
+        (entry) => entry && entry.isFolder() && entry.ownerId !== userId // Avoid duplicates if owner has a permission record
+      );
 
-    const sharedEditorFolders = await Promise.all(sharedEditorFoldersPromises);
-    const filteredSharedEditorFolders = sharedEditorFolders.filter(
-      (entry) =>
-        entry && entry.type == "folder" && !entry.ownerId.equals(userId), // Avoid duplicates if owner has a permission record
-    );
-    console.log("Shared editor folders:", filteredSharedEditorFolders);
     // 4. Merge and return
-    return [...ownedFolders, ...filteredSharedEditorFolders];
+    return [...ownedFolders, ...sharedEditorFolders];
   }
 
   async updateFile(fileId, updates, userId) {
-    var file = await fileRepository.findById(fileId);
+    var file = fileRepository.findById(fileId);
 
     // Update in repository
     if (!file) {
@@ -143,10 +151,10 @@ class FileService {
       throw error;
     }
 
-    file = await fileRepository.update(fileId, updates);
+    file = fileRepository.update(fileId, updates);
 
     // If updating file content, update in Assignment 2 server
-    if (file.type == "file") {
+    if (file.isFile()) {
       var result = await client.deleteFile(fileId);
       if (!result.success) {
         const error = new Error("Failed to update file in storage server");
@@ -164,7 +172,7 @@ class FileService {
   }
 
   async deleteFile(fileId, userId) {
-    const file = await fileRepository.findById(fileId);
+    const file = fileRepository.findById(fileId);
 
     if (!file) {
       const error = new Error("File not found");
@@ -173,14 +181,14 @@ class FileService {
     }
 
     // Only owner can delete
-    if (!file.ownerId.equals(userId)) {
+    if (file.ownerId !== userId) {
       const error = new Error("Access denied");
       error.statusCode = 403;
       throw error;
     }
 
     // If it's a folder, delete all children recursively
-    if (file.type == "folder") {
+    if (file.isFolder()) {
       try {
         await this.deleteFolderContents(fileId);
       } catch (error) {
@@ -189,7 +197,7 @@ class FileService {
     }
 
     // If it's a file, delete from Assignment 2 server
-    if (file.type == "file") {
+    if (file.isFile()) {
       const result = await client.deleteFile(fileId);
       if (!result.success) {
         const error = new Error("Failed to update file in storage server");
@@ -199,20 +207,20 @@ class FileService {
     }
 
     // Delete permissions associated with this file
-    await permissionRepository.deleteByFileId(fileId);
+    permissionRepository.deleteByFileId(fileId);
 
     // Delete from repository
-    return await fileRepository.delete(fileId);
+    return fileRepository.delete(fileId);
   }
 
   async deleteFolderContents(folderId) {
-    const children = await fileRepository.findByParentId(folderId);
+    const children = fileRepository.findByParentId(folderId);
 
     for (const child of children) {
-      if (child.type == "folder") {
-        await this.deleteFolderContents(child._id);
-      } else if (child.type == "file") {
-        const result = await client.deleteFile(child._id);
+      if (child.isFolder()) {
+        await this.deleteFolderContents(child.id);
+      } else if (child.isFile()) {
+        const result = await client.deleteFile(child.id);
         if (!result.success) {
           const error = new Error("Failed to update file in storage server");
           error.statusCode = 500;
@@ -220,101 +228,81 @@ class FileService {
         }
       }
 
-      await permissionRepository.deleteByFileId(child._id);
-      await fileRepository.delete(child._id);
+      permissionRepository.deleteByFileId(child.id);
+      fileRepository.delete(child.id);
     }
   }
 
-  async hasReadAccess(file, userId) {
+  hasReadAccess(file, userId) {
     // Owner has access
-    if (file.ownerId.equals(userId)) {
+    if (file.ownerId === userId) {
       return true;
     }
 
     // Check permissions
-    const permission = await permissionRepository.findByFileAndUser(
-      file._id,
-      userId,
-    );
+    const permission = permissionRepository.findByFileAndUser(file.id, userId);
     return permission && permission.canRead();
   }
 
-  async hasEditAccess(file, userId) {
+  hasEditAccess(file, userId) {
     // Owner has access
-    if (file.ownerId.equals(userId)) {
+    if (file.ownerId === userId) {
       return true;
     }
 
     // Check permissions
-    const permission = await permissionRepository.findByFileAndUser(
-      file._id,
-      userId,
-    );
+    const permission = permissionRepository.findByFileAndUser(file.id, userId);
     return permission && permission.canEdit();
   }
+  getSharedEntries(userId) {
+  // 1. Get all permission records for this user
+  const sharedPermissions = permissionRepository.findByUserId(userId) || [];
 
-  async getSharedEntries(userId) {
-    console.log("Fetching shared entries for user:", userId);
-    // 1. Get all permission records for this user
-    const sharedPermissions =
-      (await permissionRepository.findByUserId(userId)) || [];
-    console.log("Shared permissions:", sharedPermissions);
-    // 2. Map permissions to file objects and inject metadata
-    const sharedFilesPromises = sharedPermissions.map(async (p) => {
-      const file = await fileRepository.findById(p.fileId);
-      console.log("Processing permission:", p, "File:", file);
+  // 2. Map permissions to file objects and inject metadata
+  return sharedPermissions
+    .map(p => {
+      const file = fileRepository.findById(p.fileId);
       // Only include if file exists, user is not the owner, and not trashed
-      if (file && !file.ownerId.equals(userId) && !file.isTrashed) {
-        console.log("Adding shared file:", file);
-        return {
-          ...file,
-          role: p.role, // Unlocks Rename for Editors
+      if (file && file.ownerId !== userId && !file.isTrashed) {
+        return { 
+          ...file, 
+          role: p.role,           // Unlocks Rename for Editors
           isStarred: p.isStarred, // Individualized star status
-          permissionId: p._id, // Used to target the correct PATCH/DELETE route
+          permissionId: p.id      // Used to target the correct PATCH/DELETE route
         };
       }
       return null;
-    });
-
-    const resolvedFiles = await Promise.all(sharedFilesPromises);
-    const finalFiles = resolvedFiles.filter((f) => f !== null);
-    console.log("Final shared files:", finalFiles);
-    return finalFiles;
-  }
-
-  async getEntriesByStatus(userId, isTrashed) {
-    const allFiles = await fileRepository.findByOwnerId(userId);
+    })
+    .filter(f => f !== null);
+}
+  getEntriesByStatus(userId, isTrashed) {
+    const allFiles = fileRepository.findByOwnerId(userId);
     return allFiles.filter((file) => file.isTrashed === isTrashed);
   }
+ getEntriesForStarred(userId, isStarred) {
+  const ownedFiles = fileRepository.findByOwnerId(userId) || [];
+  const processedOwned = ownedFiles
+    .filter(f => f.isStarred === isStarred && !f.isTrashed)
+    .map(f => ({ ...f, role: 'owner' })); 
 
-  async getEntriesForStarred(userId, isStarred) {
-    const ownedFiles = (await fileRepository.findByOwnerId(userId)) || [];
-    const processedOwned = ownedFiles
-      .filter((f) => f.isStarred === isStarred && !f.isTrashed)
-      .map((f) => ({ ...f, role: "owner" }));
-
-    const sharedPermissions =
-      (await permissionRepository.findByUserId(userId)) || [];
-    const sharedPromises = sharedPermissions
-      .filter((p) => p.isStarred === isStarred)
-      .map(async (p) => {
-        const file = await fileRepository.findById(p.fileId);
-        if (file && !file.isTrashed) {
-          return {
-            ...file,
-            role: p.role,
-            isStarred: p.isStarred,
-            permissionId: p._id,
-          };
-        }
-        return null;
-      });
-
-    const resolvedShared = await Promise.all(sharedPromises);
-    const processedShared = resolvedShared.filter((f) => f !== null);
-    return [...processedOwned, ...processedShared];
-  }
-
+  const sharedPermissions = permissionRepository.findByUserId(userId) || [];
+  const processedShared = sharedPermissions
+    .filter(p => p.isStarred === isStarred) 
+    .map(p => {
+      const file = fileRepository.findById(p.fileId);
+      if (file && !file.isTrashed) {
+        return { 
+          ...file, 
+          role: p.role,           
+          isStarred: p.isStarred, 
+          permissionId: p.id      
+        };
+      }
+      return null;
+    })
+    .filter(f => f !== null);
+  return [...processedOwned, ...processedShared];
+} 
  async getRecentFiles(userId) {
   const recentOwned = (await fileRepository.getRecentEntries(userId)) || [];
   const processedOwned = recentOwned
@@ -360,4 +348,5 @@ class FileService {
   return allRecent;
   }
 }
+
 module.exports = new FileService();
