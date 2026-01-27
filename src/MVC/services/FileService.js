@@ -303,40 +303,50 @@ class FileService {
     .filter(f => f !== null);
   return [...processedOwned, ...processedShared];
 } 
+ async getRecentFiles(userId) {
+  const recentOwned = (await fileRepository.getRecentEntries(userId)) || [];
+  const processedOwned = recentOwned
+    .filter((file) => !file.isTrashed)
+  .map((file) => ({
+  ...file,
+  role: "owner",
+  isStarred: file.isStarred,
+  }));
 
-  getRecentFiles(userId) {
-   const recentOwned = fileRepository.getRecentEntries(userId) || [];
-    const processedOwned = recentOwned
-      .filter((file) => !file.isTrashed)
-      .map((file) => ({ 
-          ...file, 
-          role: "owner",           
-          isStarred: file.isStarred 
-      }));
-    const sharedPermissions = permissionRepository.findByUserId(userId) || [];
-    const processedShared = sharedPermissions.map((p) => {
-        const file = fileRepository.findById(p.fileId);
-   if (file && file.ownerId !== userId && !file.isTrashed) {
-          return {
-            ...file,
-            role: p.role,          
-            isStarred: p.isStarred, 
-            permissionId: p.id      
-          };
-        }
-        return null;
-      })
-      .filter((f) => f !== null);
+  const sharedPermissions =
+  (await permissionRepository.findByUserId(userId)) || [];
 
-    const allRecent = [...processedOwned, ...processedShared];
+      // 1. Create an array of promises (tasks)
+  const sharedPromises = sharedPermissions.map(async (p) => {
+  const file = await fileRepository.findById(p.fileId);
+          // Ensure file exists, isn't owned by user (duplicates), and isn't trashed
+  if (file && file.ownerId.toString() !== userId.toString() && !file.isTrashed) {
+    return {
+      ...file,
+      role: p.role,
+      isStarred: p.isStarred,
+      permissionId: p._id,
+      };
+    }
+  return null;
+  });
 
-    allRecent.sort((a, b) => {
-        const dateA = new Date(a.updatedAt || a.createdAt || 0);
-        const dateB = new Date(b.updatedAt || b.createdAt || 0);
-        return dateB - dateA;
-    });
+      // 2. Wait for all tasks to finish
+  const resolvedShared = await Promise.all(sharedPromises);
 
-    return allRecent;
+      // 3. NOW filter out the nulls
+  const processedShared = resolvedShared.filter((f) => f !== null);
+
+  const allRecent = [...processedOwned, ...processedShared];
+
+  allRecent.sort((a, b) => {
+  const dateA = new Date(a.updatedAt || a.createdAt || 0);
+  const dateB = new Date(b.updatedAt || b.createdAt || 0);
+  return dateB - dateA;
+  });
+
+  return allRecent;
   }
 }
+
 module.exports = new FileService();

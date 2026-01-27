@@ -19,7 +19,7 @@ export const useFileActions = (onSuccess) => {
     if (!window.confirm(`Move "${file.name}" to trash?`)) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/files/${file.id}`, {
+      const response = await fetch(`http://localhost:8080/api/files/${file._id}`, {
         method: 'PATCH',
         headers: getHeaders(),
         body: JSON.stringify({isTrashed: true })
@@ -41,7 +41,7 @@ export const useFileActions = (onSuccess) => {
     if (!window.confirm(`Permanently delete "${file.name}"? This cannot be undone.`)) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/files/${file.id}`, {
+      const response = await fetch(`http://localhost:8080/api/files/${file._id}`, {
         method: 'DELETE',
         headers: getHeaders()
       });
@@ -60,7 +60,7 @@ export const useFileActions = (onSuccess) => {
   // Toggle Star (Assuming backend supports isStarred field update)
   const toggleStar = async (file) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/files/${file.id}`, {
+      const response = await fetch(`http://localhost:8080/api/files/${file._id}`, {
         method: 'PATCH', // Using PATCH to update specific field
         headers: getHeaders(),
         body: JSON.stringify({ isStarred: !file.isStarred }) // Toggle logic

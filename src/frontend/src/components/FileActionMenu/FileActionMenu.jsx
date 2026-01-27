@@ -4,6 +4,7 @@ import { createPortal } from "react-dom"; // Import this at the top
 import "./FileActionMenu.css";
 import PermissionPopUp from "../PermissionPopUp/PermissionPopUp";
 import FoldersPopUp from "../FoldersPopUp/FoldersPopUp";
+
 const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPermissionsOpen, setIsPermissionsOpen] = useState(false);
@@ -17,17 +18,18 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
   const isEditor = userRole === "editor";
   const canEdit = isOwner || isEditor;
   const toggleMenu = () => setIsOpen(!isOpen);
+
   // Handle the primary action (Open or Edit)
   const handleOpen = () => {
     if (file.type === "folder") {
       onNavigate(file); // Call the function passed from MainPage
     } else {
-      navigate(`/update/${file.id}`); // Navigate to Edit page
+      navigate(`/update/${file._id}`); // Navigate to Edit page
     }
     setIsOpen(false);
   };
 
- const handleDelete = async () => {
+  const handleDelete = async () => {
     const actionName = isOwner ? "Move to Trash" : "Remove Access";
     if (!window.confirm(`Are you sure you want to ${actionName}?`)) return;
 
@@ -42,10 +44,12 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
           
           for (const child of children) {
             if (child.type === 'folder') {
-              await trashFolderRecursively(child.id);
+              // CHANGE: child.id -> child._id
+              await trashFolderRecursively(child._id);
             }
             
-            await fetch(`http://localhost:8080/api/files/${child.id}`, {
+            // CHANGE: child.id -> child._id
+            await fetch(`http://localhost:8080/api/files/${child._id}`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -63,12 +67,12 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
 
     try {
       if (file.type === 'folder' && isOwner) {
-         await trashFolderRecursively(file.id);
+         await trashFolderRecursively(file._id);
       }
 
       const url = isOwner 
-        ? `http://localhost:8080/api/files/${file.id}` 
-        : `http://localhost:8080/api/files/${file.id}/permissions/${file.permissionId}`;
+        ? `http://localhost:8080/api/files/${file._id}` 
+        : `http://localhost:8080/api/files/${file._id}/permissions/${file.permissionId}`;
 
       await fetch(url, {
         method: isOwner ? "PATCH" : "DELETE",
@@ -85,35 +89,37 @@ const FileActionMenu = ({ file, refreshFiles, onNavigate, show }) => {
       console.error(err);
     }
   };
-const handleStarred = async () => {
-  const isOwnerAction = file.ownerId === currentUserId;
-  
-  // If owner, update the file. If shared user, update THEIR permission record.
-  const url = isOwnerAction 
-    ? `http://localhost:8080/api/files/${file.id}` 
-    : `http://localhost:8080/api/files/${file.id}/permissions/${file.permissionId}`;
 
-  try {
-    const response = await fetch(url, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "authorization": `Bearer ${token}`,
-        "userid": currentUserId // Required by your controllers
-      },
-      body: JSON.stringify({ isStarred: !file.isStarred }),
-    });
+  const handleStarred = async () => {
+    const isOwnerAction = file.ownerId === currentUserId;
+    
+    // If owner, update the file. If shared user, update THEIR permission record.
+    const url = isOwnerAction 
+      ? `http://localhost:8080/api/files/${file._id}` 
+      : `http://localhost:8080/api/files/${file._id}/permissions/${file.permissionId}`;
 
-    if (response.ok) {
-      refreshFiles();
-    } else {
-      const err = await response.json();
-      console.error("Star failed:", err.error);
+    try {
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`,
+          "userid": currentUserId // Required by your controllers
+        },
+        body: JSON.stringify({ isStarred: !file.isStarred }),
+      });
+
+      if (response.ok) {
+        refreshFiles();
+      } else {
+        const err = await response.json();
+        console.error("Star failed:", err.error);
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
   };
+
   const handleRename = async () => {
     if (!canEdit) return alert("You don't have permission to rename this file.");
     
@@ -121,7 +127,8 @@ const handleStarred = async () => {
     if (!newName || newName === file.name) return;
 
     try {
-      await fetch(`http://localhost:8080/api/files/${file.id}`, {
+      // CHANGE: file._id -> file._id
+      await fetch(`http://localhost:8080/api/files/${file._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -148,10 +155,11 @@ const handleStarred = async () => {
 
   const handleMove = async (folder) => {
     const token = localStorage.getItem("token");
-    const parentId = folder ? folder.id : null
+    // CHANGE: folder.id -> folder._id
+    const parentId = folder ? folder._id : null 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/files/${file.id}`,
+        `http://localhost:8080/api/files/${file._id}`,
         {
           method: "PATCH",
           headers: {

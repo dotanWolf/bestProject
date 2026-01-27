@@ -18,9 +18,12 @@ const Recents = () => {
 
       if (response.ok) {
         const recentsFiles = await response.json();
-        //console.log("Recents Files fetched:", recentsFiles);
+        console.log("Recents Files fetched:", recentsFiles);
         // Backend now handles filtering, so we just set state
-        setRecentsFiles(recentsFiles);
+        const validFiles = recentsFiles.filter(file => 
+          file && file.name && file.type
+        );
+        setRecentsFiles(validFiles);
       } else {
         console.error("Failed to fetch files");
       }
@@ -49,7 +52,9 @@ const Recents = () => {
       </div>
     );
   }
-
+  if (RecentsFiles.length > 0) {
+    console.log("FILES FROM DB:", RecentsFiles);
+  }
   return (
     <div
       className="trash-page-container"
@@ -64,7 +69,7 @@ const Recents = () => {
       <div className="trash-list">
         {RecentsFiles.map((file) => (
           <div
-            key={file.id}
+           key={file._id}
             className="trash-item"
             style={{
               backgroundColor: "var(--bg-card)",
@@ -78,7 +83,7 @@ const Recents = () => {
               <span className="trash-icon">
                 {file.type === "folder" ? "📁" : "📄"}
               </span>
-              <span className="trash-name">{file.name}</span>
+             <span className="trash-name">{file.name || "Untitled"}</span>
             </div>
           </div>
         ))}

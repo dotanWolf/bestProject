@@ -32,3 +32,4 @@ services:
 # You MUST declare the named volume here or the build will fail
 volumes:
   files:
+  mongo-data: # 🚨 ADDED: This declaration is mandatory

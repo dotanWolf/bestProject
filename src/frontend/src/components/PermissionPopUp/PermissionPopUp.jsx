@@ -13,7 +13,7 @@ function PermissionPopUp({ file, handleClose }) {
   const fetchPermissions = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/files/${file.id}/permissions`,
+        `http://localhost:8080/api/files/${file._id}/permissions`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -35,7 +35,7 @@ function PermissionPopUp({ file, handleClose }) {
 
   useEffect(() => {
     fetchPermissions();
-  }, [file.id]);
+  }, [file._id]);
 
   const isOwner = currentUserRole === "owner" || file.ownerId === currentUserId;
 
@@ -55,7 +55,7 @@ function PermissionPopUp({ file, handleClose }) {
       const userData = await emailRes.json();
 
       const response = await fetch(
-        `http://localhost:8080/api/files/${file.id}/permissions`,
+        `http://localhost:8080/api/files/${file._id}/permissions`,
         {
           method: "POST",
           headers: {
@@ -87,7 +87,7 @@ function PermissionPopUp({ file, handleClose }) {
 
     const isRemove = newRole === "remove";
     const method = isRemove ? "DELETE" : "PATCH";
-    const url = `http://localhost:8080/api/files/${file.id}/permissions/${permId}`;
+    const url = `http://localhost:8080/api/files/${file._id}/permissions/${permId}`;
 
     try {
       const response = await fetch(url, {
@@ -158,7 +158,7 @@ function PermissionPopUp({ file, handleClose }) {
             <h3>People with access</h3>
             <div className="scroll-container">
               {permissions.map((perm) => (
-                <div key={perm.id} className="user-row-modern">
+                <div key={perm._id} className="user-row-modern">
                   <div className="user-avatar">
                     {perm.email?.charAt(0).toUpperCase()}
                   </div>
@@ -173,7 +173,7 @@ function PermissionPopUp({ file, handleClose }) {
                     className="role-dropdown-simple"
                     value={perm.role}
                     disabled={perm.role === "owner"}
-                    onChange={(e) => handleUpdateRole(perm.id, e.target.value)}
+                    onChange={(e) => handleUpdateRole(perm._id, e.target.value)}
                   >
                     <option value="viewer">Viewer</option>
                     <option value="editor">Editor</option>
