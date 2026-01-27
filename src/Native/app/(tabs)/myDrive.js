@@ -102,11 +102,11 @@ export default function Main() {
   };
   const handlePress = (file) => {
     if (file.type === "folder") {
-      setCurrentFolderId(file.id);
+      setCurrentFolderId(file._id);
     } else {
       router.push({
         pathname: "/[id]",
-        params: { id: file.id },
+        params: { id: file._id },
       });
     }
   };

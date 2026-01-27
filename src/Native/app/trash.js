@@ -82,7 +82,7 @@ export default function Trash() {
 
   const handleRestore = async (file) => {
     try {
-      const response = await fetch(`http://${IP}:8080/api/files/${file.id}`, {
+      const response = await fetch(`http://${IP}:8080/api/files/${file._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -116,7 +116,7 @@ export default function Trash() {
         onPress: async () => {
           try {
             const response = await fetch(
-              `http://${IP}:8080/api/files/${file.id}`,
+              `http://${IP}:8080/api/files/${file._id}`,
               {
                 method: "DELETE",
                 headers: {
@@ -128,6 +128,9 @@ export default function Trash() {
 
             if (response.ok) {
               fetchTrashedFiles(token);
+            } else {
+              const error = await response.json();
+              console.error("Delete error:", error.error);
             }
           } catch (error) {
             console.error(error);
@@ -148,7 +151,7 @@ export default function Trash() {
         onPress: async () => {
           // אופטימיזציה: מחיקה במקביל במקום בלולאה איטית
           const promises = entries.map((file) =>
-            fetch(`http://${IP}:8080/api/files/${file.id}`, {
+            fetch(`http://${IP}:8080/api/files/${file._id}`, {
               method: "DELETE",
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -199,7 +202,7 @@ export default function Trash() {
           <ScrollView ref={scrollViewRef}>
             {entries.map((entry) => (
               <TrashEntry
-                key={entry.id}
+                key={entry._id}
                 entry={entry}
                 onRestore={() => handleRestore(entry)}
                 onDelete={() => handlePermanentDelete(entry)}

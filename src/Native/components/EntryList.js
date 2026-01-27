@@ -15,7 +15,7 @@ export default function EntryList({
     <ScrollView>
       {entries.map((entry) => (
         <Entry
-          key={entry.id}
+          key={entry._id}
           entry={entry}
           handlePress={handlePress}
           handleDelete={handleDelete}

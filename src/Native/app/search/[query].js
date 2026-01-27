@@ -29,7 +29,7 @@ export default function SearchResults() {
   const fetchSearchResults = async () => {
     const token = await getToken();
     const term = query?.trim() || "";
-    
+    console.log("Searching for:", term);
     if (!term) return;
 
     setLoading(true);
@@ -74,13 +74,13 @@ export default function SearchResults() {
       // Navigate to folder view
       router.push({
         pathname: "/[id]",
-        params: { currentFolderId: file.id } 
+        params: { currentFolderId: file._id } 
       });
     } else {
       // Open file viewer
       router.push({
         pathname: "/[id]",
-        params: { id: file.id },
+        params: { id: file._id },
       });
     }
   };
