@@ -64,8 +64,8 @@ export default function SideMenu({ visible, onClose }) {
           <TouchableOpacity
             style={styles.item}
             onPress={() => {
-              console.log("is dark mode:", isDarkMode);
               toggleTheme();
+              console.log("is dark mode:", !isDarkMode);
             }} // 5. Connect function
           >
             <Text style={styles.icon}>{isDarkMode ? "☀️" : "🌙"}</Text>

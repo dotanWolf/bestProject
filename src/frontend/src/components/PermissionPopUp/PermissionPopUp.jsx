@@ -158,7 +158,7 @@ function PermissionPopUp({ file, handleClose }) {
             <h3>People with access</h3>
             <div className="scroll-container">
               {permissions.map((perm) => (
-                <div key={perm.id} className="user-row-modern">
+                <div key={perm._id} className="user-row-modern">
                   <div className="user-avatar">
                     {perm.email?.charAt(0).toUpperCase()}
                   </div>
@@ -173,7 +173,7 @@ function PermissionPopUp({ file, handleClose }) {
                     className="role-dropdown-simple"
                     value={perm.role}
                     disabled={perm.role === "owner"}
-                    onChange={(e) => handleUpdateRole(perm.id, e.target.value)}
+                    onChange={(e) => handleUpdateRole(perm._id, e.target.value)}
                   >
                     <option value="viewer">Viewer</option>
                     <option value="editor">Editor</option>
