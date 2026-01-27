@@ -28,8 +28,8 @@ export default function FileActionMenu({
   setParentIdInTab,
 }) {
   // ✅ 1. Manage visibility internally
-  const [visible, setVisible] = useState(false);
-
+  const [visible, setVisible] = useState(false); 
+  
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -59,7 +59,7 @@ export default function FileActionMenu({
   const canEdit = isOwner || isEditor;
 
   // --- Handlers ---
-
+  
   const onClose = () => {
     setVisible(false);
     setIsRenaming(false); // Reset states
@@ -68,11 +68,11 @@ export default function FileActionMenu({
   const handleOpen = () => {
     onClose();
     if (file.type === "folder") {
-      setParentIdInTab(file._id);
+      setParentIdInTab(file.id);
     } else {
       router.push({
         pathname: "/[id]",
-        params: { id: file._id },
+        params: { id: file.id },
       });
     }
   };
@@ -83,7 +83,7 @@ export default function FileActionMenu({
 
     try {
       const token = await getToken();
-      const response = await fetch(`http://${IP}:8080/api/files/${file._id}`, {
+      const response = await fetch(`http://${IP}:8080/api/files/${file.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -97,9 +97,7 @@ export default function FileActionMenu({
         refreshFiles();
         onClose(); // ✅ Closes properly
       } else {
-        const err = await response.json();
-        console.error("Rename error response:", err.error);
-        Alert.alert("Error", err.error || "Rename failed");
+        Alert.alert("Error", "Could not rename file");
       }
     } catch (err) {
       console.error(err);
@@ -114,15 +112,12 @@ export default function FileActionMenu({
     try {
       const token = await getToken();
       const isOwnerAction = file.ownerId === currentUserId;
-      console.log("Current User ID:", currentUserId);
-      console.log("File Owner ID:", file.ownerId);
-      console.log("Is Owner Action:", isOwnerAction);
-      const url = isOwnerAction
-        ? `http://${IP}:8080/api/files/${file._id}`
-        : `http://${IP}:8080/api/files/${file._id}/permissions/${file.permissionId}`;
 
-      console.log("Star URL:", url);
-      const response = await fetch(url, {
+      const url = isOwnerAction
+        ? `http://${IP}:8080/api/files/${file.id}`
+        : `http://${IP}:8080/api/files/${file.id}/permissions/${file.permissionId}`;
+
+      await fetch(url, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -131,14 +126,7 @@ export default function FileActionMenu({
         },
         body: JSON.stringify({ isStarred: !file.isStarred }),
       });
-
-      if (response.ok) {
-        console.log("Star/unstar successful");
-        refreshFiles();
-      } else {
-        const err = await response.json();
-        console.error("Star failed:", err.error);
-      }
+      refreshFiles();
     } catch (err) {
       console.error(err);
     }
@@ -158,10 +146,10 @@ export default function FileActionMenu({
 
     try {
       const url = isOwner
-        ? `http://${IP}:8080/api/files/${file._id}`
-        : `http://${IP}:8080/api/files/${file._id}/permissions/${file.permissionId}`;
-      console.log("Delete URL:", url);
-      const res = await fetch(url, {
+        ? `http://${IP}:8080/api/files/${file.id}`
+        : `http://${IP}:8080/api/files/${file.id}/permissions/${file.permissionId}`;
+
+      await fetch(url, {
         method: isOwner ? "PATCH" : "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -170,10 +158,7 @@ export default function FileActionMenu({
         },
         body: isOwner ? JSON.stringify({ isTrashed: true }) : null,
       });
-      if (!res.ok) {
-        const err = await res.json();
-        console.log("fsajkjf", err.error)
-      }
+
       refreshFiles();
       onClose();
     } catch (err) {
@@ -186,15 +171,15 @@ export default function FileActionMenu({
   // ✅ Fix: Move Success closes everything properly
   const onMoveSuccess = () => {
     setIsMoveModalOpen(false); // Close Move Modal
-    setVisible(false); // Close Menu Modal
-    refreshFiles(); // Refresh list
+    setVisible(false);         // Close Menu Modal
+    refreshFiles();            // Refresh list
   };
 
   return (
     <View>
       {/* ✅ 2. The Trigger Button (Inside the component) */}
-      <TouchableOpacity
-        onPress={() => setVisible(true)}
+      <TouchableOpacity 
+        onPress={() => setVisible(true)} 
         style={{ padding: 10 }}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} // Easier to click
       >
@@ -211,32 +196,25 @@ export default function FileActionMenu({
         <Pressable style={styles.overlay} onPress={onClose}>
           <View style={styles.centeredView}>
             <View style={[styles.modalView, { backgroundColor: theme.card }]}>
+              
               {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
               ) : isRenaming ? (
                 <View style={{ width: "100%" }}>
-                  <Text style={[styles.modalTitle, { color: theme.text }]}>
-                    Rename
-                  </Text>
+                  <Text style={[styles.modalTitle, { color: theme.text }]}>Rename</Text>
                   <Input
                     text="New Name"
                     value={newName}
                     onChangeText={setNewName}
                   />
                   <View style={styles.buttonRow}>
-                    <Button
-                      title="Cancel"
-                      onPress={() => setIsRenaming(false)}
-                    />
+                    <Button title="Cancel" onPress={() => setIsRenaming(false)} />
                     <Button title="Save" onPress={handleRename} />
                   </View>
                 </View>
               ) : (
                 <View style={{ width: "100%" }}>
-                  <Text
-                    style={[styles.modalTitle, { color: theme.text }]}
-                    numberOfLines={1}
-                  >
+                  <Text style={[styles.modalTitle, { color: theme.text }]} numberOfLines={1}>
                     {file.name}
                   </Text>
 
@@ -245,92 +223,54 @@ export default function FileActionMenu({
                     contentContainerStyle={{ paddingBottom: 10 }}
                     showsVerticalScrollIndicator={false}
                   >
-                    <TouchableOpacity
-                      style={[
-                        styles.option,
-                        { borderBottomColor: theme.border },
-                      ]}
-                      onPress={handleOpen}
-                    >
-                      <Text style={styles.optionIcon}>
-                        {file.type === "folder" ? "📂" : "✏️"}
-                      </Text>
+                    <TouchableOpacity style={[styles.option, { borderBottomColor: theme.border }]} onPress={handleOpen}>
+                      <Text style={styles.optionIcon}>{file.type === "folder" ? "📂" : "✏️"}</Text>
                       <Text style={[styles.optionText, { color: theme.text }]}>
-                        {file.type === "folder"
-                          ? "Open"
-                          : canEdit
-                            ? "View/Edit"
-                            : "View"}
+                        {file.type === "folder" ? "Open" : canEdit ? "View/Edit" : "View"}
                       </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      style={[
-                        styles.option,
-                        { borderBottomColor: theme.border },
-                        !canEdit && styles.disabled,
-                      ]}
+                      style={[styles.option, { borderBottomColor: theme.border }, !canEdit && styles.disabled]}
                       onPress={() => canEdit && setIsRenaming(true)}
                       disabled={!canEdit}
                     >
                       <Text style={styles.optionIcon}>📛</Text>
-                      <Text style={[styles.optionText, { color: theme.text }]}>
-                        Rename
-                      </Text>
+                      <Text style={[styles.optionText, { color: theme.text }]}>Rename</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      style={[
-                        styles.option,
-                        { borderBottomColor: theme.border },
-                      ]}
+                      style={[styles.option, { borderBottomColor: theme.border }]}
                       onPress={handleStarred}
                     >
-                      <Text style={styles.optionIcon}>
-                        {file.isStarred ? "❌" : "⭐"}
-                      </Text>
+                      <Text style={styles.optionIcon}>{file.isStarred ? "❌" : "⭐"}</Text>
                       <Text style={[styles.optionText, { color: theme.text }]}>
                         {file.isStarred ? "Unstar" : "Star"}
                       </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      style={[
-                        styles.option,
-                        { borderBottomColor: theme.border },
-                      ]}
+                      style={[styles.option, { borderBottomColor: theme.border }]}
                       onPress={() => setIsPermissionMenuOpen(true)}
                     >
                       <Text style={styles.optionIcon}>👥</Text>
-                      <Text style={[styles.optionText, { color: theme.text }]}>
-                        Permissions
-                      </Text>
+                      <Text style={[styles.optionText, { color: theme.text }]}>Permissions</Text>
                     </TouchableOpacity>
 
                     {/* ✅ Move Button */}
                     <TouchableOpacity
-                      style={[
-                        styles.option,
-                        { borderBottomColor: theme.border },
-                      ]}
+                      style={[styles.option, { borderBottomColor: theme.border }]}
                       onPress={() => setIsMoveModalOpen(true)}
                     >
                       <Text style={styles.optionIcon}>➡️</Text>
-                      <Text style={[styles.optionText, { color: theme.text }]}>
-                        Move
-                      </Text>
+                      <Text style={[styles.optionText, { color: theme.text }]}>Move</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      style={[
-                        styles.option,
-                        { borderBottomColor: "transparent" },
-                      ]}
+                      style={[styles.option, { borderBottomColor: "transparent" }]}
                       onPress={handleDelete}
                     >
-                      <Text style={styles.optionIcon}>
-                        {isOwner ? "🗑️" : "🚫"}
-                      </Text>
+                      <Text style={styles.optionIcon}>{isOwner ? "🗑️" : "🚫"}</Text>
                       <Text style={[styles.optionText, { color: "red" }]}>
                         {isOwner ? "Trash" : "Remove Access"}
                       </Text>
@@ -348,7 +288,7 @@ export default function FileActionMenu({
           onClose={() => setIsPermissionMenuOpen(false)}
           visible={isPermissionMenuOpen}
         />
-
+        
         {/* ✅ Move Modal is rendered inside here */}
         <MoveFolderModal
           visible={isMoveModalOpen}
@@ -356,6 +296,7 @@ export default function FileActionMenu({
           onClose={() => setIsMoveModalOpen(false)}
           onMoveSuccess={onMoveSuccess}
         />
+
       </Modal>
     </View>
   );

@@ -8,26 +8,26 @@ const Entry = require("../models/Entry");
  * Note: Express automatically lowercases header keys (userid, token)
  */
 
-const getRootEntries = async (req, res) => {
+const getRootEntries = (req, res) => {
   const userId = req.user.userId;
 
   if (!userId)
     return res.status(400).json({ error: "user id and token required" });
   try {
-    const files = await FileService.getRootFiles(userId);
+    const files = FileService.getRootFiles(userId);
     return res.status(200).json(files);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 
-const getFolderEntries = async (req, res) => {
+const getFolderEntries = (req, res) => {
   const parentId = req.params.parentId;
   const userId = req.user.userId;
   if (!userId)
     return res.status(400).json({ error: "user id and token required" });
   try {
-    const files = await FileService.getFolderEntries(userId, parentId);
+    const files = FileService.getFolderEntries(userId, parentId);
     return res.status(200).json(files);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
@@ -44,20 +44,20 @@ const getTrashEntries = async (req, res) => {
   try {
     // Call the service method we fixed earlier
     // This fetches ALL files (root + subfolders) that are trashed
-    const files = await FileService.getEntriesByStatus(userId, true);
+    const files = FileService.getEntriesByStatus(userId, true);
 
     return res.status(200).json(files);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
-const getStarredEntries = async (req, res) => {
+const getStarredEntries = (req, res) => {
   const userId = req.user.userId;
 
   if (!userId) return res.status(400).json({ error: "user id required" });
 
   try {
-    const files = await FileService.getEntriesForStarred(userId, true);
+    const files = FileService.getEntriesForStarred(userId, true);
     return res.status(200).json(files);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
@@ -69,7 +69,7 @@ const getRecentEntries = async (req, res) => {
     return res.status(400).json({ error: "User ID required" });
   }
   try {
-    const files = await FileService.getRecentFiles(userId);
+    const files = FileService.getRecentFiles(userId);
     return res.status(200).json(files);
   } catch (error) {
     console.error("Error in getRecentEntries:", error);
@@ -96,14 +96,14 @@ const createEntry = async (req, res) => {
   }
 };
 
-const getEntry = async (req, res) => {
+const getEntry = (req, res) => {
   const fileId = req.params.id;
   const userId = req.user.userId;
 
   if (!userId) return res.status(400).json({ error: "user id required" });
 
   try {
-    const file = await FileService.getFileById(fileId, userId);
+    const file = FileService.getFileById(fileId, userId);
     return res.status(200).json(file);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
@@ -121,6 +121,11 @@ const updateEntry = async (req, res) => {
       .status(400)
       .json({ error: "must provide a json with entry fields" });
   console.log("DEBUG HEADERS:", req.headers);
+  const validationErrors = Entry.validate(req.body, true);
+
+  if (validationErrors.length > 0) {
+    return res.status(400).json({ error: validationErrors.join(", ") });
+  }
 
   try {
     const file = await FileService.updateFile(fileId, req.body, userId);
@@ -144,21 +149,21 @@ const deleteEntry = async (req, res) => {
   }
 };
 
-const getPermissions = async (req, res) => {
+const getPermissions = (req, res) => {
   const fileId = req.params.id;
   const userId = req.user.userId;
 
   if (!userId) return res.status(400).json({ error: "user id required" });
 
   try {
-    const permissions = await PermissionsService.getPermissions(fileId, userId);
+    const permissions = PermissionsService.getPermissions(fileId, userId);
     return res.status(200).json(permissions);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 
-const createPermissions = async (req, res) => {
+const createPermissions = (req, res) => {
   const fileId = req.params.id;
   const userId = req.user.userId;
 
@@ -168,7 +173,7 @@ const createPermissions = async (req, res) => {
       .status(400)
       .json({ error: "must provide a json with permission fields" });
   try {
-    const permission = await PermissionsService.createPermission(
+    const permission = PermissionsService.createPermission(
       fileId,
       req.body,
       userId
@@ -179,7 +184,7 @@ const createPermissions = async (req, res) => {
   }
 };
 
-const updatePermisssion = async (req, res) => {
+const updatePermisssion = (req, res) => {
   const fileId = req.params.id;
   const permId = req.params.pId;
   
@@ -189,13 +194,13 @@ const updatePermisssion = async (req, res) => {
   if (!req.body) return res.status(400).json({ error: "must provide a json with updates" });
 
   try {
-    const updatedPermission = await PermissionsService.updatePermission(fileId, permId, req.body, userId);
+    const updatedPermission = PermissionsService.updatePermission(fileId, permId, req.body, userId);
     return res.status(200).json(updatedPermission);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
-const deletePermission = async (req, res) => {
+const deletePermission = (req, res) => {
   const fileId = req.params.id;
   const permId = req.params.pId;
   const userId = req.headers.userid; 
@@ -203,30 +208,30 @@ const deletePermission = async (req, res) => {
   if (!userId) return res.status(400).json({ error: "user id required" });
 
   try {
-    await PermissionsService.deletePermission(fileId, permId, userId);
+    PermissionsService.deletePermission(fileId, permId, userId);
     return res.status(204).end();
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 
-const getFilesWithPermissions = async (req, res) => {
+const getFilesWithPermissions = (req, res) => {
   const userId = req.user.userId;
   if (!userId) return res.status(400).json({ error: "user id required" });
   try {
-    const files = await FileService.getSharedEntries(userId);
+    const files = FileService.getSharedEntries(userId);
     return res.status(200).json(files);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 
-const getFilesWithPermissionsbyParentId = async (req, res) => {
+const getFilesWithPermissionsbyParentId = (req, res) => {
   const userId = req.user.userId;
   const parentId = req.params.parentId;
   if (!userId) return res.status(400).json({ error: "user id required" });
   try {
-    const files = await PermissionsService.getFilesWithPermissionsbyParentId(
+    const files = PermissionsService.getFilesWithPermissionsbyParentId(
       userId,
       parentId
     );
@@ -236,11 +241,11 @@ const getFilesWithPermissionsbyParentId = async (req, res) => {
   }
 };
 
-const getFolders = async (req, res) => {
+const getFolders = (req, res) => {
   const userId = req.user.userId;
   if (!userId) return res.status(400).json({ error: "user id required" });
   try {
-    const folders = await FileService.getFolders(userId);
+    const folders = FileService.getFolders(userId);
     return res.status(200).json(folders);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });

@@ -36,14 +36,10 @@ export default function MoveFolderModal({ visible, onClose, file, onMoveSuccess 
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Fetched folders:", data);
         const validFolders = Array.isArray(data)
-          ? data.filter((f) => !f.isTrashed && f._id !== file?._id)
+          ? data.filter((f) => !f.isTrashed && f.id !== file?.id)
           : [];
         setFolders(validFolders);
-      } else {
-        const error  = await response.json();
-        console.error("Error fetching folders:", error.error);
       }
     } catch (error) {
       console.error("Error fetching folders:", error);
@@ -55,7 +51,7 @@ export default function MoveFolderModal({ visible, onClose, file, onMoveSuccess 
   const handleMove = async (targetParentId) => {
     try {
       const token = await getToken();
-      const response = await fetch(`http://${IP}:8080/api/files/${file._id}`, {
+      const response = await fetch(`http://${IP}:8080/api/files/${file.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -89,7 +85,7 @@ export default function MoveFolderModal({ visible, onClose, file, onMoveSuccess 
   const renderFolderItem = ({ item }) => (
     <TouchableOpacity
       style={[styles.folderItem, { borderBottomColor: theme.border }]}
-      onPress={() => handleMove(item._id)}
+      onPress={() => handleMove(item.id)}
     >
       <Ionicons name="folder" size={24} color="#5f6368" style={{ marginRight: 15 }} />
       <Text style={[styles.folderName, { color: theme.text }]}>{item.name}</Text>
@@ -129,7 +125,7 @@ export default function MoveFolderModal({ visible, onClose, file, onMoveSuccess 
 
               <FlatList
                 data={folders}
-                keyExtractor={(item) => item._id}
+                keyExtractor={(item) => item.id}
                 renderItem={renderFolderItem}
               />
             </View>
