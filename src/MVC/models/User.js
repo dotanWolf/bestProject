@@ -1,43 +1,32 @@
-class User {
-    // gets a json with specific fields
-  constructor({ id, username, password, email, profileImage}) {
-    this.id = id;
-    this.username = username;
-    this.password = password;
-    this.email = email;
-    this.profileImage = profileImage || null;
-  }
+const mongoose = require('mongoose');
 
-
-  toJSON() {
-    return {
-        id: this.id,
-        username: this.username,
-        password: this.password,
-        email: this.email,
-        profileImage: this.profileImage
-    }
+const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: [true, 'Username is required'],
+    trim: true,
+    minlength: [3, 'Username must be at least 3 characters']
+  },
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    unique: true,
+    trim: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address']
+  },
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
+    minlength: [8, 'Password must be at least 8 characters']
+  },
+  profileImage: {
+    type: String,
+    required: [true, 'Profile image is required'],
+    default: null
   }
+});
 
-  // static because we want to create the object
-  // only after its validated
-  static validate(userData) {
-    const errors = [];
-    
-    if (!userData.username) {
-      errors.push('Username is required');
-    }
-    if (!userData.password) {
-      errors.push('Password is required');
-    }
-    if (!userData.email) {
-      errors.push('Name is required');
-    }
-    if (!userData.profileImage) {
-      errors.push('profile mage is required');
-    }
-    return errors;
-  }
-}
+// Create the model
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

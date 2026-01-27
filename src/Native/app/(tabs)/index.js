@@ -11,7 +11,7 @@ import Button from "../../components/Button";
 import AddMenu from "../../components/addMenu";
 import SideMenu from "../../components/SideMenu";
 import UserProfileModal from "../../components/UserProfileModal";
-import { getToken, getUserId } from "../../tokenUtil";
+import { getToken, getUserId, removeToken, removeUserId } from "../../tokenUtil";
 import { useTheme } from "../../contexts/ThemeContext";
 
 export default function Main() {
@@ -31,6 +31,7 @@ export default function Main() {
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [user, setUser] = useState(null);
   const [isProfileVisible, setIsProfileVisible] = useState(false);
+
 
   // 1. Wrap fetch functions in useCallback to ensure stability across renders
   const fetchFiles = useCallback(async () => {
@@ -68,6 +69,7 @@ export default function Main() {
             if (a.type === b.type) return a.name.localeCompare(b.name);
             return a.type === "folder" ? -1 : 1;
           });
+          console.log("Fetched files:", allFiles);
           setEntries(allFiles);
         }
       }
@@ -134,6 +136,8 @@ export default function Main() {
         const data = await response.json();
         setUser(data);
       } else {
+        const error = await response.json();
+        console.error("Failed to fetch user:", error);
         router.replace("/signup");
       }
     } catch (error) {
@@ -143,11 +147,11 @@ export default function Main() {
 
   const handlePress = (file) => {
     if (file.type === "folder") {
-      setCurrentFolderId(file.id);
+      setCurrentFolderId(file._id);
     } else {
       router.push({
         pathname: "/[id]",
-        params: { id: file.id },
+        params: { id: file._id },
       });
     }
   };

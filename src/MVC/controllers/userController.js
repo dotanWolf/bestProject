@@ -1,20 +1,20 @@
 const userService = require("../services/UserService");
 
-const createNewUser = (req, res) => {
+const createNewUser = async (req, res) => {
   var newUser = null;
   if (!req.body)
     return res
       .status(400)
       .json({ error: "must provide a json with user fields" });
   try {
-    newUser = userService.createUser(req.body);
+    newUser = await userService.createUser(req.body);
   } catch (error) {
     return res.status(error.statusCode).json({ error: error.message });
   }
   res.status(201).location(`/api/users/${newUser.userId}`).json(newUser);
 };
 
-const getUser = (req, res) => {
+const getUser = async (req, res) => {
   const userIdFromUrl = req.params.id;
   const authenticatedUserId = req.user.userId; // From the JWT payload
 
@@ -26,19 +26,19 @@ const getUser = (req, res) => {
   }
   var user = null;
   try {
-    user = userService.getUserById(userIdFromUrl);
+    user = await userService.getUserById(userIdFromUrl);
   } catch (error) {
     return res.status(error.statusCode).json({ error: error.message });
   }
   res.status(200).json(user);
 };
 
-const getUserByEmail = (req, res) => {
+const getUserByEmail = async (req, res) => {
   const email = req.params.email;
 
   var userId;
   try {
-    userId = userService.getUserByEmail(email);
+    userId = await userService.getUserByEmail(email);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ error: error.message });
   }

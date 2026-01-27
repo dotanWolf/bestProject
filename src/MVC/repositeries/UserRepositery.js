@@ -1,37 +1,42 @@
-const User = require('../models/User');
-const crypto = require('crypto')
+const User = require("../models/User"); // This is now your Mongoose Model
 
 class UserRepository {
-  constructor() {
-    this.users = new Map();
+  // Create a new user in the database
+  async create(userData) {
+    try {
+      const user = new User(userData);
+      return await user.save();
+    } catch (error) {
+      const e = new Error(`${error.message}`);
+      e.statusCode = 400;
+      throw e;
+    }
   }
 
-  create(userData) {
-    const user = new User({
-      id: crypto.randomUUID(),
-      ...userData
-    });
-    this.users.set(user.id, user);
-    return user;
+  // Find a user by their MongoDB _id
+  async findById(id) {
+    return await User.findById(id);
   }
 
-  findById(id) {
-    return this.users.get(id) || null;
+  // Find a user by email
+  async findByEmail(email) {
+    return await User.findOne({ email });
   }
 
-  findByEmail(email) {
-    const users = Array.from(this.users.values());
-    return users.find(user => user.email === email) || null;
+  // Get all users
+  async findAll() {
+    return await User.find({});
   }
 
-  findAll() {
-    return Array.from(this.users.values());
+  // Check if email is already taken
+  async existsByEmail(email) {
+    const count = await User.countDocuments({ email: email.toLowerCase() });
+    return count > 0;
   }
 
-  existsByEmail(email) {
-    return this.findByEmail(email) !== null;
+  async getAllUsers() {
+    return await User.find({});
   }
 }
 
-// Singleton pattern - single instance for in-memory storage
 module.exports = new UserRepository();
