@@ -43,7 +43,7 @@ export default function PermissionsModal({ visible, file, onClose }) {
     try {
       const token = await getToken();
       const response = await fetch(
-        `http://${IP}:8080/api/files/${file._id}/permissions`,
+        `http://${IP}:8080/api/files/${file.id}/permissions`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -80,7 +80,7 @@ export default function PermissionsModal({ visible, file, onClose }) {
 
       // B. Add Permission
       const res = await fetch(
-        `http://${IP}:8080/api/files/${file._id}/permissions`,
+        `http://${IP}:8080/api/files/${file.id}/permissions`,
         {
           method: "POST",
           headers: {
@@ -179,7 +179,7 @@ export default function PermissionsModal({ visible, file, onClose }) {
           ) : (
             <FlatList
               data={permissions}
-              keyExtractor={(item) => item._id.toString()}
+              keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
                 <View style={styles.userRow}>
                   <View style={styles.userInfo}>
@@ -199,7 +199,7 @@ export default function PermissionsModal({ visible, file, onClose }) {
 
                   {/* Remove Button (Only Owner can remove others) */}
                   {isOwner && item.role !== "owner" && (
-                    <TouchableOpacity onPress={() => handleRemove(item._id)}>
+                    <TouchableOpacity onPress={() => handleRemove(item.id)}>
                       <Ionicons name="trash-outline" size={20} color="red" />
                     </TouchableOpacity>
                   )}

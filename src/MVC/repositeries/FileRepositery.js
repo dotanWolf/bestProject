@@ -1,120 +1,117 @@
-const Entry = require("../models/Entry");
+const File = require('../models/Entry');
+const crypto = require('crypto')
 
 class FileRepository {
-  // Create a new file or folder
-  async create(fileData) {
-    try {
-      const entry = new Entry(fileData);
-      return await entry.save();
-    } catch (error) {
-      const e = new Error(`${error.message}`);
-      e.statusCode = 400;
-      throw e;
+    constructor() {
+        this.files = new Map();
     }
-  }
 
-  // Find by MongoDB _id
-  async findById(id) {
-    return await Entry.findById(id).lean();
-  }
-
-  async findAll() {
-    return await Entry.find({}).lean();
-  }
-
-  async findByOwnerId(ownerId) {
-    return await Entry.find({ ownerId }).lean();
-  }
-
-  async findByParentId(parentId) {
-    return await Entry.find({ parentId }).lean();
-  }
-
-  // Uses the index we created (ownerId + updatedAt) for speed
-  async getRecentEntries(ownerId) {
-    return await Entry.find({ ownerId, isTrashed: false })
-      .lean()
-      .sort({ updatedAt: -1 })
-      .limit(10);
-  }
-
-  // Optimized lookup for folder navigation
-  async findByOwnerAndParent(ownerId, parentId) {
-    console.log(
-      "root level files",
-      await Entry.find({ ownerId, parentId }).lean(),
-    );
-    return await Entry.find({ ownerId, parentId }).lean();
-  }
-
-  // Search using MongoDB Regex (case-insensitive)
-  async search(ownerId, query) {
-    return await Entry.find({
-      ownerId,
-      $or: [
-        { name: { $regex: query, $options: "i" } },
-        { content: { $regex: query, $options: "i" } },
-      ],
-    });
-  }
-
-  // Update entry
-  async update(id, updates) {
-    try {
-      // { new: true } returns the updated document
-      // runValidators: false prevents "required field" errors during partial updates
-      const updatedEntry = await Entry.findByIdAndUpdate(id, updates, {
-        new: true,
-        runValidators: false,
-      });
-
-      if (!updatedEntry) {
-        const e = new Error("Entry not found");
-        e.statusCode = 404;
-        throw e;
-      }
-
-      return updatedEntry;
-    } catch (error) {
-      // Re-throwing with your custom pattern
-      const e = new Error(`${error.message}`);
-      e.statusCode = 400;
-      throw e;
+    create(fileData) {
+        const file = new File({
+        id: crypto.randomUUID(),
+            name: fileData.name,
+            type: fileData.type,
+            ownerId: fileData.ownerId,
+            parentId: fileData.parentId,
+            content: fileData.content,
+            isTrashed: fileData.isTrashed || false,
+            isStarred: fileData.isStarred || false,
+        });
+        this.files.set(file.id, file);
+        return file;
     }
-  }
 
-  // Basic Delete
-  async delete(id) {
-    return await Entry.findByIdAndDelete(id);
-  }
-
-  /**
-   * Recursive Delete
-   * Deletes a folder and all its contents
-   */
-  async deleteByParentId(parentId) {
-    const children = await Entry.find({ parentId });
-
-    for (const child of children) {
-      if (child.type === "folder") {
-        await this.deleteByParentId(child._id);
-      }
-      await Entry.findByIdAndDelete(child._id);
+    findById(id) {
+        return this.files.get(id) || null;
     }
-  }
 
-  async searchByName(query) {
-    try {
-      return await Entry.find({
-        name: { $regex: query, $options: "i" },
-        isTrashed: false, // Usually, you don't want trashed files in search results
-      }).lean();
-    } catch (error) {
-      const e = new Error(`${error.message}`);
-      e.statusCode = 500;
-      throw e;
+    findAll() {
+        return Array.from(this.files.values());
     }
-  }
+
+    findByOwnerId(ownerId) {
+        const files = Array.from(this.files.values());
+        return files.filter(file => file.ownerId === ownerId);
+    }
+    getRecentEntries(ownerId) {
+    const files = Array.from(this.files.values());
+        return files .filter(e => e.ownerId === ownerId && !e.isTrashed)
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)) 
+        .slice(0, 10);
+    }
+
+    findByOwnerAndParent(ownerId, parentId) {
+        const files = Array.from(this.files.values());
+        return files.filter(file => file.ownerId === ownerId && file.parentId === parentId);
+    }
+
+    findByParentId(parentId) {
+        const files = Array.from(this.files.values());
+        return files.filter(file => file.parentId === parentId);
+    }
+
+    searchByName(query) {
+        const files = Array.from(this.files.values());
+        return files.filter(file => file.name.includes(query));
+    }
+
+    searchByContent(query) {
+        const files = Array.from(this.files.values());
+        return files.filter(file => file.isFile() && file.content.includes(query));
+    }
+
+    search(query) {
+        const byName = this.searchByName(query);
+        const byContent = this.searchByContent(query);
+
+        // Combine and remove duplicates
+        const resultMap = new Map();
+        [...byName, ...byContent].forEach(file => resultMap.set(file.id, file));
+
+        return Array.from(resultMap.values());
+    }
+
+    /**
+     * Update file/folder
+     */
+    update(id, updates) {
+        const file = this.files.get(id);
+        if (!file) {
+            return null;
+        }
+
+        if (file.isFile()) {
+            file.updateFile(updates);
+        }
+        if (file.isFolder()) {
+            file.updateFolder(updates)
+        }
+        return file;
+    }
+
+    /**
+     * Delete file/folder
+     */
+    delete(id) {
+        return this.files.delete(id);
+    }
+
+    /**
+     * Delete all files/folders in a folder (recursive)
+     */
+    deleteByParentId(parentId) {
+        const children = this.findByParentId(parentId);
+
+        children.forEach(child => {
+            if (child.isFolder()) {
+                // Recursively delete children
+                this.deleteByParentId(child.id);
+            }
+            this.delete(child.id);
+        });
+    }
+  
 }
 
+// Singleton pattern
 module.exports = new FileRepository();

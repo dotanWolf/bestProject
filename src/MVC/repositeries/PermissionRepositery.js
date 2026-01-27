@@ -1,76 +1,105 @@
+/**
+ * Permission Repository
+ * Handles all data access operations for permissions (Single Responsibility Principle)
+ */
 const Permission = require('../models/Permission');
+const crypto = require('crypto')
 
 class PermissionRepository {
-  
+  constructor() {
+    this.permissions = new Map();
+  }
+
   /**
    * Create a new permission
    */
-  async create(permissionData) {
-    const permission = new Permission(permissionData);
-    return await permission.save();
+  create(permissionData) {
+    const permission = new Permission({
+      id: crypto.randomUUID(),
+      ...permissionData
+    });
+    this.permissions.set(permission.id, permission);
+    return permission;
   }
 
   /**
    * Find permission by ID
    */
-  async findById(id) {
-    return await Permission.findById(id);
+  findById(id) {
+    return this.permissions.get(id) || null;
   }
 
   /**
    * Find all permissions for a file
-   * Useful for showing the "Shared with" list
    */
-  async findByFileId(fileId) {
-    return await Permission.find({ fileId });
+  findByFileId(fileId) {
+    const permissions = Array.from(this.permissions.values());
+    return permissions.filter(p => p.fileId == fileId);
   }
 
   /**
    * Find permission by file and user
    */
-  async findByFileAndUser(fileId, userId) {
-    return await Permission.findOne({ fileId, userId });
+  findByFileAndUser(fileId, userId) {
+    const permissions = Array.from(this.permissions.values());
+    return permissions.find(p => p.fileId === fileId && p.userId === userId) || null;
   }
 
   /**
    * Find all permissions for a user
-   * Useful for showing a "Shared with me" section
    */
-  async findByUserId(userId) {
-    return await Permission.find({ userId });
+  findByUserId(userId) {
+    const permissions = Array.from(this.permissions.values());
+    return permissions.filter(p => p.userId === userId);
   }
 
   /**
-   * Update permission by ID
+   * Update permission
    */
-  async update(id, updates) {
-    return await Permission.findByIdAndUpdate(id, updates, { 
-      new: true, 
-      runValidators: false 
+  update(id, updates) {
+    const permission = this.permissions.get(id);
+    if (!permission) {
+      return null;
+    }
+
+    Object.keys(updates).forEach(key => {
+    permission[key] = updates[key];
     });
+    return permission;
+  }
+  updateSelfPermission(fileId, userId, updates) {
+  // Find the permission record for THIS specific user and file
+  const permission = permissionRepository.findByFileAndUser(fileId, userId);
+  
+  if (!permission) {
+    const error = new Error("Permission not found");
+    error.statusCode = 404;
+    throw error;
   }
 
+  return permissionRepository.update(permission.id, updates);
+}
   /**
    * Delete permission
    */
-  async delete(id) {
-    const result = await Permission.findByIdAndDelete(id);
-    return !!result;
+  delete(id) {
+    return this.permissions.delete(id);
   }
 
   /**
-   * Delete all permissions for a file (e.g. when file is deleted)
+   * Delete all permissions for a file
    */
-  async deleteByFileId(fileId) {
-    return await Permission.deleteMany({ fileId });
+  deleteByFileId(fileId) {
+    const permissions = this.findByFileId(fileId);
+    permissions.forEach(p => this.delete(p.id));
   }
 
   /**
-   * Delete all permissions for a user (e.g. when user is deleted)
+   * Delete all permissions for a user
    */
-  async deleteByUserId(userId) {
-    return await Permission.deleteMany({ userId });
+  deleteByUserId(userId) {
+    const permissions = this.findByUserId(userId);
+    permissions.forEach(p => this.delete(p.id));
   }
 }
-
 module.exports = new PermissionRepository();

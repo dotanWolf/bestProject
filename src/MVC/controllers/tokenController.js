@@ -3,7 +3,7 @@ const UserRepositery = require("../repositeries/UserRepositery");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-const createJWT = async (req, res) => {
+const createJWT = (req, res) => {
   //authenticate user
   if (!req.body)
     return res
@@ -13,7 +13,7 @@ const createJWT = async (req, res) => {
   if (!email || !password)
     return res.status(400).json({ error: "email and password required" });
   // get users information from database
-  const users = await UserRepositery.getAllUsers();
+  const users = Array.from(UserRepositery.users.values());
   connectedUsers = users.filter(
     (user) => user.email == email && user.password == password
   );
@@ -35,10 +35,10 @@ const createJWT = async (req, res) => {
   return res.status(404).json({ error: "user doesnt exist" });
 };
 
-const doesEmailExist = async (req, res) => {
+const doesEmailExist = (req, res) => {
   return res
     .status(200)
-    .json({ exists: await UserRepositery.existsByEmail(req.params.email) });
+    .json({ exists: UserRepositery.existsByEmail(req.params.email) });
 };
 
 const authenticateToken = (req, res, next) => {

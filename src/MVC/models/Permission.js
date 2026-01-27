@@ -1,49 +1,38 @@
-const mongoose = require("mongoose");
+class Permission {
+  constructor({ id, fileId, userId, role, email }) {
+    this.id = id;
+    this.fileId = fileId;
+    this.userId = userId;
+    this.role = role; // 'viewer', 'editor', 'owner', 'none'
+    this.email = email
+  }
 
-const permissionSchema = new mongoose.Schema({
-  fileId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Entry", // Reference to your Entry/File model
-    required: [true, "File ID is required"],
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Reference to your User model
-    required: [true, "User ID is required"],
-  },
-  email: {
-    type: String,
-    required: [true, "User email is required"],
-    trim: true,
-  },
-  role: {
-    type: String,
-    required: [true, "Role is required"],
-    enum: {
-      values: ["viewer", "editor", "owner", "none"],
-      message: "{VALUE} is not a valid role",
-    },
-  },
-  isStarred: { type: Boolean, default: false },
-});
+  static validate(permissionData) {
+    const errors = [];
+    
+    if (!permissionData.userId) {
+      errors.push('User ID is required');
+    }
+    if (!permissionData.role || !['viewer', 'editor', 'owner', 'none'].includes(permissionData.role)) {
+      errors.push('Role must be "viewer", "editor", "none" or "owner"');
+    }
+    if (!permissionData.email) {
+      errors.push('user emaili required')
+    }
+    return errors;
+  }
 
-// Compound Index: One permission record per user, per file
-// This prevents having two different roles for the same user on one file
-permissionSchema.index({ fileId: 1, userId: 1 }, { unique: true });
+  canRead() {
+    return ['viewer', 'editor', 'owner'].includes(this.role);
+  }
 
-// Logic Helpers (Replaces your class methods)
-permissionSchema.methods.canRead = function () {
-  return ["viewer", "editor", "owner"].includes(this.role);
-};
+  canEdit() {
+    return ['editor', 'owner'].includes(this.role);
+  }
 
-permissionSchema.methods.canEdit = function () {
-  return ["editor", "owner"].includes(this.role);
-};
-
-permissionSchema.methods.isOwner = function () {
-  return this.role === "owner";
-};
-
-const Permission = mongoose.model("Permission", permissionSchema);
+  isOwner() {
+    return this.role === 'owner';
+  }
+}
 
 module.exports = Permission;

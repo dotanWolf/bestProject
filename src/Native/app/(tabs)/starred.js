@@ -45,7 +45,6 @@ export default function Starred() {
     if (!token) return;
 
     console.log("⭐ Fetching starred files...");
-    console.log("Current Folder ID:", currentFolderId);
     const url = currentFolderId
       ? `http://${IP}:8080/api/files/permissions/folders/${currentFolderId}`
       : `http://${IP}:8080/api/files/starred`;
@@ -59,11 +58,7 @@ export default function Starred() {
       if (response.ok) {
         const starredFiles = await response.json();
         console.log("✅ Starred files loaded:", starredFiles.length);
-        console.log(starredFiles);
         setEntries(starredFiles);
-      } else {
-        const error  = await response.json();
-        console.log(error.error)
       }
     } catch (error) {
       console.error("Error fetching starred files:", error);
@@ -173,11 +168,11 @@ export default function Starred() {
 
   const handlePress = (file) => {
     if (file.type === "folder") {
-      setCurrentFolderId(file._id);
+      setCurrentFolderId(file.id);
     } else {
       router.push({
         pathname: "/[id]",
-        params: { id: file._id },
+        params: { id: file.id },
       });
     }
   };
