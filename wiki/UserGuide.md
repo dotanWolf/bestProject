@@ -26,7 +26,7 @@ In order to run the app you need to open two terminals-
     2. Navigate to the Native directory:
     ![dir](images/image.png)
     3. Start the Expo development server using the command npx expo start --tunnel -c:
-    ![command](image-1.png)
+    ![command](images/image-1.png)
     right afterwards tiy ganna see a QR code- scan it and the mobile application will launch automatically
     ![total](images/image-2.png)
 
