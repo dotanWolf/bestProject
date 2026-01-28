@@ -18,11 +18,12 @@ Afterwards:
 open a terminal and use the following commands:
 go to the root directory (bestProject)
 then run: docker-compose up --build
+![BUILD](build.png)
 This terminal is required to run the backend, frontend, database, and infrastructure.
 
 after the build a QR code is going to pop-
 scan it and the mobile application will launch automatically
-![total](images/image-2.png)
+![QR](QR.png)
 
 Now I gonna explain about the 2 versions-
 
