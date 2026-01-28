@@ -23,6 +23,7 @@ const search = require("./routes/search");
 
 app.use(
   cors({
+    origin: "*",
     allowedHeaders: ["Content-Type", "authorization", "userid"],
     exposedHeaders: ["Location"],
   }),
