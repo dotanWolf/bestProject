@@ -110,7 +110,7 @@ function TopBar({ isDarkMode, toggleTheme, user }) {
           {user ? (
             <div className="profile-container" style={{ position: "relative" }}>
               <img
-                src={user.profileImage}
+                src={`data:image/jpeg;base64,${user.profileImage}`}
                 alt="Profile"
                 onClick={() => setShowMenu(!showMenu)} // Toggle the menu
                 style={{
@@ -127,7 +127,7 @@ function TopBar({ isDarkMode, toggleTheme, user }) {
                 <div className="profile-dropdown">
                   <div className="dropdown-header">
                     <img
-                      src={user.profileImage}
+                      src={`data:image/jpeg;base64,${user.profileImage}`}
                       alt="Large Profile"
                       className="large-avatar"
                     />
