@@ -53,7 +53,7 @@ function LoginPage() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              email: updatedInput[0],
+              email: updatedInput[0].toLowerCase().trim(),
               password: updatedInput[1],
             }),
           });
