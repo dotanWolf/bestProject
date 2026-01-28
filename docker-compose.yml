@@ -16,7 +16,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data:/data/db # Persists your database data
+      - mongo-data:/data/db
 
   api:
     build: ./src/MVC
@@ -24,13 +24,12 @@ services:
       - "8080:8080"
     environment:
       - NODE_ENV=development
-      # 🚨 ADD THIS: Override the env file string to point to the docker service
       - CONNECTION_STRING=mongodb://mongo:27017/myDrive
     env_file:
       - ./src/MVC/config/.env.development
     depends_on:
       - cpp-server
-      - mongo # 🚨 ADD THIS: Ensure DB starts before API
+      - mongo
 
   frontend:
     build: ./src/frontend
@@ -40,6 +39,23 @@ services:
       - ./src/frontend:/app
       - /app/node_modules
 
+  # 👇 MOBILE SERVICE USING .ENV FILE 👇
+  mobile:
+    build: ./src/Native
+    ports:
+      - "8081:8081"
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    # This tells Docker to load variables from your file
+    env_file:
+      - ./src/Native/.env
+    volumes:
+      - ./src/Native:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+
 volumes:
   files:
-  mongo-data: # 🚨 ADDED: This declaration is mandatory
+  mongo-data:
