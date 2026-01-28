@@ -5,8 +5,8 @@ import { ThemeProvider } from "../contexts/ThemeContext"; // <--- Import
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
      <UserProvider>
+      <ThemeProvider>
        <FilesProvider>
         {/* <--- Wrap it here */}
           <Stack screenOptions={{ headerShown: false }}>
@@ -16,7 +16,7 @@ export default function RootLayout() {
              <Stack.Screen name="[id]" />
           </Stack>
       </FilesProvider>
+      </ThemeProvider>
      </UserProvider>
-    </ThemeProvider>
   );
 }

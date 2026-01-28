@@ -21,14 +21,14 @@ const createJWT = async (req, res) => {
     // user exists give him a jwt
     const data = {
       email: connectedUsers[0].email,
-      userId: connectedUsers[0].id, // Assuming your user object has an id
+      userId: connectedUsers[0]._id, // Assuming your user object has an id
     };
     const token = jwt.sign(data, process.env.JWT_SECRET);
 
     // Send both to the frontend
     return res.status(201).json({
       token,
-      userId: connectedUsers[0].id,
+      userId: connectedUsers[0]._id,
     });
   }
   // user doesnt exist

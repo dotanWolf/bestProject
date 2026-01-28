@@ -172,7 +172,11 @@ export default function PermissionsModal({ visible, file, onClose }) {
               </TouchableOpacity>
             </View>
           )}
-
+          {!isOwner && (
+            <Text style={{ marginBottom: 10, color: "gray" }}>
+              You have {file.role} access
+            </Text>
+          )}
           {/* List of Users */}
           {loading ? (
             <ActivityIndicator />

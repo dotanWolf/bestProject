@@ -10,7 +10,7 @@ class UserService {
       error.statusCode = 404;
       throw error;
     }
-    return user.id;
+    return user._id;
   }
 
   async createUser(userData) {
@@ -32,7 +32,7 @@ class UserService {
     try {
       const newUser = await userRepository.create(userData);
       return {
-        userId: newUser.id,
+        userId: newUser._id,
         username: newUser.username,
       };
     } catch (error) {

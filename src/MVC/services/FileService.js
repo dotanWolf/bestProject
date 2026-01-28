@@ -20,7 +20,7 @@ class FileService {
         throw error;
       }
 
-      if (!this.hasEditAccess(folder, userId)) {
+      if (!await this.hasEditAccess(folder, userId)) {
         // user cant edit the folder, he cant add entries there
         const error = new Error("no access to add files to this folder");
         error.statusCode = 403;
@@ -137,7 +137,7 @@ class FileService {
       throw error;
     }
     // Check permissions
-    if (!this.hasEditAccess(file, userId)) {
+    if (!await this.hasEditAccess(file, userId)) {
       const error = new Error("Access denied");
       error.statusCode = 403;
       throw error;
