@@ -38,7 +38,19 @@ export default function Signup() {
     {
       header: "Email",
       placeholder: "Email",
-      validator: (input) => input && input.includes("@"),
+      validator: (email) => {
+        const indexOfAt = email.indexOf("@");
+        if (indexOfAt <= 0) {
+          // alert("wrong email format");
+          return false;
+        }
+        if (email.substr(indexOfAt + 1) !== "gmail.com") {
+          // alert("wrong email format");
+          return false;
+        }
+        return true;
+      },
+      // validator: (input) => input && input.includes("@"),
       invalidMessage: "Must be a valid email address",
     },
     {
