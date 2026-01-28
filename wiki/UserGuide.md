@@ -3,37 +3,25 @@ https://github.com/dotanWolf/bestProject.git
 about the project- This project is a fullStack Web + Mobile application developed using React, Bootstrap, and Node.js, designed to replicate the core functionality and user interface of Google Drive. The application features a dynamic React frontend that communicates with a RESTful server to manage real time data, including user authentication via JWT, file and folder organization, search functionality, and a toggleable dark/light theme.
 
 instruction to run the app:
-
-In order to run the app you need to open two terminals-
-
-The first one-
-use the following commands in the terminal:
-go to the root directory (bestProject)
-then run: docker-compose up --build
-This terminal is required to run the backend, database, and infrastructure.
-
-The second one-
-This terminal is required only if you want to test the Mobile version-
-Steps:
 In order for the mobile app to communicate with the server, you need to update the public IP.  
 Go to:
 src/Native/.env  
 And set:
 EXPO_PUBLIC_IP=<YOUR_PUBLIC_IP>
+REACT_NATIVE_PACKAGER_HOSTNAME=<YOUR_PUBLIC_IP>
 This IP must be reachable from your mobile device (phone + PC must be on the same network).
-
 1.
-![ip](images/imageIP.png)
+![ip](images/IP.png)
 
-PICTURE
+Afterwards:
 
-2. Navigate to the Native directory:
-![dir](images/image.png)
+open a terminal and use the following commands:
+go to the root directory (bestProject)
+then run: docker-compose up --build
+This terminal is required to run the backend, frontend, database, and infrastructure.
 
-3. Start the Expo development server using the command npx expo start --tunnel -c:
-![command](images/image-1.png)
-
-right afterwards tiy ganna see a QR code- scan it and the mobile application will launch automatically
+after the build a QR code is going to pop-
+scan it and the mobile application will launch automatically
 ![total](images/image-2.png)
 
 Now I gonna explain about the 2 versions-
