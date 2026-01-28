@@ -3,6 +3,7 @@ https://github.com/dotanWolf/bestProject.git
 about the project- This project is a fullStack Web + Mobile application developed using React, Bootstrap, and Node.js, designed to replicate the core functionality and user interface of Google Drive. The application features a dynamic React frontend that communicates with a RESTful server to manage real time data, including user authentication via JWT, file and folder organization, search functionality, and a toggleable dark/light theme.
 
 instruction to run the app:
+If you are using the Expo app-
 In order for the mobile app to communicate with the server, you need to update the public IP.  
 Go to:
 src/Native/.env  
