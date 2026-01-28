@@ -5,6 +5,7 @@ about the project- This project is a fullStack Web + Mobile application develope
 instruction to run the app:
 
 In order to run the app you need to open two terminals-
+
     The first one-
     use the following commands in the terminal:
     go to the root directory (bestProject)
