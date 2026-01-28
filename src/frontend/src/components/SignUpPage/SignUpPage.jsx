@@ -55,7 +55,7 @@ function SignUpPage() {
   const createUser = async (updatedInput) => {
     const user = {
       username: updatedInput[0],
-      email: updatedInput[1],
+      email: updatedInput[1].toLowerCase(),
       password: updatedInput[2],
       profileImage: updatedInput[3],
     };

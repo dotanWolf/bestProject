@@ -17,8 +17,9 @@ function LoginPage() {
       leftButtonText: "Sign Up",
       // LOGIN: Valid only if user EXISTS
       validator: async (input) => {
+        const email = input.toLowerCase().trim();
         const response = await fetch(
-          `http://localhost:8080/api/tokens/${input}`
+          `http://localhost:8080/api/tokens/${email}`
         );
         const result = await response.json();
         return result.exists === true;

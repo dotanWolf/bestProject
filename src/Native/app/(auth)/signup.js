@@ -126,7 +126,7 @@ export default function Signup() {
     setLoading(true);
     const user = {
       username: userInput[0],
-      email: userInput[1],
+      email: userInput[1].toLowerCase(),
       password: userInput[2],
       profileImage: base64Image || "placeholder",
     };

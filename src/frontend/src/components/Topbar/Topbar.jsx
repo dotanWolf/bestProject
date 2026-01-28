@@ -17,6 +17,16 @@ function TopBar({ isDarkMode, toggleTheme, user }) {
   const [query, setQuery] = useState("");
   const [showMenu, setShowMenu] = useState(false);
 
+  const getProfileSrc = (imgData) => {
+    if (!imgData) return ""; 
+    // If it already starts with "data:", don't add it again
+    if (imgData.startsWith("data:")) {
+      return imgData;
+    }
+    // Otherwise, add the prefix
+    return `data:image/jpeg;base64,${imgData}`;
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -110,7 +120,7 @@ function TopBar({ isDarkMode, toggleTheme, user }) {
           {user ? (
             <div className="profile-container" style={{ position: "relative" }}>
               <img
-                src={`data:image/jpeg;base64,${user.profileImage}`}
+                src={getProfileSrc(user.profileImage)}
                 alt="Profile"
                 onClick={() => setShowMenu(!showMenu)} // Toggle the menu
                 style={{
