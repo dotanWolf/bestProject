@@ -15,14 +15,14 @@ In order to run the app you need to open two terminals-
     The second one-
     This terminal is required only if you want to test the Mobile version-
     Steps:
-    1.IP CHANGE
+    1.![ip](images/imageIP.png)
     PICTURE
     2. Navigate to the Native directory:
-    ![dir](image.png)
+    ![dir](images/image.png)
     3. Start the Expo development server using the command npx expo start --tunnel -c:
     ![command](image-1.png)
     right afterwards tiy ganna see a QR code- scan it and the mobile application will launch automatically
-    ![total](image-2.png)
+    ![total](images/image-2.png)
 
 Now I gonna explain about the 2 versions-
 
