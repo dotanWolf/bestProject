@@ -9,8 +9,8 @@ instruction to run the code:
 use the following commands in the terminal:  
 go to the root directory (bestProject)  
 then run: docker-compose up --build  
-![project build](wiki/images/1.png)
-![project build](wiki/images/2.png)
+![project build](wiki/images/image-1.png)
+![project build](wiki/images/image-2.png)
 
 this will setup the cpp server then the webserver and finally the react project  
 then go over to http://localhost:5173/ to see the app
