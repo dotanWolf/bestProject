@@ -15,7 +15,7 @@ then run: docker-compose up --build
 this will setup the cpp server then the webserver and finally the react project  
 then go over to http://localhost:5173/ to see the app
 there you will be met with this page
-![landing page](wiki/images/3.png)  
+![landing page](wiki/images/WEB/3.png)  
  we will choose to sign up  
  ![signup-username](wiki/images/21.png)  
  ![signup-email](wiki/images/4.png)  
